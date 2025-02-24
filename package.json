@@ -1,0 +1,64 @@
+{
+    "author": "Moacyr Catani, Jr.",
+    "name": "package-callback-handler",
+    "description": "Handlers to deal with callback functions",
+    "version": "1.0.0",
+
+  
+    "license": "MIT",
+    "keywords": [
+        "callback",
+        "callbacks",
+        "parallel",
+        "parallel-execution",
+        "parallel-callbacks",
+        "sequential",
+        "sequential-execution",
+        "sequential-callbacks"
+    ],
+    "homepage": "https://github.com/moacyr-catani/node-package-callback-handler#readme",
+    "bugs": {
+        "url": "https://github.com/moacyr-catani/node-package-callback-handler/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/moacyr-catani/node-package-callback-handler.git"
+    },
+
+
+    "main": "./lib/cjs/index.js",
+    "types": "./lib/cjs/types/index.d.ts",
+    "exports": {
+        ".": {
+            "import": {
+                "types": "./lib/esm/types/index.d.ts",
+                "default": "./lib/esm/index.mjs"
+            },
+            "require": {
+                "types": "./lib/cjs/types/index.d.ts",
+                "default": "./lib/cjs/index.js"
+            }
+        }
+    },
+    "files": [
+        "lib/**/*"
+    ],
+
+
+    "scripts": {
+        "clean": "shx rm -rf ./lib",
+        "build": "npm run clean && npm run build:esm && npm run build:cjs",
+        "build:esm": "tsc -p ./configs/tsconfig.esm.json && shx mv lib/esm/index.js lib/esm/index.mjs",
+        "build:cjs": "tsc -p ./configs/tsconfig.cjs.json",
+        "debug": "tsc -p tsconfig.debug.json",
+        "prepack": "npm run build",
+        "test": "jest ./tests --verbose --coverage"
+    },
+    "devDependencies": {
+        "@types/jest": "^29.5.14",
+        "@types/node": "^22.13.5",
+        "jest": "^29.7.0",
+        "tsx": "^4.19.3",
+        "typescript": "^5.7.3"
+  }
+}
