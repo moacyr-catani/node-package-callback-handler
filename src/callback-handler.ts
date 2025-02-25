@@ -1,8 +1,10 @@
-import { CallTypes, 
-         CallsStruct, 
-         ParallelStruct, 
-         SequentialStruct } from "./calls-struct";
-
+import { CallTypes,
+         BaseStruct,
+         CallsStruct,
+         ParallelStruct,
+         RootStruct,
+         SequentialStruct }  from "./calls-struct";
+import { Result }            from "./result";
 
 
 export abstract class CB
@@ -14,8 +16,8 @@ export abstract class CB
     public static f(p_Fn:      Function, 
                     ...p_Args: any): CallsStruct;
     public static f(p_Param1:  string | Function, 
-            p_Param2:   any, 
-            ...p_Args:  any): CallsStruct
+                    p_Param2:   any, 
+                    ...p_Args:  any): CallsStruct
     {
 
         let strAlias: string;
@@ -37,19 +39,22 @@ export abstract class CB
 
         
         return {
-            Type:     CallTypes.Function,
-            Alias:    strAlias,
+            Type:      CallTypes.Function,
+            Alias:     strAlias,
             
-            Fn:       fnCall,
-            Args:     arrArgs,
+            Fn:        fnCall,
+            Args:      arrArgs,
             
-            Invoked:  false,
-            Error:    null,
-            Results:  null,
+            Invoked:   false,
+            Error:     null,
+            Results:   null,
             
-            Parent:   null,
-            Next:     null,
-            Previous: null
+            Parent:    null,
+            Next:      null,
+            Previous:  null,
+            Root:      null,
+
+            RootIndex: -1
         }
     }
 
@@ -60,7 +65,7 @@ export abstract class CB
     public static p(p_Alias:  string, 
                     ...p_Fns: Array<CallsStruct | ParallelStruct | SequentialStruct>): ParallelStruct;
     public static p(p_Param1: string | CallsStruct | ParallelStruct | SequentialStruct, 
-             ...p_Fns: Array<CallsStruct | ParallelStruct | SequentialStruct>): ParallelStruct
+                    ...p_Fns: Array<CallsStruct | ParallelStruct | SequentialStruct>): ParallelStruct
     {
         let strAlias:   string;
         let arrStructs: Array<any>;
@@ -79,8 +84,8 @@ export abstract class CB
 
         const structParallel: ParallelStruct = 
         {
-            Alias: strAlias,
-            Type:  CallTypes.Parallel,
+            Alias:    strAlias,
+            Type:     CallTypes.Parallel,
 
             Calls:    arrStructs,
             
@@ -90,7 +95,8 @@ export abstract class CB
             
             Parent:   null,
             Next:     null,
-            Previous: null
+            Previous: null,
+            Root:     null
         }
 
         // Set parent
@@ -100,30 +106,17 @@ export abstract class CB
         }
 
 
-        return {
-            Alias: strAlias,
-            Type:  CallTypes.Parallel,
-
-            Calls:    arrStructs,
-            
-            Invoked:  false,
-            Error:    null,
-            Results:  null,
-            
-            Parent:   null,
-            Next:     null,
-            Previous: null
-        }
+        return structParallel;
     }
 
 
 
 
-    public static s(...p_Fns: Array<CallsStruct | ParallelStruct | SequentialStruct>): ParallelStruct;
+    public static s(...p_Fns: Array<CallsStruct | ParallelStruct | SequentialStruct>): SequentialStruct;
     public static s(p_Alias:  string, 
-                    ...p_Fns: Array<CallsStruct | ParallelStruct | SequentialStruct>): ParallelStruct;
+                    ...p_Fns: Array<CallsStruct | ParallelStruct | SequentialStruct>): SequentialStruct;
     public static s(p_Param1: string | CallsStruct | ParallelStruct | SequentialStruct, 
-             ...p_Fns: Array<CallsStruct | ParallelStruct | SequentialStruct>): ParallelStruct
+                    ...p_Fns: Array<CallsStruct | ParallelStruct | SequentialStruct>): SequentialStruct
     {
         let strAlias:   string;
         let arrStructs: Array<any>;
@@ -140,7 +133,7 @@ export abstract class CB
         }
 
 
-        const structParallel: SequentialStruct = 
+        const structSequential: SequentialStruct = 
         {
             Alias: strAlias,
             Type:  CallTypes.Sequential,
@@ -153,53 +146,41 @@ export abstract class CB
             
             Parent:   null,
             Next:     null,
-            Previous: null
+            Previous: null,
+            Root:     null
         }
 
         // Set parent, previous, next
-        for (let intA = 0; intA < structParallel.Calls.length; intA++)
+        for (let intA = 0; intA < structSequential.Calls.length; intA++)
         {
-            const structCall: CallsStruct = <CallsStruct><unknown>structParallel.Calls[intA];
+            const structCall: CallsStruct = <CallsStruct><unknown>structSequential.Calls[intA];
 
             // Parent
-            structCall.Parent = <CallsStruct><unknown>structParallel;
+            structCall.Parent = <CallsStruct><unknown>structSequential;
 
             // Previous and next
-            if (intA < structParallel.Calls.length - 1)
-                structCall.Next = <CallsStruct><unknown>structParallel.Calls[intA + 1];
+            if (intA < structSequential.Calls.length - 1)
+                structCall.Next = <CallsStruct><unknown>structSequential.Calls[intA + 1];
             if (intA > 0)
-                structCall.Previous = <CallsStruct><unknown>structParallel.Calls[intA - 1];
+                structCall.Previous = <CallsStruct><unknown>structSequential.Calls[intA - 1];
         }
 
 
-        return {
-            Alias: strAlias,
-            Type:  CallTypes.Parallel,
-
-            Calls:    arrStructs,
-            
-            Invoked:  false,
-            Error:    null,
-            Results:  null,
-            
-            Parent:   null,
-            Next:     null,
-            Previous: null
-        }
+        return structSequential;
     }
 
 
 
 
     public static r(p_CallStruct:    ParallelStruct | SequentialStruct, 
-                    p_Timeout:       number): Promise<any>;
+                    p_Timeout:       number): Promise<Result>;
     public static r(p_CallStruct:    ParallelStruct | SequentialStruct, 
                     p_Timeout:       number,
-                    p_BreakOnError:  boolean): Promise<any>;
+                    p_BreakOnError:  boolean): Promise<Result>;
     public static r(p_CallStruct:    ParallelStruct | SequentialStruct, 
                     p_Timeout:       number,
                     p_BreakOnError:  boolean,
-                    p_Stats:         boolean): Promise<any>;
+                    p_Stats:         boolean): Promise<Result>;
     public static r(p_CallStruct:    ParallelStruct | SequentialStruct, 
                     p_Timeout:       number,
                     p_Callback: (p_Error: any) => void): void;
@@ -216,19 +197,19 @@ export abstract class CB
                     p_Timeout:       number,
                     p_Param3?:       boolean | Function,
                     p_Param4?:       boolean | Function,
-                    p_Param5?: (p_Error: any) => void): void | Promise<any>
+                    p_Param5?: (p_Error: any) => void): void | Promise<Result>
     {
         // Check params
         if (<unknown>p_CallStruct.Type !== CallTypes.Parallel &&
             <unknown>p_CallStruct.Type !== CallTypes.Sequential)
             throw new Error("Structure of calls must be of parallel or sequential types");
         if (p_Timeout < 0)
-            p_Timeout = 0;
+            p_Timeout = 5000;
 
 
 
         // Get overloaded params
-        let fnCallback:      Function,
+        let fnCallback:      Function | undefined,
             blnBreakOnError: boolean,
             blnStats:        boolean;
         
@@ -257,14 +238,115 @@ export abstract class CB
 
 
 
-        const objResult = {};
-        
+        // Root values
+        const structRoot: RootStruct = (<RootStruct><unknown>p_CallStruct);
+        structRoot.CallSize       = 0;
+
+
+        // Function to set root 
+        const fnSetRoot: Function = function(p_Root:               CallsStruct,
+                                             p_CallStructSetRoot?: CallsStruct | ParallelStruct | SequentialStruct): void
+        {
+            // If second parameter is absent, we are in root element
+            if (p_CallStructSetRoot)
+                p_CallStructSetRoot.Root = p_Root;
+            else
+                p_CallStructSetRoot = p_Root;
+
+
+            // Set root in children
+            if (p_CallStructSetRoot.Type === CallTypes.Parallel || 
+                p_CallStructSetRoot.Type === CallTypes.Sequential)
+            {
+                for (let structCallSetRoot of p_CallStructSetRoot.Calls)
+                {
+                    fnSetRoot(p_Root, structCallSetRoot);
+                }
+            }
+
+
+            // Set call position in main call struct
+            else if (p_CallStructSetRoot.Type === CallTypes.Function)
+            {
+                (<CallsStruct><unknown>p_CallStructSetRoot).RootIndex = ++(<RootStruct><unknown>p_Root).CallSize;
+            }
+        };
+
+
+        // Set root in children
+        fnSetRoot( p_CallStruct)
+
+
+        const prmsReturn: Promise<Result> = new Promise( (resolve, reject) =>
+        {
+//            resolve()
+            // Main result object
+            structRoot.MainResult = new Result(structRoot.CallSize,
+                                            () => { 
+                                                resolve(structRoot.MainResult);
+                                            });
 
 
 
+            CB.#Invoke(p_CallStruct);
+        });
+
+
+        if (!fnCallback)
+        {
+            return prmsReturn;
+        }
+        else
+        {
+            prmsReturn.then( value => fnCallback(null, value) );
+        }
     }
 
 
+
+    static #Invoke(p_Call: CallsStruct | ParallelStruct | SequentialStruct): void
+    {
+        const fnCallback: Function = function()
+        {
+            p_Call.Invoked = true;
+            p_Call.Error   = arguments[0];
+            p_Call.Results = Array.prototype.slice.call(arguments, 1);
+
+
+            (<RootStruct><unknown>p_Call.Root).MainResult.SetResult( (<CallsStruct>p_Call).RootIndex, 
+                                                                      p_Call.Alias, 
+                                                                      p_Call.Error, 
+                                                                      0, 
+                                                                      p_Call.Results);
+
+            if (p_Call.Next)
+            {
+                CB.#Invoke(p_Call.Next);
+            }
+        }
+
+
+        switch (p_Call.Type)
+        {
+            case CallTypes.Function:
+                setImmediate( () => p_Call.Fn(...p_Call.Args, fnCallback));
+                break;
+
+            case CallTypes.Parallel:
+                for (let call of p_Call.Calls)
+                {
+                    CB.#Invoke(call);
+                }
+                p_Call.Invoked = true;
+                break;
+
+            case CallTypes.Sequential:
+                CB.#Invoke(p_Call.Calls[0]);
+                p_Call.Invoked = true;
+                break;
+        }
+    }
+}
 
 
 

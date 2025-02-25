@@ -1,9 +1,14 @@
 {
-    "extends": "./configs/tsconfig.esm.json",
-    "compilerOptions": 
-    {
-      "outDir": "./dist",
-      "sourceMap": true,
-    },
-    "files": ["./debug/index.ts"]
+  "extends": "./configs/tsconfig.base.json",
+  "compilerOptions": 
+  {
+    "declarationDir": "./dist/types",
+    "lib": ["ES2022", "DOM"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "outDir": "./dist",
+    "sourceMap": true,
+    "target": "ES2022",
+  },
+  "files": ["./debug/index.ts"]
 }

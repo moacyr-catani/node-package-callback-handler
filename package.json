@@ -10,11 +10,7 @@
         "callback",
         "callbacks",
         "parallel",
-        "parallel-execution",
-        "parallel-callbacks",
-        "sequential",
-        "sequential-execution",
-        "sequential-callbacks"
+        "sequential"
     ],
     "homepage": "https://github.com/moacyr-catani/node-package-callback-handler#readme",
     "bugs": {

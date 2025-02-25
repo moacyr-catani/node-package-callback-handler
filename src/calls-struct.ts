@@ -1,3 +1,7 @@
+import { Result } from "./result";
+
+
+
 export enum CallTypes
 {
     Function   = "F",
@@ -7,7 +11,7 @@ export enum CallTypes
 
 
 
-type BaseStruct =
+export type BaseStruct =
 {
     Type:     CallTypes;
     Alias:    string;
@@ -19,8 +23,14 @@ type BaseStruct =
     Parent:   CallsStruct | null;
     Next:     CallsStruct | null;
     Previous: CallsStruct | null;
+    Root:     CallsStruct | null;
 }
 
+export type RootStruct = BaseStruct &
+{
+    MainResult:     Result;
+    CallSize:       number
+}
 
 export type ParallelStruct = BaseStruct &
 {
@@ -36,25 +46,8 @@ export type SequentialStruct = BaseStruct &
 
 export type CallsStruct = BaseStruct &
 {
-    Type:     CallTypes.Function;
-    Fn:       Function;
-    Args?:    any;
-}
-
-
-
-const seq: SequentialStruct = 
-{
-    Alias:    "",
-    Type:     CallTypes.Sequential,
-
-    Invoked:  false,
-    Calls:    [],
-
-    Error:    null,
-    Results:  null,
-
-    Next:     null,
-    Parent:   null,
-    Previous: null
+    Type:      CallTypes.Function;
+    Fn:        Function;
+    Args?:     any;
+    RootIndex: number;
 }
