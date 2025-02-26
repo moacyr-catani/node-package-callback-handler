@@ -6,12 +6,23 @@ import { CB } from "./../src/callback-handler";
 
 const fnTeste = (p_Value: string, p_Callback: Function) =>
 {
-    
+    // Up to 1/2 second before function returns
+    const intTimeout: number = Math.random() * 500;
+
+
     setTimeout( () =>
     {
         console.log(p_Value);
-        p_Callback(null, p_Value);
-    }, Math.random() * 5000);
+        p_Callback(null, p_Value + " returned from callback");
+    }, 
+    intTimeout);
+
+    //throw new Error("error ---");
+
+
+    // console.log(p_Value);
+    // p_Callback(null, p_Value + " returned from callback");
+
 }
 
 
@@ -41,6 +52,13 @@ const calls   = CB.p( "Parallel calls 1" ,
 CB.r(calls, 2000)
 .then ( objResult => 
 {
-    console.log(objResult.ByAlias("alias"));
-    console.log(util.inspect(calls, {showHidden: true, depth: 4}));
+    //console.log(objResult);
+    //console.log(objResult.ByAlias("alias"));
+    console.log(objResult.ByPosition(2));
+    console.log(objResult.ByPosition(3));
+    //console.log(util.inspect(calls, {showHidden: true, depth: 4}));
+})
+.catch ( (p_Exception) =>
+{
+    console.log(p_Exception);
 }); 
