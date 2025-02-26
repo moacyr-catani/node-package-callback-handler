@@ -9,6 +9,18 @@ import { CBException,
 
 
 
+export const PREVIOUS_ERROR   = Symbol("PREVIOUS_ERROR");
+export const PREVIOUS_RESULT1 = Symbol("PREVIOUS_RESULT1");
+export const PREVIOUS_RESULT2 = Symbol("PREVIOUS_RESULT2");
+export const PREVIOUS_RESULT3 = Symbol("PREVIOUS_RESULT3");
+export const PREVIOUS_RESULT4 = Symbol("PREVIOUS_RESULT4");
+export const PREVIOUS_RESULT5 = Symbol("PREVIOUS_RESULT5");
+export const PREVIOUS_RESULT6 = Symbol("PREVIOUS_RESULT6");
+export const PREVIOUS_RESULT7 = Symbol("PREVIOUS_RESULT7");
+export const PREVIOUS_RESULT8 = Symbol("PREVIOUS_RESULT8");
+export const PREVIOUS_RESULT9 = Symbol("PREVIOUS_RESULT9");
+
+
 export abstract class CB
 {
 
@@ -41,22 +53,23 @@ export abstract class CB
 
         
         return {
-            Type:      CallTypes.Function,
-            Alias:     strAlias,
+            Type:        CallTypes.Function,
+            Alias:       strAlias,
             
-            Fn:        fnCall,
-            Args:      arrArgs,
+            Fn:          fnCall,
+            Args:        arrArgs,
             
-            Invoked:   false,
-            Error:     null,
-            Results:   null,
+            Invoked:     false,
+            Error:       null,
+            Results:     null,
             
-            Parent:    null,
-            Next:      null,
-            Previous:  null,
-            Root:      null,
+            Parent:      null,
+            Next:        null,
+            Previous:    null,
+            Root:        null,
 
-            RootIndex: -1
+            RootIndex:   -1,
+            ParentIndex: -1
         }
     }
 
@@ -86,25 +99,29 @@ export abstract class CB
 
         const structParallel: ExecStruct = 
         {
-            Alias:    strAlias,
-            Type:     CallTypes.Parallel,
+            Alias:       strAlias,
+            Type:        CallTypes.Parallel,
+  
+            Calls:       arrStructs,
+            CallCount:   0,
+              
+            Invoked:     false,
+            Errors:      [],
+            Results:     [],
+              
+            Parent:      null,
+            Next:        null,
+            Previous:    null,
+            Root:        null,
 
-            Calls:    arrStructs,
-            
-            Invoked:  false,
-            Error:    null,
-            Results:  null,
-            
-            Parent:   null,
-            Next:     null,
-            Previous: null,
-            Root:     null
+            ParentIndex: -1,
+            RootIndex:   -1,
         }
 
         // Set parent
         for (let structCall of structParallel.Calls)
         {
-            structCall.Parent = <CallsStruct><unknown>structParallel;
+            structCall.Parent = structParallel;
         }
 
 
@@ -137,19 +154,23 @@ export abstract class CB
 
         const structSequential: ExecStruct = 
         {
-            Alias: strAlias,
-            Type:  CallTypes.Sequential,
-
-            Calls:    arrStructs,
-            
-            Invoked:  false,
-            Error:    null,
-            Results:  null,
-            
-            Parent:   null,
-            Next:     null,
-            Previous: null,
-            Root:     null
+            Alias:       strAlias,
+            Type:        CallTypes.Sequential,
+  
+            Calls:       arrStructs,
+            CallCount:   0,
+              
+            Invoked:     false,
+            Errors:      [],
+            Results:     [],
+              
+            Parent:      null,
+            Next:        null,
+            Previous:    null,
+            Root:        null,
+  
+            ParentIndex: -1,
+            RootIndex:   -1,
         }
 
 
@@ -159,7 +180,7 @@ export abstract class CB
             const structCall: CallsStruct = <CallsStruct><unknown>structSequential.Calls[intA];
 
             // Parent
-            structCall.Parent = <CallsStruct><unknown>structSequential;
+            structCall.Parent = structSequential;
 
             // Previous and next
             if (intA < structSequential.Calls.length - 1)
@@ -258,12 +279,12 @@ export abstract class CB
 
             // Root values
             const structRoot: RootStruct = (<RootStruct><unknown>p_CallStruct);
-            structRoot.CallSize   = 0;
+            let   intCalls:   number = -1;
             structRoot.PlainCalls = [];
 
 
             // Function to set root 
-            const fnSetRoot: Function = function(p_Root:               CallsStruct,
+            const fnSetRoot: Function = function(p_Root:               ExecStruct,
                                                  p_CallStructSetRoot?: CallsStruct | ExecStruct ): void
             {
                 // If second parameter is absent, we are in root element
@@ -279,6 +300,10 @@ export abstract class CB
                 structRoot.PlainCalls.push(p_CallStructSetRoot);
 
 
+                // Set call position in main call struct
+                (<CallsStruct><unknown>p_CallStructSetRoot).RootIndex = ++intCalls;
+
+
                 // Set root in children
                 if (p_CallStructSetRoot.Type === CallTypes.Parallel || 
                     p_CallStructSetRoot.Type === CallTypes.Sequential)
@@ -287,13 +312,6 @@ export abstract class CB
                     {
                         fnSetRoot(p_Root, structCallSetRoot);
                     }
-                }
-
-
-                // Set call position in main call struct
-                else if (p_CallStructSetRoot.Type === CallTypes.Function)
-                {
-                    (<CallsStruct><unknown>p_CallStructSetRoot).RootIndex = ++(<RootStruct><unknown>p_Root).CallSize;
                 }
             };
 
@@ -380,6 +398,7 @@ export abstract class CB
             return;
 
 
+
         // Callback function
         const fnCallback: Function = function()
         {
@@ -388,18 +407,22 @@ export abstract class CB
                 return;
 
 
-            // No error, store results ....
-            if (!p_Call.Exception)
-            {
-                p_Call.Invoked = true;
-                p_Call.Error   = arguments[0];
-                p_Call.Results = Array.prototype.slice.call(arguments, 1);
+            // Unboxing
+            const structCallCallback: CallsStruct = <CallsStruct>p_Call;
 
-                objResult.SetResult!( (<CallsStruct>p_Call).RootIndex, 
-                                       p_Call.Alias, 
-                                       p_Call.Error, 
-                                       0, 
-                                       p_Call.Results);
+
+            // No error, store results ....
+            if (!structCallCallback.Exception)
+            {
+                structCallCallback.Invoked = true;
+                structCallCallback.Error   = arguments[0];
+                structCallCallback.Results = Array.prototype.slice.call(arguments, 1);
+
+                objResult.SetResult!( structCallCallback.RootIndex, 
+                                      structCallCallback.Alias, 
+                                      structCallCallback.Error, 
+                                      0, 
+                                      structCallCallback.Results);
 
                 // Invoke next call in sequence struct
                 if (p_Call.Next)
@@ -416,6 +439,11 @@ export abstract class CB
         }
 
 
+
+        if (p_Call.Parent)
+            p_Call.ParentIndex = ++p_Call.Parent.CallCount;
+
+
         switch (p_Call.Type)
         {
             case CallTypes.Function:
@@ -423,6 +451,12 @@ export abstract class CB
                 {
                     try
                     {
+                        // Check args for tokens
+                        if (p_Call.Parent!.Type === CallTypes.Sequential)
+                        {
+
+                        }
+
                         p_Call.Fn(...p_Call.Args, fnCallback);
                     }
                     catch (p_Exception)
@@ -448,5 +482,7 @@ export abstract class CB
                 p_Call.Invoked = true;
                 break;
         }
+
+
     }
 }

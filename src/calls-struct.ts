@@ -13,38 +13,50 @@ export enum CallTypes
 
 export type BaseStruct =
 {
-    Type:       CallTypes;
-    Alias:      string;
+    Type:        CallTypes;
+    Alias:       string; 
 
-    Error:      any | null;
-    Exception?: any;
-    Invoked:    boolean;
-    Results:    any[] | null;
 
-    Parent:     CallsStruct | null;
-    Next:       CallsStruct | null;
-    Previous:   CallsStruct | null;
-    Root:       CallsStruct | null;
+    Exception?:  any;
+    Invoked:     boolean;
+    
+
+    Parent:      ExecStruct | null;
+    Next:        ExecStruct | CallsStruct | null;
+    Previous:    ExecStruct | CallsStruct | null;
+    Root:        ExecStruct | null;
+
+    RootIndex:   number;
+    ParentIndex: number;
 }
 
-export type RootStruct = BaseStruct &
+
+
+export type ExecStruct = BaseStruct &
+{
+    Type:      CallTypes.Parallel | CallTypes.Sequential;
+    Calls:     CallsStruct[],
+    CallCount: number,
+    Errors:    any[];
+    Results:   any[];
+}
+
+
+
+export type RootStruct = ExecStruct &
 {
     Break?:     boolean;
-    CallSize:   number
     MainResult: Result;
     PlainCalls: Array<ExecStruct | CallsStruct>;
 }
 
-export type ExecStruct = BaseStruct &
-{
-    Type:     CallTypes.Parallel | CallTypes.Sequential;
-    Calls:    CallsStruct[]
-}
 
 export type CallsStruct = BaseStruct &
 {
-    Type:      CallTypes.Function;
-    Fn:        Function;
-    Args?:     any;
-    RootIndex: number;
+    Type:        CallTypes.Function;
+    Fn:          Function;
+    Args?:       any;
+    
+    Error:       any | null;
+    Results:     any[] | null;
 }

@@ -14,6 +14,7 @@ const fnTeste = (p_Value: string, p_Callback: Function) =>
     {
         console.log(p_Value);
         p_Callback(null, p_Value + " returned from callback");
+        //p_Callback(null, p_Value + " returned from callback");
     }, 
     intTimeout);
 
@@ -54,9 +55,14 @@ CB.r(calls, 2000)
 {
     //console.log(objResult);
     //console.log(objResult.ByAlias("alias"));
-    console.log(objResult.ByPosition(2));
-    console.log(objResult.ByPosition(3));
+    //console.log(objResult.ByPosition(2));
+    //console.log(objResult.ByPosition(3));
     //console.log(util.inspect(calls, {showHidden: true, depth: 4}));
+
+    for (let intA = 0; intA < objResult.CallsCount; intA++)
+    {
+        console.log(objResult[intA]);
+    }
 })
 .catch ( (p_Exception) =>
 {
