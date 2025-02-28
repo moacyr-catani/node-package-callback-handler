@@ -50,19 +50,19 @@ const calls   = CB.p( "Parallel calls 1" ,
                 );
 
 
-CB.r(calls, 2000)
+CB.r(calls, 5000)
 .then ( objResult => 
 {
-    //console.log(objResult);
+    console.log(objResult);
     //console.log(objResult.ByAlias("alias"));
     //console.log(objResult.ByPosition(2));
     //console.log(objResult.ByPosition(3));
     //console.log(util.inspect(calls, {showHidden: true, depth: 4}));
 
-    for (let intA = 0; intA < objResult.CallsCount; intA++)
-    {
-        console.log(objResult[intA]);
-    }
+    // for (let intA = 0; intA < objResult.Count; intA++)
+    // {
+    //     console.log(objResult[intA]);
+    // }
 })
 .catch ( (p_Exception) =>
 {

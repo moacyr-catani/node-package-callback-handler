@@ -441,7 +441,7 @@ export abstract class CB
 
 
         if (p_Call.Parent)
-            p_Call.ParentIndex = ++p_Call.Parent.CallCount;
+            p_Call.ParentIndex = p_Call.Parent.CallCount++;
 
 
         switch (p_Call.Type)

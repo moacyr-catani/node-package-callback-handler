@@ -3,7 +3,7 @@ import { CBException, CBExceptions } from "./exceptions";
 
 
 
-export class CallResult
+export class FunctionResult
 {
     constructor(p_Error: any, p_Results: any)
     {
@@ -27,36 +27,52 @@ export class CallResult
 
 
 
-export class ExecStructResult
+class BaseStructResult
 {
-    constructor()
+    constructor(p_CallsCount: number)
     {
-        this.#_Errors  = [];
-        this.#_Results = [];
-
-        Object.seal(this);
+        this.#_Count = p_CallsCount;
     }
 
 
     // Private holders
-    #_Errors:  any[];
-    #_Results: any[];
+    #_Count: number;
 
 
 
     // Public properties
-    public get Errors():  any { return this.#_Errors}
-    public get Results(): any { return this.#_Results}
-
-
-
-    // Public methods
-    public AddResult(p_Index: number, p_Error: any, p_Results: any)
+    public get Count(): number
     {
-        this.#_Errors[p_Index]  = p_Error;
-        this.#_Results[p_Index] = p_Results;
+        return this.#_Count;
+    }
+
+
+    [key:number]: FunctionResult | BaseStructResult;
+
+
+
+    [Symbol.iterator]() 
+    {
+        let index = 0;
+        const data = this;
+        return {
+            next() 
+            {
+                if (index <= data.Count) 
+                    return { value: data[index++], done: false };
+                else 
+                    return { done: true };
+            }
+        }
     }
 }
+
+
+
+class ParallelResult   extends BaseStructResult {}
+
+
+class SequentialResult extends BaseStructResult {}
 
 
 
@@ -68,14 +84,15 @@ export class Result
                 p_StopOnError: boolean,
                 p_onFinish:    Function)
     {
-        this.#_CallsCount  = p_RootStruct.PlainCalls.length;
-        this.#_onFinish    = p_onFinish;
-        this.#_RootStruct  = p_RootStruct;
-        this.#_StopOnError = p_StopOnError;
+        this._CallsCount  = p_RootStruct.PlainCalls.filter( structCall => structCall.Type === CallTypes.Function).length;
+        this.#_Count      = p_RootStruct.PlainCalls.length;
+        this._onFinish    = p_onFinish;
+        this._RootStruct  = p_RootStruct;
+        this._StopOnError = p_StopOnError;
 
-        this.#_CallResults = new Array(this.#_CallsCount).fill(false);
+        this._CallResults = new Array(this.#_Count).fill(false);
 
-        this.#_TimeoutPtr  = setTimeout(() =>
+        this._TimeoutPtr  = setTimeout(() =>
                                         { 
                                             this.#_Finish(undefined, true);
                                         },
@@ -89,17 +106,17 @@ export class Result
 
     #_Error:        boolean = false;
     #_Timeout:      boolean = false;
+    #_AliasResult:  Record<string, FunctionResult | ParallelResult | SequentialResult   > = {};
+    #_Count:        number = 0;
 
-    #_AliasResult:  Record<string, CallResult> = {};
-    #_CallResults:  Array<boolean>;
 
-    #_StopOnError:  boolean = false;
-    #_ResultsCount: number = 0;
-    #_CallsCount:   number = 0;
-
-    #_onFinish:     Function;
-    #_RootStruct:   RootStruct;
-    #_TimeoutPtr:   NodeJS.Timeout;
+    private _CallsCount?:   number;
+    private _CallResults?:  Array<boolean>;
+    private _onFinish?:     Function;
+    private _ResultsCount?: number = 0;
+    private _RootStruct?:   RootStruct;
+    private _StopOnError?:  boolean = false;
+    private _TimeoutPtr?:   NodeJS.Timeout;
 
     // #endregion
     // ----------------------------------------------------------------------------------------------------------------
@@ -112,9 +129,9 @@ export class Result
     // #region Public properties
     // ----------------------------------------------------------------------------------------------------------------
 
-    public get CallsCount(): number
+    public get Count(): number
     {
-        return this.#_CallsCount;
+        return this.#_Count;
     }
 
 
@@ -133,7 +150,7 @@ export class Result
 
 
 
-    [key:number]: CallResult | ExecStructResult;
+    [key:number]: FunctionResult | BaseStructResult;
 
 
 
@@ -144,7 +161,7 @@ export class Result
         return {
             next() 
             {
-                if (index <= data.CallsCount) 
+                if (index <= data.Count) 
                     return { value: data[index++], done: false };
                 else 
                     return { done: true };
@@ -170,35 +187,48 @@ export class Result
         if (p_Timeout)
             this.#_Timeout = true;
 
-        clearTimeout(this.#_TimeoutPtr);
+        clearTimeout(this._TimeoutPtr);
 
         delete this.SetException;
         delete this.SetResult;
+        delete this._CallsCount;
+        delete this._CallResults;
+        delete this._ResultsCount
+        delete this._RootStruct;
+        delete this._StopOnError;
+        delete this._TimeoutPtr;
 
-        this.#_onFinish(p_Exception);
+        this._onFinish!(p_Exception);
+        delete this._onFinish;
     }
 
 
 
-    #_SetParentResult(p_Parent:      ExecStruct | null, 
-                      p_ParentIndex: number,
-                      p_Error:       any,
-                      p_Results:     any[]|null): void
+    #_SetParentResult(p_CallStruct: CallsStruct | ExecStruct): void
     {
         // Set parent results and errors
-        if (p_Parent)
+        if (p_CallStruct.Parent)
         {
-            if (!this[p_Parent.RootIndex])
-                this[p_Parent.RootIndex] = new ExecStructResult();
+            if (!this[p_CallStruct.Parent.RootIndex])
+            {
+                if (p_CallStruct.Parent.Type === CallTypes.Parallel)
+                    this[p_CallStruct.Parent.RootIndex] = new ParallelResult(p_CallStruct.Parent.Calls.length);
+                else
+                    this[p_CallStruct.Parent.RootIndex] = new SequentialResult(p_CallStruct.Parent.Calls.length);
+            }
 
-            (<ExecStructResult>this[p_Parent.RootIndex]).AddResult(p_ParentIndex,
-                                                                   p_Error,
-                                                                   p_Results);
 
-            this.#_SetParentResult(p_Parent.Parent,
-                                   p_Parent.ParentIndex,
-                                   p_Error,
-                                   p_Results);
+            // Check alias
+            if (p_CallStruct.Parent.Alias !== "")
+                this.#_AliasResult[p_CallStruct.Parent.Alias] = this[p_CallStruct.Parent.RootIndex];
+
+            
+            // Set value at parent position
+            (<BaseStructResult>this[p_CallStruct.Parent.RootIndex])[p_CallStruct.ParentIndex] = this[p_CallStruct.RootIndex];
+
+
+            // Check parent
+            this.#_SetParentResult(p_CallStruct.Parent);
         }
     }
 
@@ -213,14 +243,14 @@ export class Result
     // #region Public methods
     // ----------------------------------------------------------------------------------------------------------------
 
-    public ByAlias(p_Alias: string): CallResult
+    public ByAlias(p_Alias: string): FunctionResult | ParallelResult | SequentialResult
     {
         return this.#_AliasResult[p_Alias];
     }
 
     
 
-    public ByPosition(p_Position: number): CallResult | ExecStructResult
+    public ByPosition(p_Position: number): FunctionResult | BaseStructResult
     {
         return this[p_Position];
 
@@ -252,18 +282,18 @@ export class Result
                       p_Results: any[] | null): void
     {
         // Check if result has already been set
-        if (this.#_CallResults[p_Index])
+        if (this._CallResults![p_Index])
         {
             this.SetException!(p_Index, p_Alias, new CBException(CBExceptions.ResultAlreadySet));
             return;
         }
         else
-            this.#_CallResults[p_Index] = true;
+            this._CallResults![p_Index] = true;
 
 
 
         // Result
-        const objResult: CallResult = new CallResult(p_Error, p_Results);
+        const objResult: FunctionResult = new FunctionResult(p_Error, p_Results);
 
 
 
@@ -279,11 +309,8 @@ export class Result
 
 
         // Set parent result
-        const callStruct = this.#_RootStruct.PlainCalls[p_Index]
-        this.#_SetParentResult(callStruct.Parent, 
-                               callStruct.ParentIndex,
-                               p_Error,
-                               p_Results);
+        const callStruct = this._RootStruct!.PlainCalls[p_Index]
+        this.#_SetParentResult(callStruct);
 
 
 
@@ -292,19 +319,19 @@ export class Result
         {
             this.#_Error = true;
 
-            if (this.#_StopOnError)
+            if (this._StopOnError)
                 this.#_Finish();
         }
 
 
 
         // Increment # calls that returned
-        this.#_ResultsCount++;
+        this._ResultsCount!++;
 
 
 
         // If all calls returned, finish 
-        if (this.#_ResultsCount >= this.#_CallsCount)
+        if (this._ResultsCount! >= this._CallsCount!)
             this.#_Finish();
     }
 
