@@ -12,6 +12,8 @@ export enum CBExceptions
     InternalError            = 1,
     ExecutionException       = 2,
     ResultAlreadySet         = 3,
+    TokenInFirstCall         = 4,
+
 }
 
 
@@ -20,9 +22,10 @@ export enum CBExceptions
 const ERRORS_DETAILS: Record<CBExceptions, TError> = 
 {
     [CBExceptions.NoError]:                  {message: "No error"},
-    [CBExceptions.InternalError]:            {message: "Internal error ocurred",        explanation: "Something unexpected happened. Check baseException property to get more info"},
-    [CBExceptions.ExecutionException]:       {message: "Execution exception",           explanation: "An exception was thrown during the execution of call struct"},
-    [CBExceptions.ResultAlreadySet]:         {message: "Result was set more than once", explanation: "A callback function was invoked more than onde, creating double results for a call"},
+    [CBExceptions.InternalError]:            {message: "Internal error ocurred",             explanation: "Something unexpected happened. Check baseException property to get more info"},
+    [CBExceptions.ExecutionException]:       {message: "Execution exception",                explanation: "An exception was thrown during the execution of call struct"},
+    [CBExceptions.ResultAlreadySet]:         {message: "Result was set more than once",      explanation: "A callback function was invoked more than onde, creating double results for a call"},
+    [CBExceptions.TokenInFirstCall]:         {message: "Invalid use of token in first call", explanation: "You've tried to use a token to access previous result in the first call, which has no previous result to access"},
 };
 
 

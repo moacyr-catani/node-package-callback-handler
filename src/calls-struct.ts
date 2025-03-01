@@ -55,7 +55,7 @@ export type CallsStruct = BaseStruct &
 {
     Type:        CallTypes.Function;
     Fn:          Function;
-    Args?:       any;
+    Args:        any[];
     
     Error:       any | null;
     Results:     any[] | null;

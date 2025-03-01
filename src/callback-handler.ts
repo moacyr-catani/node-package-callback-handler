@@ -9,29 +9,42 @@ import { CBException,
 
 
 
-export const PREVIOUS_ERROR   = Symbol("PREVIOUS_ERROR");
-export const PREVIOUS_RESULT1 = Symbol("PREVIOUS_RESULT1");
-export const PREVIOUS_RESULT2 = Symbol("PREVIOUS_RESULT2");
-export const PREVIOUS_RESULT3 = Symbol("PREVIOUS_RESULT3");
-export const PREVIOUS_RESULT4 = Symbol("PREVIOUS_RESULT4");
-export const PREVIOUS_RESULT5 = Symbol("PREVIOUS_RESULT5");
-export const PREVIOUS_RESULT6 = Symbol("PREVIOUS_RESULT6");
-export const PREVIOUS_RESULT7 = Symbol("PREVIOUS_RESULT7");
-export const PREVIOUS_RESULT8 = Symbol("PREVIOUS_RESULT8");
-export const PREVIOUS_RESULT9 = Symbol("PREVIOUS_RESULT9");
 
 
 export abstract class CB
 {
 
+    // ----------------------------------------------------------------------------------------------------------------
+    // #region Tokens
+    // ----------------------------------------------------------------------------------------------------------------
+
+    public static readonly PREVIOUS_ERROR   = Symbol("PREVIOUS_ERROR");
+    public static readonly PREVIOUS_RESULT1 = Symbol("PREVIOUS_RESULT1");
+    public static readonly PREVIOUS_RESULT2 = Symbol("PREVIOUS_RESULT2");
+    public static readonly PREVIOUS_RESULT3 = Symbol("PREVIOUS_RESULT3");
+    public static readonly PREVIOUS_RESULT4 = Symbol("PREVIOUS_RESULT4");
+    public static readonly PREVIOUS_RESULT5 = Symbol("PREVIOUS_RESULT5");
+    public static readonly PREVIOUS_RESULT6 = Symbol("PREVIOUS_RESULT6");
+    public static readonly PREVIOUS_RESULT7 = Symbol("PREVIOUS_RESULT7");
+    public static readonly PREVIOUS_RESULT8 = Symbol("PREVIOUS_RESULT8");
+    public static readonly PREVIOUS_RESULT9 = Symbol("PREVIOUS_RESULT9");
+
+    // #endregion
+    // ----------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
     public static f(p_Alias:   string,   
                     p_Fn:      Function, 
-                    ...p_Args: any): CallsStruct;
+                    ...p_Args: any[]): CallsStruct;
     public static f(p_Fn:      Function, 
-                    ...p_Args: any): CallsStruct;
+                    ...p_Args: any[]): CallsStruct;
     public static f(p_Param1:  string | Function, 
                     p_Param2:   any, 
-                    ...p_Args:  any): CallsStruct
+                    ...p_Args:  any[]): CallsStruct
     {
 
         let strAlias: string;
@@ -178,6 +191,41 @@ export abstract class CB
         for (let intA = 0; intA < structSequential.Calls.length; intA++)
         {
             const structCall: CallsStruct = <CallsStruct><unknown>structSequential.Calls[intA];
+
+
+            // Check tokens in first function
+            if (0 === intA && structCall.Args)
+            {
+                if 
+                (
+                    structCall.Args.some(varArg => 
+                    {
+                        if 
+                        (
+                            "symbol" === typeof varArg &&
+                            (
+                                varArg === CB.PREVIOUS_ERROR ||
+                                varArg === CB.PREVIOUS_RESULT1 ||
+                                varArg === CB.PREVIOUS_RESULT2 ||
+                                varArg === CB.PREVIOUS_RESULT3 ||
+                                varArg === CB.PREVIOUS_RESULT4 ||
+                                varArg === CB.PREVIOUS_RESULT5 ||
+                                varArg === CB.PREVIOUS_RESULT6 ||
+                                varArg === CB.PREVIOUS_RESULT7 ||
+                                varArg === CB.PREVIOUS_RESULT8 ||
+                                varArg === CB.PREVIOUS_RESULT9 
+                            )
+                        )
+                        {
+                            return true;
+                        }
+                    })
+                )
+                {
+                    throw new CBException(CBExceptions.TokenInFirstCall);
+                }
+            }
+
 
             // Parent
             structCall.Parent = structSequential;
@@ -433,7 +481,7 @@ export abstract class CB
             else
             {
                 objResult.SetException!( (<CallsStruct>p_Call).RootIndex, 
-                                          p_Call.Alias, 
+                                          p_Call.Alias,     
                                           p_Call.Exception);
             }
         }
@@ -454,6 +502,7 @@ export abstract class CB
                         // Check args for tokens
                         if (p_Call.Parent!.Type === CallTypes.Sequential)
                         {
+                            
 
                         }
 
