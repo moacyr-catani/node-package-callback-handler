@@ -28,7 +28,7 @@ const fnTeste = (p_Value: string, p_Callback: Function) =>
 
 
 
-const fnTeste2 = (p_Value: string, p_PreviousError: any, p_Callback: Function) =>
+const fnTeste2 = (p_Value: string, p_PreviousResult1: any, p_Callback: Function) =>
 {
     // Up to 1/2 second before function returns
     const intTimeout: number = Math.random() * 500;
@@ -36,8 +36,8 @@ const fnTeste2 = (p_Value: string, p_PreviousError: any, p_Callback: Function) =
 
     setTimeout( () =>
     {
-        console.log(p_Value);
-        p_Callback(null, p_Value + p_PreviousError + " returned from callback");
+        console.log(p_Value + " " + p_PreviousResult1);
+        p_Callback(null, p_Value + p_PreviousResult1 + " returned from callback");
         //p_Callback(null, p_Value + " returned from callback");
     }, 
     intTimeout);
@@ -68,13 +68,13 @@ try
                         ),
                         CB.s ( "Sequential call 2",
                                 CB.f ("alias", fnTeste, "S5"),
-                                CB.f (fnTeste2, "S6", CB.PREVIOUS_ERROR),
+                                CB.f (fnTeste2, "S6", CB.PREVIOUS_RESULT1),
                                 CB.f (fnTeste, "S7")
                         )
                     );
 
 
-    CB.r(calls, 500000)
+    CB.r(calls, 5000)
     .then ( objResult => 
     {
         console.log(objResult);

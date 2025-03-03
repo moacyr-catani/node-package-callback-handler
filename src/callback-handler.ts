@@ -1,5 +1,4 @@
 import { CallTypes,
-         BaseStruct,
          CallsStruct,
          ExecStruct,
          RootStruct}         from "./calls-struct";
@@ -13,7 +12,6 @@ import { CBException,
 
 export abstract class CB
 {
-
     // ----------------------------------------------------------------------------------------------------------------
     // #region Tokens
     // ----------------------------------------------------------------------------------------------------------------
@@ -29,12 +27,31 @@ export abstract class CB
     public static readonly PREVIOUS_RESULT8 = Symbol("PREVIOUS_RESULT8");
     public static readonly PREVIOUS_RESULT9 = Symbol("PREVIOUS_RESULT9");
 
+
+    static #_Tokens: Symbol[] = 
+    [
+        CB.PREVIOUS_ERROR,
+        CB.PREVIOUS_RESULT1,
+        CB.PREVIOUS_RESULT2,
+        CB.PREVIOUS_RESULT3,
+        CB.PREVIOUS_RESULT4,
+        CB.PREVIOUS_RESULT5,
+        CB.PREVIOUS_RESULT6,
+        CB.PREVIOUS_RESULT7,
+        CB.PREVIOUS_RESULT8,
+        CB.PREVIOUS_RESULT9,
+    ]
+
     // #endregion
     // ----------------------------------------------------------------------------------------------------------------
 
 
 
 
+
+    // ----------------------------------------------------------------------------------------------------------------
+    // #region Public methods
+    // ----------------------------------------------------------------------------------------------------------------
 
 
     public static f(p_Alias:   string,   
@@ -50,7 +67,9 @@ export abstract class CB
         let strAlias: string;
         let fnCall:   Function;
         let arrArgs:  Array<any>;
+        let blnToken: boolean = false;
     
+
         if ("string" === typeof p_Param1)
         {
             strAlias = p_Param1;
@@ -64,6 +83,15 @@ export abstract class CB
             arrArgs  = [ p_Param2, ...p_Args ];
         }
 
+
+        // Check for tokens
+        if (
+            p_Args.length > 0 &&
+            p_Args.some(varArg => CB.#_Tokens.includes(varArg)))
+        {
+            blnToken = true;
+        }
+        
         
         return {
             Type:        CallTypes.Function,
@@ -82,9 +110,12 @@ export abstract class CB
             Root:        null,
 
             RootIndex:   -1,
-            ParentIndex: -1
+            ParentIndex: -1,
+
+            UseToken:    blnToken
         }
     }
+
 
 
 
@@ -119,6 +150,7 @@ export abstract class CB
             CallCount:   0,
               
             Invoked:     false,
+            Error:       false,
             Errors:      [],
             Results:     [],
               
@@ -131,115 +163,23 @@ export abstract class CB
             RootIndex:   -1,
         }
 
-        // Set parent
+
+        // Set parent and check tokens validity
         for (let structCall of structParallel.Calls)
         {
+            // Set parent
             structCall.Parent = structParallel;
+
+
+            // Check tokens in first function
+            if (structCall.UseToken)
+                throw new CBException(CBExceptions.TokenInParallelCall);
         }
 
 
         return structParallel;
     }
 
-
-
-
-    public static s(...p_Fns: Array<CallsStruct | ExecStruct >): ExecStruct;
-    public static s(p_Alias:  string, 
-                    ...p_Fns: Array<CallsStruct | ExecStruct >): ExecStruct;
-    public static s(p_Param1: string | CallsStruct | ExecStruct, 
-                    ...p_Fns: Array<CallsStruct | ExecStruct >): ExecStruct
-    {
-        let strAlias:   string;
-        let arrStructs: Array<any>;
-    
-        if ("string" === typeof p_Param1)
-        {
-            strAlias   = p_Param1;
-            arrStructs = [ ...p_Fns ];
-        }
-        else
-        {
-            strAlias   = ""
-            arrStructs = [ p_Param1, ...p_Fns ];
-        }
-
-
-        const structSequential: ExecStruct = 
-        {
-            Alias:       strAlias,
-            Type:        CallTypes.Sequential,
-  
-            Calls:       arrStructs,
-            CallCount:   0,
-              
-            Invoked:     false,
-            Errors:      [],
-            Results:     [],
-              
-            Parent:      null,
-            Next:        null,
-            Previous:    null,
-            Root:        null,
-  
-            ParentIndex: -1,
-            RootIndex:   -1,
-        }
-
-
-        // Set parent, previous, next
-        for (let intA = 0; intA < structSequential.Calls.length; intA++)
-        {
-            const structCall: CallsStruct = <CallsStruct><unknown>structSequential.Calls[intA];
-
-
-            // Check tokens in first function
-            if (0 === intA && structCall.Args)
-            {
-                if 
-                (
-                    structCall.Args.some(varArg => 
-                    {
-                        if 
-                        (
-                            "symbol" === typeof varArg &&
-                            (
-                                varArg === CB.PREVIOUS_ERROR ||
-                                varArg === CB.PREVIOUS_RESULT1 ||
-                                varArg === CB.PREVIOUS_RESULT2 ||
-                                varArg === CB.PREVIOUS_RESULT3 ||
-                                varArg === CB.PREVIOUS_RESULT4 ||
-                                varArg === CB.PREVIOUS_RESULT5 ||
-                                varArg === CB.PREVIOUS_RESULT6 ||
-                                varArg === CB.PREVIOUS_RESULT7 ||
-                                varArg === CB.PREVIOUS_RESULT8 ||
-                                varArg === CB.PREVIOUS_RESULT9 
-                            )
-                        )
-                        {
-                            return true;
-                        }
-                    })
-                )
-                {
-                    throw new CBException(CBExceptions.TokenInFirstCall);
-                }
-            }
-
-
-            // Parent
-            structCall.Parent = structSequential;
-
-            // Previous and next
-            if (intA < structSequential.Calls.length - 1)
-                structCall.Next = <CallsStruct><unknown>structSequential.Calls[intA + 1];
-            if (intA > 0)
-                structCall.Previous = <CallsStruct><unknown>structSequential.Calls[intA - 1];
-        }
-
-
-        return structSequential;
-    }
 
 
 
@@ -435,12 +375,96 @@ export abstract class CB
 
 
 
+
+
+    public static s(...p_Fns: Array<CallsStruct | ExecStruct >): ExecStruct;
+    public static s(p_Alias:  string, 
+                    ...p_Fns: Array<CallsStruct | ExecStruct >): ExecStruct;
+    public static s(p_Param1: string | CallsStruct | ExecStruct, 
+                    ...p_Fns: Array<CallsStruct | ExecStruct >): ExecStruct
+    {
+        let strAlias:   string;
+        let arrStructs: Array<any>;
+    
+        if ("string" === typeof p_Param1)
+        {
+            strAlias   = p_Param1;
+            arrStructs = [ ...p_Fns ];
+        }
+        else
+        {
+            strAlias   = ""
+            arrStructs = [ p_Param1, ...p_Fns ];
+        }
+
+
+        const structSequential: ExecStruct = 
+        {
+            Alias:       strAlias,
+            Type:        CallTypes.Sequential,
+  
+            Calls:       arrStructs,
+            CallCount:   0,
+              
+            Invoked:     false,
+            Error:       false,
+            Errors:      [],
+            Results:     [],
+              
+            Parent:      null,
+            Next:        null,
+            Previous:    null,
+            Root:        null,
+  
+            ParentIndex: -1,
+            RootIndex:   -1,
+        }
+
+
+        // Set parent, previous, next and check tokens validity
+        for (let intA = 0; intA < structSequential.Calls.length; intA++)
+        {
+            const structCall: CallsStruct = <CallsStruct><unknown>structSequential.Calls[intA];
+
+
+            // Check tokens in first function
+            if (intA === 0 && structCall.UseToken)
+                throw new CBException(CBExceptions.TokenInFirstCall);
+            
+
+            // Parent
+            structCall.Parent = structSequential;
+
+
+            // Previous and next
+            if (intA < structSequential.Calls.length - 1)
+                structCall.Next = <CallsStruct><unknown>structSequential.Calls[intA + 1];
+            if (intA > 0)
+                structCall.Previous = <CallsStruct><unknown>structSequential.Calls[intA - 1];
+        }
+
+
+        return structSequential;
+    }
+
+    // #endregion
+    // ----------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+    // ----------------------------------------------------------------------------------------------------------------
+    // #region Private methods
+    // ----------------------------------------------------------------------------------------------------------------
+
     static #Invoke(p_Call: CallsStruct | ExecStruct ): void
     {
         const objRoot:   RootStruct = (<RootStruct><unknown>p_Call.Root);
         const objResult: Result     = (<RootStruct><unknown>p_Call.Root).MainResult;
 
-7        
+
+        
         // Ignore if execution was broken
         if (objRoot.Break)
             return;
@@ -459,7 +483,7 @@ export abstract class CB
             const structCallCallback: CallsStruct = <CallsStruct>p_Call;
 
 
-            // No error, store results ....
+            // No error, store results ...
             if (!structCallCallback.Exception)
             {
                 structCallCallback.Invoked = true;
@@ -488,8 +512,10 @@ export abstract class CB
 
 
 
+        // Set position in parent structure
         if (p_Call.Parent)
             p_Call.ParentIndex = p_Call.Parent.CallCount++;
+
 
 
         switch (p_Call.Type)
@@ -500,11 +526,80 @@ export abstract class CB
                     try
                     {
                         // Check args for tokens
-                        if (p_Call.Parent!.Type === CallTypes.Sequential)
+                        if (p_Call.Parent!.Type === CallTypes.Sequential &&
+                            p_Call.UseToken)
                         {
-                            
+                            let intResult: number = -1;
 
+
+                            // Substitute token for previous result
+                            for (let intA = 0; intA < p_Call.Args.length; intA++)
+                            {
+                                const varArg: any = p_Call.Args[intA];
+
+                                if ("symbol" === typeof varArg)
+                                {
+                                    switch (varArg)
+                                    {
+                                        // Error
+                                        case CB.PREVIOUS_ERROR:
+                                            p_Call.Args[intA] = p_Call.Previous!.Error;
+                                            break;
+
+
+                                        // Results
+                                        case CB.PREVIOUS_RESULT1: 
+                                            intResult = 0;
+                                            break;
+
+                                        case CB.PREVIOUS_RESULT2: 
+                                            intResult = 1;
+                                            break;
+
+                                        case CB.PREVIOUS_RESULT3: 
+                                            intResult = 2;
+                                            break;
+
+                                        case CB.PREVIOUS_RESULT4: 
+                                            intResult = 3;
+                                            break;
+
+                                        case CB.PREVIOUS_RESULT5: 
+                                            intResult = 4;
+                                            break;
+
+                                        case CB.PREVIOUS_RESULT6: 
+                                            intResult = 5;
+                                            break;
+
+                                        case CB.PREVIOUS_RESULT7: 
+                                            intResult = 6;
+                                            break;
+
+                                        case CB.PREVIOUS_RESULT8: 
+                                            intResult = 7;
+                                            break;
+
+                                        case CB.PREVIOUS_RESULT9: 
+                                            intResult = 8;
+                                            break;
+                                    }
+
+
+                                    // Substitute result
+                                    if (intResult > -1)
+                                    {
+                                        // Check if result exists
+                                        if ("undefined" === typeof p_Call.Previous!.Results![intResult])
+                                            throw new CBException(CBExceptions.InvalidTokenResult);
+                                        
+                                        // Change arg value
+                                        p_Call.Args[intA] = p_Call.Previous!.Results![intResult];
+                                    }
+                                }
+                            }
                         }
+
 
                         p_Call.Fn(...p_Call.Args, fnCallback);
                     }
@@ -517,6 +612,7 @@ export abstract class CB
                 break;
 
 
+
             case CallTypes.Parallel:
                 for (let call of p_Call.Calls)
                 {
@@ -526,12 +622,14 @@ export abstract class CB
                 break;
 
 
+
             case CallTypes.Sequential:
                 CB.#Invoke(p_Call.Calls[0]);
                 p_Call.Invoked = true;
                 break;
         }
-
-
     }
+
+    // #endregion
+    // ----------------------------------------------------------------------------------------------------------------
 }

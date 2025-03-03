@@ -37,6 +37,7 @@ export type ExecStruct = BaseStruct &
     Type:      CallTypes.Parallel | CallTypes.Sequential;
     Calls:     CallsStruct[],
     CallCount: number,
+    Error:     boolean;
     Errors:    any[];
     Results:   any[];
 }
@@ -56,6 +57,7 @@ export type CallsStruct = BaseStruct &
     Type:        CallTypes.Function;
     Fn:          Function;
     Args:        any[];
+    UseToken:    boolean;
     
     Error:       any | null;
     Results:     any[] | null;

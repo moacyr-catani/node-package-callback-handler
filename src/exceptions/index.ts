@@ -13,7 +13,8 @@ export enum CBExceptions
     ExecutionException       = 2,
     ResultAlreadySet         = 3,
     TokenInFirstCall         = 4,
-
+    TokenInParallelCall      = 5,
+    InvalidTokenResult       = 6
 }
 
 
@@ -22,10 +23,12 @@ export enum CBExceptions
 const ERRORS_DETAILS: Record<CBExceptions, TError> = 
 {
     [CBExceptions.NoError]:                  {message: "No error"},
-    [CBExceptions.InternalError]:            {message: "Internal error ocurred",             explanation: "Something unexpected happened. Check baseException property to get more info"},
-    [CBExceptions.ExecutionException]:       {message: "Execution exception",                explanation: "An exception was thrown during the execution of call struct"},
-    [CBExceptions.ResultAlreadySet]:         {message: "Result was set more than once",      explanation: "A callback function was invoked more than onde, creating double results for a call"},
-    [CBExceptions.TokenInFirstCall]:         {message: "Invalid use of token in first call", explanation: "You've tried to use a token to access previous result in the first call, which has no previous result to access"},
+    [CBExceptions.InternalError]:            {message: "Internal error ocurred",                explanation: "Something unexpected happened. Check baseException property to get more info"},
+    [CBExceptions.ExecutionException]:       {message: "Execution exception",                   explanation: "An exception was thrown during the execution of call struct"},
+    [CBExceptions.ResultAlreadySet]:         {message: "Result was set more than once",         explanation: "A callback function was invoked more than onde, creating double results for a call"},
+    [CBExceptions.TokenInFirstCall]:         {message: "Invalid use of token in first call",    explanation: "You've tried to use a token to access previous result in the first call, which has no previous result to access"},
+    [CBExceptions.TokenInParallelCall]:      {message: "Invalid use of token in parallel call", explanation: "You've tried to use a token to access previous result in a parallel call, which is invalid"},
+    [CBExceptions.InvalidTokenResult]:       {message: "Invalid use of token result",           explanation: "You've tried to use a token to access previous result, but previous call has not such result in array"},
 };
 
 
