@@ -1,10 +1,11 @@
 import { CallTypes,
          CallsStruct,
          ExecStruct,
-         RootStruct}         from "./calls-struct";
-import { Result }            from "./result";
+         RootStruct }    from "./calls-struct";
+import { InternalResult,
+         Result }        from "./result";
 import { CBException,
-         CBExceptions }      from "./exceptions"
+         CBExceptions }  from "./exceptions"
 
 
 
@@ -120,7 +121,45 @@ export abstract class CB
 
 
 
+    /**
+     * Creates a struct of functions to be executed in parallel
+     * ```js
+     * const structParallel = CB.p (
+     *   CB.f (fn1, arg1),   // 🠄 Function struct
+     *   CB.f (fn2, arg2),   // 🠄 Function struct
+     *   CB.s (              // 🠄 Sequential struct
+     *     CB.f (fn3, arg3), //   🠄 Function struct
+     *     CB.f (fn4, arg4)  //   🠄 Function struct
+     * ));
+     * ```
+     * Create a function struct with {@link CB.f}
+     * 
+     * `fn1` and `fn2` will be executed in parallel.
+     * 
+     * `fn3` and `fn4` will be executed in sequence.
+     * 
+     * The sequential structure (`fn3`, `fn4`) will be executed in parallel with the previous `fn1` and `fn2`.
+     * 
+     * @param p_Fns Functions structs to be executed in parallel
+     * @returns A struct {@link ExecStruct} representing functions to be executed in parallel
+     */
     public static p(...p_Fns: Array<CallsStruct | ExecStruct>): ExecStruct;
+    /**
+     * Creates a struct of functions to be executed in parallel
+     * ```js
+     * const structParallel = CB.p (
+     *   CB.f (fn1, arg1),   // 🠄 Function struct
+     *   CB.f (fn2, arg2),   // 🠄 Function struct
+     *   CB.s (              // 🠄 Sequential struct
+     *     CB.f (fn3, arg3), //   🠄 Function struct
+     *     CB.f (fn4, arg4)  //   🠄 Function struct
+     * ));
+     * ```
+     * Create a function struct with {@link CB.f}
+     * @param {string} p_Alias A unique name to retrieve results of this struct
+     * @param p_Fns Functions structs to be executed in parallel. 
+     * @returns A struct ({@link ExecStruct}) representing functions to be executed in parallel
+     */
     public static p(p_Alias:  string, 
                     ...p_Fns: Array<CallsStruct | ExecStruct>): ExecStruct;
     public static p(p_Param1: string | CallsStruct | ExecStruct, 
@@ -184,32 +223,38 @@ export abstract class CB
 
 
 
-    public static r(p_CallStruct:    ExecStruct, 
+    /**
+     * Executes a parallel or sequential struct of functions with callbacks
+     * @param p_CallStruct Struct with functions to be executed.
+     *                     Create a struct with {@link CB.p} (for parallel functions) or {@link CB.s} (for sequential functions).
+     * @param p_Timeout Maximum time (in milliseconds) for execution to complete
+     */
+    public static e(p_CallStruct:    ExecStruct, 
                     p_Timeout:       number): Promise<Result>;
-    public static r(p_CallStruct:    ExecStruct, 
+    public static e(p_CallStruct:    ExecStruct, 
                     p_Timeout:       number,
                     p_BreakOnError:  boolean): Promise<Result>;
-    public static r(p_CallStruct:    ExecStruct, 
+    public static e(p_CallStruct:    ExecStruct, 
                     p_Timeout:       number,
                     p_BreakOnError:  boolean,
                     p_Stats:         boolean): Promise<Result>;
-    public static r(p_CallStruct:    ExecStruct, 
+    public static e(p_CallStruct:    ExecStruct, 
                     p_Timeout:       number,
-                    p_Callback:      (p_Result: Result) => void): void;
-    public static r(p_CallStruct:    ExecStruct, 
+                    p_Callback:      (p_Error: any, p_Result: Result) => void): void;
+    public static e(p_CallStruct:    ExecStruct, 
                     p_Timeout:       number,
                     p_BreakOnError:  boolean,
-                    p_Callback:      (p_Result: Result) => void): void;
-    public static r(p_CallStruct:    ExecStruct, 
+                    p_Callback:      (p_Error: any, p_Result: Result) => void): void;
+    public static e(p_CallStruct:    ExecStruct, 
                     p_Timeout:       number,
                     p_BreakOnError:  boolean,
                     p_Stats:         boolean,
-                    p_Callback:      (p_Result: Result) => void): void
-    public static r(p_CallStruct:    ExecStruct, 
+                    p_Callback:      (p_Error: any, p_Result: Result) => void): void
+    public static e(p_CallStruct:    ExecStruct, 
                     p_Timeout:       number,
                     p_Param3?:       boolean | Function,
                     p_Param4?:       boolean | Function,
-                    p_Param5?:       (p_Result: Result) => void): void | Promise<Result>
+                    p_Param5?:       (p_Error: any, p_Result: Result) => void): void | Promise<Result>
     {
         try
         {
@@ -326,7 +371,7 @@ export abstract class CB
 
                     // Resolve
                     if (!p_Exception)
-                        resolve(structRoot.MainResult);
+                        resolve(structRoot.MainResult.GetResult());
 
 
                     // Reject
@@ -341,10 +386,10 @@ export abstract class CB
 
 
                 // Main result object
-                structRoot.MainResult = new Result(structRoot,
-                                                   p_Timeout,
-                                                   blnBreakOnError,
-                                                   onFinish);
+                structRoot.MainResult = new InternalResult(structRoot,
+                                                           p_Timeout,
+                                                           blnBreakOnError,
+                                                           onFinish);
 
                 // Initiate calls
                 CB.#Invoke(p_CallStruct);
@@ -360,8 +405,7 @@ export abstract class CB
 
             // ... invoke callback function
             else
-                prmsReturn.then( value => fnCallback(null, value) );
-        
+                prmsReturn.then( value => fnCallback(undefined, value) );
         }
 
         catch (p_Exception)
@@ -376,8 +420,20 @@ export abstract class CB
 
 
 
-
+    /**
+     * Creates a struct of functions to be executed in sequence
+     * @param p_Fns Functions structs to be executed in sequence
+     * 
+     *              Create a function struct with {@link CB.f}
+     */
     public static s(...p_Fns: Array<CallsStruct | ExecStruct >): ExecStruct;
+    /**
+     * Creates a struct of functions to be executed in sequence
+     * @param p_Alias A unique name to retrieve results of this struct
+     * @param {...(CallsStruct | ExecStruct)} p_Fns One or more function structs to be executed in sequence
+     * 
+     *              Create a function struct with {@link CB.f}
+     */
     public static s(p_Alias:  string, 
                     ...p_Fns: Array<CallsStruct | ExecStruct >): ExecStruct;
     public static s(p_Param1: string | CallsStruct | ExecStruct, 
@@ -460,8 +516,8 @@ export abstract class CB
 
     static #Invoke(p_Call: CallsStruct | ExecStruct ): void
     {
-        const objRoot:   RootStruct = (<RootStruct><unknown>p_Call.Root);
-        const objResult: Result     = (<RootStruct><unknown>p_Call.Root).MainResult;
+        const objRoot:   RootStruct     = (<RootStruct><unknown>p_Call.Root);
+        const objResult: InternalResult = (<RootStruct><unknown>p_Call.Root).MainResult;
 
 
         
@@ -605,7 +661,8 @@ export abstract class CB
                     }
                     catch (p_Exception)
                     {
-                        p_Call.Exception = new CBException(CBExceptions.ExecutionException, <Error>p_Exception);
+                        p_Call.Exception = p_Exception;
+                        fnCallback();
                     }
                 });
 

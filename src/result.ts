@@ -7,7 +7,7 @@ import { CBException,
 
 
 
-         
+
 export class FunctionResult
 {
     constructor(p_Error: any, p_Results: any)
@@ -74,15 +74,15 @@ class BaseStructResult
 
 
 
-class ParallelResult   extends BaseStructResult {}
+export class ParallelResult   extends BaseStructResult {}
 
 
-class SequentialResult extends BaseStructResult {}
+export class SequentialResult extends BaseStructResult {}
 
 
 
 
-export class Result 
+export class InternalResult 
 {
     constructor(p_RootStruct:  RootStruct,
                 p_Timeout:     number,
@@ -111,7 +111,7 @@ export class Result
 
     #_Error:        boolean = false;
     #_Timeout:      boolean = false;
-    #_AliasResult:  Record<string, FunctionResult | ParallelResult | SequentialResult   > = {};
+    #_AliasResult:  Record<string, FunctionResult | ParallelResult | SequentialResult> = {};
     #_Count:        number = 0;
 
 
@@ -122,6 +122,7 @@ export class Result
     private _RootStruct?:   RootStruct;
     private _StopOnError?:  boolean = false;
     private _TimeoutPtr?:   NodeJS.Timeout;
+    #_Finished: boolean = false;
 
     // #endregion
     // ----------------------------------------------------------------------------------------------------------------
@@ -133,6 +134,13 @@ export class Result
     // ----------------------------------------------------------------------------------------------------------------
     // #region Public properties
     // ----------------------------------------------------------------------------------------------------------------
+
+    public get AliasResult(): Record<string, FunctionResult | ParallelResult | SequentialResult>
+    {
+        return this.#_AliasResult;
+    }
+
+
 
     public get Count(): number
     {
@@ -189,22 +197,17 @@ export class Result
     #_Finish(p_Exception?: Error,
              p_Timeout?:   boolean): void
     {
-        if (p_Timeout)
-            this.#_Timeout = true;
+        if (! this.#_Finished)
+        {
+            if (p_Timeout)
+                this.#_Timeout = true;
 
-        clearTimeout(this._TimeoutPtr);
+            clearTimeout(this._TimeoutPtr);
 
-        delete this.SetException;
-        delete this.SetResult;
-        delete this._CallsCount;
-        delete this._CallResults;
-        delete this._ResultsCount
-        delete this._RootStruct;
-        delete this._StopOnError;
-        delete this._TimeoutPtr;
+            this._onFinish!(p_Exception);
 
-        this._onFinish!(p_Exception);
-        delete this._onFinish;
+            this.#_Finished = true;
+        }
     }
 
 
@@ -248,28 +251,14 @@ export class Result
     // #region Public methods
     // ----------------------------------------------------------------------------------------------------------------
 
-    public ByAlias(p_Alias: string): FunctionResult | ParallelResult | SequentialResult
+    public GetResult(): Result
     {
-        return this.#_AliasResult[p_Alias];
-    }
-
-    
-
-    public ByPosition(p_Position: number): FunctionResult | BaseStructResult
-    {
-        return this[p_Position];
-
-        // const structCall: CallsStruct | ExecStruct = this.#_RootStruct.PlainCalls[p_Position];
-
-        // if (structCall.Type === CallTypes.Function)
-        //     return new CallResult(structCall.Error, structCall.Results);
-        // else
-        //     return new CallResult(structCall.Errors, structCall.Results);
+        return new Result(this);
     }
 
 
 
-    public SetException?(p_Index:     number, 
+    public SetException(p_Index:     number, 
                          p_Alias:     string, 
                          p_Exception: Error)
     {
@@ -280,7 +269,7 @@ export class Result
 
 
 
-    public SetResult?(p_Index:   number, 
+    public SetResult(p_Index:   number, 
                       p_Alias:   string, 
                       p_Error:   any, 
                       p_Stats:   number, 
@@ -343,4 +332,105 @@ export class Result
     // #endregion
     // ----------------------------------------------------------------------------------------------------------------
 
+}
+
+
+
+
+export class Result 
+{
+    constructor(p_InternalResult: InternalResult)
+    {
+        this.#_AliasResult = p_InternalResult.AliasResult;
+        this.#_Count       = p_InternalResult.Count;
+        this.#_Error       = p_InternalResult.Error;
+        this.#_Timeout     = p_InternalResult.Timeout;
+
+        for (let intA = 0; intA < p_InternalResult.Count; intA++)
+        {
+            this[intA] = p_InternalResult[intA];
+        }
+    }
+
+
+
+
+    // ----------------------------------------------------------------------------------------------------------------
+    // #region Private fields
+    // ----------------------------------------------------------------------------------------------------------------
+
+    #_AliasResult:  Record<string, FunctionResult | ParallelResult | SequentialResult   > = {};
+    #_Count:        number = 0;
+    #_Error:        boolean = false;
+    #_Timeout:      boolean = false;
+
+    // #endregion
+    // ----------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+    // ----------------------------------------------------------------------------------------------------------------
+    // #region Public properties
+    // ----------------------------------------------------------------------------------------------------------------
+
+    public get Count(): number
+    {
+        return this.#_Count;
+    }
+
+
+
+    public get Error(): boolean
+    {
+        return this.#_Error;
+    }
+
+
+
+    public get Timeout(): boolean
+    {
+        return this.#_Timeout;
+    }
+
+
+
+    [key:number]: FunctionResult | BaseStructResult;
+
+
+
+    [Symbol.iterator]() 
+    {
+        let index = 0;
+        const data = this;
+        return {
+            next() 
+            {
+                if (index <= data.Count) 
+                    return { value: data[index++], done: false };
+                else 
+                    return { done: true };
+            }
+        }
+    }
+
+    // #endregion
+    // ----------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+    // ----------------------------------------------------------------------------------------------------------------
+    // #region Public methods
+    // ----------------------------------------------------------------------------------------------------------------
+
+    public ByAlias(p_Alias: string): FunctionResult | ParallelResult | SequentialResult
+    {
+        return this.#_AliasResult[p_Alias];
+    }
+
+    // #endregion
+    // ----------------------------------------------------------------------------------------------------------------
 }

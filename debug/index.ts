@@ -1,5 +1,6 @@
 import util from "node:util";
-import { CB } from "./../src/callback-handler";
+import { CB, 
+         Result } from "./../src";
 
 
 
@@ -52,6 +53,9 @@ const fnTeste2 = (p_Value: string, p_PreviousResult1: any, p_Callback: Function)
 
 try
 {
+    CB.p("",)
+//util.getCallSites()
+
     const calls   = CB.p( "Parallel calls 1" ,
                         CB.f (fnTeste, "P1"),
                         CB.f (fnTeste, "P2"),
@@ -74,11 +78,11 @@ try
                     );
 
 
-    CB.r(calls, 5000)
+    CB.e(calls, 5000)
     .then ( objResult => 
     {
         console.log(objResult);
-        //console.log(objResult.ByAlias("alias"));
+        console.log(objResult.ByAlias("alias"));
         //console.log(objResult.ByPosition(2));
         //console.log(objResult.ByPosition(3));
         //console.log(util.inspect(calls, {showHidden: true, depth: 4}));

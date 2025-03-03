@@ -1,4 +1,4 @@
-import { Result } from "./result";
+import { InternalResult } from "./result";
 
 
 
@@ -47,7 +47,7 @@ export type ExecStruct = BaseStruct &
 export type RootStruct = ExecStruct &
 {
     Break?:     boolean;
-    MainResult: Result;
+    MainResult: InternalResult;
     PlainCalls: Array<ExecStruct | CallsStruct>;
 }
 
