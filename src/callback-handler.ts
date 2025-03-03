@@ -265,7 +265,7 @@ export abstract class CB
             // Check params
             if (<unknown>p_CallStruct.Type !== CallTypes.Parallel &&
                 <unknown>p_CallStruct.Type !== CallTypes.Sequential)
-                throw new Error("Structure of calls must be of parallel or sequential types");
+                throw new CBException(CBExceptions.InvalidStructToExecute);
             if (p_Timeout < 0)
                 p_Timeout = 5000;
 

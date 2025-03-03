@@ -5,7 +5,17 @@ import { CB,
          SequentialResult }  from "../src";
 import { fnTest, 
          fnTestException, 
+         fnTestPrevious0, 
          fnTestPrevious1, 
+         fnTestPrevious2, 
+         fnTestPrevious3, 
+         fnTestPrevious4, 
+         fnTestPrevious5,
+         fnTestPrevious6,
+         fnTestPrevious7,
+         fnTestPrevious8,
+         fnTestPrevious9,
+         fnTestPreviousError,
          fnTestWithError, 
          fnTestWithTimeout } from "./callback-functions";
 
@@ -57,6 +67,47 @@ describe ("Async result", ()=>
         .toBeFalsy();
     })
 
+
+
+    test ("Parallel with no alias", async () =>
+    {
+        const arrExec: string[] = [];
+
+        const calls =   CB.p (
+                            CB.f (fnTestWithTimeout, arrExec, 1200, "P1"),
+                            CB.f (fnTestWithTimeout, arrExec, 1100, "P2"),
+                            CB.f (fnTestWithTimeout, arrExec, 1000, "P3"),
+                            CB.f (fnTestWithTimeout, arrExec,  900, "P4"),
+                            CB.f (fnTestWithTimeout, arrExec,  800, "P5"),
+                            CB.f (fnTestWithTimeout, arrExec,  700, "P6"),
+                            CB.f ("fn7",
+                                  fnTestWithTimeout, arrExec,  600, "P7"),
+                        );
+
+
+        const objResult: Result = await CB.e(calls, 5000);
+
+        expect(objResult.Timeout)
+        .toBe(false);
+
+        expect(objResult.Error)
+        .toBe(false);
+
+        expect(arrExec[0])
+        .toBe("P7");
+
+        expect(arrExec[3])
+        .toBe("P4");
+        
+        expect(arrExec[6])
+        .toBe("P1");
+
+        expect( objResult.ByAlias("fn7").Results[0])
+        .toBe("P7 returned from callback");
+
+        expect( objResult[1].Error)
+        .toBeFalsy();
+    })
 
 
 
@@ -113,15 +164,28 @@ describe ("Async result", ()=>
         const arrExec: string[] = [];
 
         const calls =   CB.s( "Sequential calls 1" ,
-                            CB.f (fnTestWithTimeout, arrExec, 200, "S1"),
-                            CB.f (fnTestWithTimeout, arrExec, 100, "S2"),
-                            CB.f (fnTestWithTimeout, arrExec, 300, "S3"),
-                            CB.f (fnTestWithTimeout, arrExec,  50, "S4"),
-                            CB.f (fnTestWithTimeout, arrExec,  20, "S5"),
-                            CB.f ("previous",
-                                  fnTestPrevious1,   arrExec, "S6", CB.PREVIOUS_RESULT1),
-                            CB.f ("fn7",
-                                  fnTestWithTimeout, arrExec,  20, "S7"),
+                            CB.f ("previous0",
+                                  fnTestPrevious0,   arrExec, "S0"),
+                            CB.f ("previous1",
+                                  fnTestPrevious1,   arrExec, "S1", CB.PREVIOUS_RESULT1),
+                            CB.f ("previous2",
+                                  fnTestPrevious2,   arrExec, "S2", CB.PREVIOUS_RESULT1, CB.PREVIOUS_RESULT2),
+                            CB.f ("previous3",
+                                  fnTestPrevious3,   arrExec, "S3", CB.PREVIOUS_RESULT1, CB.PREVIOUS_RESULT2, CB.PREVIOUS_RESULT3),
+                            CB.f ("previous4",
+                                  fnTestPrevious4,   arrExec, "S4", CB.PREVIOUS_RESULT1, CB.PREVIOUS_RESULT2, CB.PREVIOUS_RESULT3, CB.PREVIOUS_RESULT4),
+                            CB.f ("previous5",
+                                  fnTestPrevious5,   arrExec, "S5", CB.PREVIOUS_RESULT1, CB.PREVIOUS_RESULT2, CB.PREVIOUS_RESULT3, CB.PREVIOUS_RESULT4, CB.PREVIOUS_RESULT5),
+                            CB.f ("previous6",
+                                  fnTestPrevious6,   arrExec, "S6", CB.PREVIOUS_RESULT1, CB.PREVIOUS_RESULT2, CB.PREVIOUS_RESULT3, CB.PREVIOUS_RESULT4, CB.PREVIOUS_RESULT5, CB.PREVIOUS_RESULT6),
+                            CB.f ("previous7",
+                                  fnTestPrevious7,   arrExec, "S7", CB.PREVIOUS_RESULT1, CB.PREVIOUS_RESULT2, CB.PREVIOUS_RESULT3, CB.PREVIOUS_RESULT4, CB.PREVIOUS_RESULT5, CB.PREVIOUS_RESULT6, CB.PREVIOUS_RESULT7),
+                            CB.f ("previous8",
+                                  fnTestPrevious8,   arrExec, "S8", CB.PREVIOUS_RESULT1, CB.PREVIOUS_RESULT2, CB.PREVIOUS_RESULT3, CB.PREVIOUS_RESULT4, CB.PREVIOUS_RESULT5, CB.PREVIOUS_RESULT6, CB.PREVIOUS_RESULT7, CB.PREVIOUS_RESULT8),
+                            CB.f ("previous9",
+                                  fnTestPrevious9,   arrExec, "S9", CB.PREVIOUS_RESULT1, CB.PREVIOUS_RESULT2, CB.PREVIOUS_RESULT3, CB.PREVIOUS_RESULT4, CB.PREVIOUS_RESULT5, CB.PREVIOUS_RESULT6, CB.PREVIOUS_RESULT7, CB.PREVIOUS_RESULT8, CB.PREVIOUS_RESULT9),
+                            CB.f ("previous_Error",
+                                  fnTestPreviousError, arrExec, "E", CB.PREVIOUS_ERROR)
                         );
 
 
@@ -134,29 +198,61 @@ describe ("Async result", ()=>
         .toBe(false);
 
         expect(arrExec[0])
-        .toBe("S1");
+        .toBe("S0");
+
+        expect(arrExec[1])
+        .toBe("S0 S1");
+        
+        expect(arrExec[2])
+        .toBe("S0 S1 S2");
 
         expect(arrExec[3])
-        .toBe("S4");
-        
+        .toBe("S0 S1 S2 S3");
+
+        expect(arrExec[4])
+        .toBe("S0 S1 S2 S3 S4");
+
+        expect(arrExec[5])
+        .toBe("S0 S1 S2 S3 S4 S5");
+
         expect(arrExec[6])
-        .toBe("S7");
+        .toBe("S0 S1 S2 S3 S4 S5 S6");
 
-        expect( objResult[1].Results[0])
-        .toBe("S1 returned from callback");
+        expect(arrExec[7])
+        .toBe("S0 S1 S2 S3 S4 S5 S6 S7");
 
-        expect( objResult.ByAlias("previous").Results[0])
-        .toBe("S6 S5 returned from callback returned from callback");
+        expect(arrExec[8])
+        .toBe("S0 S1 S2 S3 S4 S5 S6 S7 S8");
 
-        expect( objResult.ByAlias("fn7").Results[0])
-        .toBe("S7 returned from callback");
+        expect(arrExec[9])
+        .toBe("S0 S1 S2 S3 S4 S5 S6 S7 S8 S9");
 
-        expect( objResult.ByAlias("Sequential calls 1")[0].Results[0])
-        .toBe("S1 returned from callback");
-
-        expect( objResult[1].Error)
-        .toBeFalsy();
+        expect(arrExec[10])
+        .toBe("no error");
     })
+
+
+
+
+    test ("Sequential with tokens and invalid previous result", async () =>
+    {
+        const arrExec: string[] = [];
+
+        const calls =   CB.s( "Sequential calls 1" ,
+                            CB.f ("previous0",
+                                  fnTestPrevious0,   arrExec, "S0"),
+                            CB.f ("previous2",
+                                  fnTestPrevious2,   arrExec, "S2", CB.PREVIOUS_RESULT1, CB.PREVIOUS_RESULT2)
+                        );
+
+
+        await expect(CB.e(calls, 5000, true))
+        .rejects
+        .toThrow()
+
+
+    })
+
 
 
     test ("Error breaking", async () =>
@@ -164,7 +260,7 @@ describe ("Async result", ()=>
         const arrExec: string[] = [];
 
         const calls =   CB.s( "Sequential calls 1" ,
-                            CB.f (fnTestWithError,   arrExec, 200, "S1"),
+                            CB.f (fnTestWithError,   arrExec, "S1"),
                             CB.f (fnTestWithTimeout, arrExec, 100, "S2")
                         );
 
@@ -176,6 +272,9 @@ describe ("Async result", ()=>
 
         expect( objResult[1].Error)
         .toBeTruthy();
+
+        expect( objResult[2])
+        .toBeUndefined();
     })
 
 
@@ -186,14 +285,21 @@ describe ("Async result", ()=>
         const arrExec: string[] = [];
 
         const calls =   CB.s( "Sequential calls 1" ,
-                            CB.f (fnTestWithError,   arrExec, 200, "S1"),
+                            CB.f (fnTestWithError,   arrExec, "S1"),
                             CB.f (fnTestWithTimeout, arrExec, 100, "S2")
                         );
 
+        const objResult: Result = await CB.e(calls, 5000, false);
 
-        await expect(CB.e(calls, 5000, true))
-        .rejects
-        .toThrow()
+        
+        expect(objResult.Error)
+        .toBe(true);
+
+        expect( objResult[1].Error)
+        .toBeTruthy();
+
+        expect( objResult[2].Error)
+        .toBeFalsy();
     })
     
 
@@ -214,6 +320,8 @@ describe ("Async result", ()=>
         expect(objResult.Timeout)
         .toBe(true);
     })
+
+
 
 
     test ("Exception in execution", async () =>

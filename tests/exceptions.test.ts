@@ -3,10 +3,18 @@ import { CB,
          ParallelResult,
          Result,
          SequentialResult }  from "../src";
-import { CBException, CBExceptions } from "../src/exceptions";
+import { CBException, 
+         CBExceptions }      from "../src/exceptions";
+import { BaseStruct,
+         CallTypes,
+         CallsStruct,
+         ExecStruct,
+         RootStruct}         from "../src/calls-struct"
 import { fnTest, 
          fnTestException, 
+         fnTestPrevious0, 
          fnTestPrevious1, 
+         fnTestPrevious2, 
          fnTestWithTimeout } from "./callback-functions";
 
 
@@ -55,5 +63,37 @@ describe ("Exceptions", () =>
         .toBe("Details")
     });
 
+
+
+    test ("Wrong function signature", async () =>
+    {
+        const arrExec: string[] = [];
+
+        const calls =   CB.s( "Sequential calls 1" ,
+                            CB.f ("previous0",
+                                  fnTestPrevious0,   arrExec, "S0"),
+                            CB.f ("previous2",
+                                  fnTestPrevious2,   arrExec, "S2", CB.PREVIOUS_RESULT1)
+                        );
+
+
+        await expect(CB.e(calls, 5000, true))
+        .rejects
+        .toThrow()
+    })
+
+
+
+    test ("Wrong struct definition to execute", async () =>
+    {
+        const arrExec: string[] = [];
+
+        const calls =   CB.f ("previous0",
+                              fnTestPrevious0,   arrExec, "S0");
+
+
+        expect(() => CB.e(<ExecStruct><unknown>calls, 5000, true))
+        .toThrow()
+    })
 
 });
