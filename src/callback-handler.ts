@@ -273,30 +273,33 @@ export abstract class CB
 
             // Get overloaded params
             let fnCallback:      Function | undefined,
-                blnBreakOnError: boolean,
-                blnStats:        boolean;
-            
+                blnBreakOnError: boolean = true,   // 🠄 default value
+                blnStats:        boolean = false;  // 🠄 default value
+
+
             if ("function" === typeof p_Param3)
             {
                 fnCallback = p_Param3;
+            }
+            else if ("boolean" === typeof p_Param3)
+            {
+                blnBreakOnError = p_Param3;
 
-                // Default values
-                blnBreakOnError = true;
-                blnStats        = false;
-            }
-            else if ("function" === typeof p_Param4)
-            {
-                fnCallback      = p_Param4;
-                blnBreakOnError = p_Param3 || true;
-                
-                // Default value
-                blnStats = false;
-            }
-            else if ("function" === typeof p_Param5)
-            {
-                fnCallback      = p_Param5;
-                blnBreakOnError = p_Param3 || true;
-                blnStats        = p_Param4 || false;
+
+                if ("function" === typeof p_Param4)
+                {
+                    fnCallback = p_Param4;
+                }
+                else if ("boolean" === typeof p_Param4)
+                {
+                    blnStats = p_Param4;
+
+
+                    if ("function" === typeof p_Param5)
+                    {
+                        fnCallback = p_Param5;
+                    }
+                }
             }
 
             // #endregion
@@ -369,19 +372,19 @@ export abstract class CB
                     structRoot.Break = true;
 
 
-                    // Resolve
-                    if (!p_Exception)
-                        resolve(structRoot.MainResult.GetResult());
-
-
                     // Reject
-                    else
+                    if (p_Exception)
                     {
                         if (!(p_Exception instanceof CBException))
                             p_Exception = new CBException(CBExceptions.InternalError, <Error>p_Exception);
 
                         reject(p_Exception);
                     }
+
+
+                    // Resolve
+                    else
+                        resolve(structRoot.MainResult.GetResult());
                 }
 
 
@@ -405,7 +408,9 @@ export abstract class CB
 
             // ... invoke callback function
             else
-                prmsReturn.then( value => fnCallback(undefined, value) );
+                prmsReturn
+                .then( value => fnCallback(undefined, value) )
+                .catch( error => fnCallback(error));
         }
 
         catch (p_Exception)

@@ -27,6 +27,20 @@ export class FunctionResult
     // Public properties
     public get Error():   any { return this.#_Error}
     public get Results(): any { return this.#_Results}
+
+
+    // These are just to avoid typescript errors
+    public get Count() {return 0;}
+    [key:number]: FunctionResult | BaseStructResult;
+    [Symbol.iterator]() 
+    {
+        return {
+            next() 
+            {
+                return { done: true };
+            }
+        }
+    }
 }
 
 
@@ -49,6 +63,17 @@ class BaseStructResult
     public get Count(): number
     {
         return this.#_Count;
+    }
+
+
+    public get Error(): any
+    {
+        throw new Error("Use indexed properties to access error")
+    }
+
+    public get Results(): any
+    {
+        throw new Error("Use indexed properties to access results")
     }
 
 
@@ -203,6 +228,7 @@ export class InternalResult
                 this.#_Timeout = true;
 
             clearTimeout(this._TimeoutPtr);
+            this._TimeoutPtr?.unref()
 
             this._onFinish!(p_Exception);
 

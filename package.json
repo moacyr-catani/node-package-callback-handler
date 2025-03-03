@@ -42,7 +42,7 @@
         "build:cjs": "tsc -p ./configs/tsconfig.cjs.json",
         "debug": "tsc -p tsconfig.debug.json",
         "prepack": "npm run build",
-        "test": "jest ./tests --verbose --coverage"
+        "test": "jest ./tests --verbose --coverage --detectOpenHandles"
     },
     "devDependencies": {
         "@types/jest": "^29.5.14",
