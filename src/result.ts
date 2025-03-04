@@ -49,7 +49,7 @@ export class FunctionResult
         return {
             next() 
             {
-                return { done: true };
+                return { value: undefined, done: true };
             }
         }
     }
@@ -153,10 +153,12 @@ export class InternalResult
     constructor(p_RootStruct:  RootStruct,
                 p_Timeout:     number,
                 p_StopOnError: boolean,
+                p_GetStats:    boolean,
                 p_onFinish:    Function)
     {
         this.#_CallsCount  = p_RootStruct.PlainCalls.filter( structCall => structCall.Type === CallTypes.Function).length;
         this.#_Count       = p_RootStruct.PlainCalls.length;
+        this.#_GetStats    = p_GetStats;
         this.#_onFinish    = p_onFinish;
         this.#_RootStruct  = p_RootStruct;
         this.#_StopOnError = p_StopOnError;
@@ -184,6 +186,7 @@ export class InternalResult
     #_CallsCount:   number;
     #_CallResults:  Array<boolean>;
     #_Finished:     boolean = false;
+    #_GetStats:     boolean;
     #_onFinish:     Function;
     #_ResultsCount: number = 0;
     #_RootStruct:   RootStruct;
@@ -221,6 +224,11 @@ export class InternalResult
     }
 
 
+    public get GetStats(): boolean
+    {
+        return this.#_GetStats;
+    }
+
 
     public get Timeout(): boolean
     {
@@ -231,22 +239,6 @@ export class InternalResult
 
     [key:number]: FunctionResult | BaseStructResult;
 
-
-
-    [Symbol.iterator]() 
-    {
-        let index = 0;
-        const data = this;
-        return {
-            next() 
-            {
-                if (index <= data.Count) 
-                    return { value: data[index++], done: false };
-                else 
-                    return { done: true };
-            }
-        }
-    }
 
     // #endregion
     // ----------------------------------------------------------------------------------------------------------------
@@ -349,12 +341,12 @@ export class InternalResult
 
 
 
-    public SetResult(p_Index:     number, 
-                      p_Alias:    string, 
-                      p_Error:    any, 
-                      p_TsStart:  number, 
-                      p_TsFinish: number, 
-                      p_Results:  any[] | null): void
+    public SetResult(p_Index:    number, 
+                     p_Alias:    string, 
+                     p_Error:    any, 
+                     p_TsStart:  number, 
+                     p_TsFinish: number, 
+                     p_Results:  any[] | null): void
     {
         // Check if result has already been set
         if (this.#_CallResults![p_Index])
@@ -427,10 +419,13 @@ export class Result
         this.#_Error       = p_InternalResult.Error;
         this.#_Timeout     = p_InternalResult.Timeout;
 
+
         for (let intA = 0; intA < p_InternalResult.Count; intA++)
         {
             this[intA] = p_InternalResult[intA];
         }
+
+        this.#_Stats = (p_InternalResult.GetStats ? this[0].Stats : -1);
     }
 
 
@@ -472,11 +467,13 @@ export class Result
 
     public get Stats(): number
     {
-        if (0 === this.#_Stats)
+        if (-1 === this.#_Stats)
             throw new CBException(CBExceptions.NoStatsGathered);
 
         return this[0].Stats;
     }
+
+
 
     public get Timeout(): boolean
     {

@@ -5,6 +5,7 @@ import { CB,
 import { fnTest,
          fnTestException,
          fnTestPrevious1,
+         fnTestTwoCallbacks,
          fnTestWithError,
          fnTestWithTimeout} from "./../tests/callback-functions"
 
@@ -51,7 +52,7 @@ import { fnTest,
 
 
         // With error
-        if (true)
+        if (false)
         {
             const arrResults: any[] = [];
         
@@ -67,6 +68,21 @@ import { fnTest,
             console.log(objResult.ByAlias("alias"));
 
         }
+
+
+        // More than 1 callback
+        if (true)
+        {
+            const arrExec: string[] = [];
+
+            const calls =   CB.s( "Sequential calls 1" ,
+                                CB.f (fnTestTwoCallbacks, arrExec, "S2"),
+                                CB.f (fnTestWithTimeout, arrExec, 200, "S1"),
+                            );
+
+            const objResult: Result = await CB.e(calls, 5000, false)
+        }
+
     }
     catch (p_Exception)
     {

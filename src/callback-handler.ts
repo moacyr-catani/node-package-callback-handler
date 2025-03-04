@@ -399,6 +399,7 @@ export abstract class CB
                 structRoot.MainResult = new InternalResult(structRoot,
                                                            p_Timeout,
                                                            blnBreakOnError,
+                                                           blnStats,
                                                            onFinish);
 
                 // Initiate calls
@@ -416,8 +417,12 @@ export abstract class CB
             // ... invoke callback function
             else
                 prmsReturn
-                .then( value => fnCallback(undefined, value) )
-                .catch( error => fnCallback(error));
+                .then( value => fnCallback(value.Error, value) )
+                .catch( error => 
+                {
+                    console.log("Exc");
+                    throw error
+                });
         }
 
         catch (p_Exception)

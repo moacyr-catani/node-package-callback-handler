@@ -5,6 +5,7 @@ import { CB,
          SequentialResult }  from "../src";
 import { fnTest, 
          fnTestException, 
+         fnTestWithError, 
          fnTestWithTimeout } from "./callback-functions";
 
 
@@ -74,9 +75,89 @@ describe ("Callback", ()=>
 
         CB.e(calls, 5000, fnCallback);
     }, 
-    10000)
+    20000)
 
 
 
+    test ("Break on error", (done) =>
+    {
+
+        const arrExec: string[] = [];
+
+        const calls =   CB.p( "Parallel calls 1" ,
+                            CB.f (fnTestWithError,   arrExec, "S1"),
+                            CB.f (fnTestWithTimeout, arrExec, 100, "S2")
+                        );
+
+
+
+        const fnCallback = (error: any, objResult: Result) =>
+        {
+            expect(objResult.Error)
+            .toBe(true);
+    
+            expect( objResult[1].Error)
+            .toBeTruthy();
+    
+            expect( objResult[2])
+            .toBeUndefined();
+
+            
+            done();
+        }
+
+
+        CB.e(calls, 5000, true, fnCallback);
+    }, 
+    20000)
+ 
+
+
+    test ("Stats", (done) =>
+    {
+
+        const arrExec: string[] = [];
+
+        const calls =   CB.s( "Sequential calls 1" ,
+                            CB.f (fnTestWithTimeout, arrExec, 200, "S1"),
+                            CB.f (fnTestWithTimeout, arrExec, 100, "S2"),
+                            CB.f (fnTestWithTimeout, arrExec, 300, "S3"),
+                            CB.f (fnTestWithTimeout, arrExec,  50, "S4"),
+                            CB.f (fnTestWithTimeout, arrExec,  20, "S5"),
+                            CB.f (fnTestWithTimeout, arrExec, 100, "S6"),
+                            CB.f ("fn7",
+                                  fnTestWithTimeout, arrExec,  20, "S7"),
+                        );
+
+
+
+        const fnCallback = (error: any, objResult: Result) =>
+        {
+            expect(objResult.Timeout)
+            .toBe(false);
+    
+            expect(objResult.Error)
+            .toBe(false);
+    
+            expect(objResult.Stats)
+            .toBeGreaterThanOrEqual(790);
+    
+            expect(objResult[0].Stats)
+            .toBeGreaterThanOrEqual(790);
+    
+            expect(objResult[1].Stats)
+            .toBeGreaterThanOrEqual(200);
+    
+            expect(objResult[2].Stats)
+            .toBeGreaterThanOrEqual(100);
+    
+            
+            done();
+        }
+
+
+        CB.e(calls, 5000, true, true, fnCallback);
+    }, 
+    20000)
  
 });

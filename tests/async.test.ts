@@ -145,6 +145,9 @@ describe ("Async result", ()=>
         expect(arrExec[6])
         .toBe("S7");
 
+        expect( objResult[0].Count)
+        .toBe(7);
+
         expect( objResult[1].Results[0])
         .toBe("S1 returned from callback");
 
@@ -350,6 +353,9 @@ describe ("Async result", ()=>
         expect(objResult.Error)
         .toBe(false);
 
+        expect(objResult.Stats)
+        .toBeGreaterThanOrEqual(790);
+
         expect(objResult[0].Stats)
         .toBeGreaterThanOrEqual(790);
 
@@ -358,6 +364,41 @@ describe ("Async result", ()=>
 
         expect(objResult[2].Stats)
         .toBeGreaterThanOrEqual(100);
+    })
+
+
+
+    test ("Stats not gathered", async () =>
+    {
+        const arrExec: string[] = [];
+
+        const calls =   CB.s( "Sequential calls 1" ,
+                            CB.f (fnTestWithTimeout, arrExec, 200, "S1"),
+                            CB.f (fnTestWithTimeout, arrExec, 100, "S2"),
+                            CB.f (fnTestWithTimeout, arrExec, 300, "S3"),
+                            CB.f (fnTestWithTimeout, arrExec,  50, "S4"),
+                            CB.f (fnTestWithTimeout, arrExec,  20, "S5"),
+                            CB.f (fnTestWithTimeout, arrExec, 100, "S6"),
+                            CB.f ("fn7",
+                                  fnTestWithTimeout, arrExec,  20, "S7"),
+                        );
+
+        const objResult: Result = await CB.e(calls, 5000, false, false);
+
+        expect(objResult.Timeout)
+        .toBe(false);
+
+        expect(objResult.Error)
+        .toBe(false);
+
+        expect(() => objResult.Stats)
+        .toThrow();
+
+        expect(() => objResult[0].Stats)
+        .toThrow();
+        
+        expect(() => objResult[1].Stats)
+        .toThrow();
     })
 
 
@@ -418,7 +459,46 @@ describe ("Async result", ()=>
 
         expect(intIterator)
         .toBe(3);
+
+
+        intIterator = 0;
+        for (let itemResult of objResult[0])
+        {
+            intIterator++;
+        }
+
+        expect(intIterator)
+        .toBe(2);
     })
+
+
+
+    test ("Function result iterator", async () =>
+    {
+        const arrExec: string[] = [];
+
+        const calls =   CB.s( "Sequential calls 1" ,
+                            CB.f (fnTestWithTimeout, arrExec, 200, "S1"),
+                            CB.f (fnTestWithTimeout, arrExec, 100, "S2")
+                        );
+
+
+        const objResult: Result = await CB.e(calls, -50);
+        let intIterator: number = 0;
+
+        for (let itemResult of objResult[1])
+        {
+            intIterator++;
+        }
+
+        expect(intIterator)
+        .toBe(0);
+
+        expect(objResult[1].Count)
+        .toBe(0);
+
+    })
+
 
 
     test ("Callback more than once", async () =>
@@ -426,8 +506,8 @@ describe ("Async result", ()=>
         const arrExec: string[] = [];
 
         const calls =   CB.s( "Sequential calls 1" ,
+                            CB.f (fnTestTwoCallbacks, arrExec, "S2"),
                             CB.f (fnTestWithTimeout, arrExec, 200, "S1"),
-                            CB.f (fnTestTwoCallbacks, arrExec, "S2")
                         );
 
 

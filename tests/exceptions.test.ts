@@ -21,6 +21,48 @@ import { fnTest,
 
 describe ("Exceptions", () =>         
 {
+    test ("Exception - async", async () =>
+    {
+        const arrExec: string[] = [];
+
+        const calls = CB.s( 
+                          CB.f (fnTestException,   arrExec, "S0"),
+                          CB.f (fnTestWithTimeout, arrExec, 200, "S1")
+                      );
+
+
+        await expect(CB.e(calls, 5000, true))
+        .rejects
+        .toThrow()
+    });
+
+
+
+    test ("Exception - callback", (done) =>
+    {
+
+        const arrExec: string[] = [];
+
+        const calls = CB.s( 
+                          CB.f (fnTestException,   arrExec, "S0"),
+                          CB.f (fnTestWithTimeout, arrExec, 200, "S1")
+                      );
+
+
+
+        const fnCallback = (error: any, objResult: Result) =>
+        {
+            done();
+        }
+
+        
+        expect( CB.e(calls, 5000, true, true, fnCallback) )
+        .toThrow();
+    }, 
+    20000)
+
+
+
     test ("Sequential with tokens in first call", () =>
     {
         const arrExec: string[] = [];
@@ -77,9 +119,13 @@ describe ("Exceptions", () =>
                         );
 
 
-        await expect(CB.e(calls, 5000, true))
-        .rejects
+        // await expect(CB.e(calls, 5000, true))
+        // .rejects
+        // .toThrow()
+
+        expect(() => CB.e(calls, 5000, true))
         .toThrow()
+
     })
 
 
@@ -97,12 +143,18 @@ describe ("Exceptions", () =>
     })
 
 
-
     
-    test ("Invalid param", async () =>
+    test ("Invalid param - async", async () =>
     {
         expect(() => CB.e(<ExecStruct><unknown>{Type: CallTypes.Parallel}, 5000, true))
         .toThrow()
     })
-    
+
+
+
+    test ("Invalid param - callback", () =>
+    {
+        expect(() => CB.e(<ExecStruct><unknown>{Type: CallTypes.Parallel}, 5000, true, (error, result) => console.log(error, result)))
+        .toThrow()
+    })
 });
