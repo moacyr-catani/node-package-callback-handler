@@ -113,7 +113,10 @@ export abstract class CB
             RootIndex:   -1,
             ParentIndex: -1,
 
-            UseToken:    blnToken
+            UseToken:    blnToken,
+
+            TsStart:     0,
+            TsFinish:    0
         }
     }
 
@@ -200,6 +203,9 @@ export abstract class CB
 
             ParentIndex: -1,
             RootIndex:   -1,
+
+            TsStart:     0,
+            TsFinish:    0
         }
 
 
@@ -317,6 +323,7 @@ export abstract class CB
             const structRoot: RootStruct = (<RootStruct><unknown>p_CallStruct);
             let   intCalls:   number = -1;
             structRoot.PlainCalls = [];
+            structRoot.GetStats   = blnStats;
 
 
             // Function to set root 
@@ -479,6 +486,9 @@ export abstract class CB
   
             ParentIndex: -1,
             RootIndex:   -1,
+
+            TsStart:     0,
+            TsFinish:    0
         }
 
 
@@ -531,6 +541,10 @@ export abstract class CB
             return;
 
 
+        // Check if we're getting stats info
+        if (objRoot.GetStats)
+            p_Call.TsStart = Date.now();
+
 
         // Callback function
         const fnCallback: Function = function()
@@ -538,6 +552,11 @@ export abstract class CB
             // Ignore if execution was broken
             if (objRoot.Break)
                 return;
+
+
+            // Check if we're getting stats info
+            if (objRoot.GetStats)
+                p_Call.TsFinish = Date.now();
 
 
             // Unboxing
@@ -551,11 +570,12 @@ export abstract class CB
                 structCallCallback.Error   = arguments[0];
                 structCallCallback.Results = Array.prototype.slice.call(arguments, 1);
 
-                objResult.SetResult!( structCallCallback.RootIndex, 
-                                      structCallCallback.Alias, 
-                                      structCallCallback.Error, 
-                                      0, 
-                                      structCallCallback.Results);
+                objResult.SetResult( structCallCallback.RootIndex, 
+                                     structCallCallback.Alias, 
+                                     structCallCallback.Error, 
+                                     structCallCallback.TsStart, 
+                                     structCallCallback.TsFinish,
+                                     structCallCallback.Results);
 
                 // Invoke next call in sequence struct
                 if (p_Call.Next)
@@ -565,9 +585,9 @@ export abstract class CB
             // ... some error ➔ stop execution
             else
             {
-                objResult.SetException!( (<CallsStruct>p_Call).RootIndex, 
-                                          p_Call.Alias,     
-                                          p_Call.Exception);
+                objResult.SetException( p_Call.RootIndex, 
+                                         p_Call.Alias,     
+                                         p_Call.Exception);
             }
         }
 

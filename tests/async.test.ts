@@ -233,7 +233,6 @@ describe ("Async result", ()=>
 
 
 
-
     test ("Sequential with tokens and invalid previous result", async () =>
     {
         const arrExec: string[] = [];
@@ -255,7 +254,31 @@ describe ("Async result", ()=>
 
 
 
-    test ("Error breaking", async () =>
+    test ("Error breaking - parallel", async () =>
+    {
+        const arrExec: string[] = [];
+
+        const calls =   CB.p( "Parallel calls 1" ,
+                            CB.f (fnTestWithError,   arrExec, "S1"),
+                            CB.f (fnTestWithTimeout, arrExec, 100, "S2")
+                        );
+
+        const objResult: Result = await CB.e(calls, 5000, true);                        
+        
+
+        expect(objResult.Error)
+        .toBe(true);
+
+        expect( objResult[1].Error)
+        .toBeTruthy();
+
+        expect( objResult[2])
+        .toBeUndefined();
+    })
+
+
+
+    test ("Error breaking - sequential", async () =>
     {
         const arrExec: string[] = [];
 
@@ -276,7 +299,6 @@ describe ("Async result", ()=>
         expect( objResult[2])
         .toBeUndefined();
     })
-
 
 
 
@@ -304,6 +326,40 @@ describe ("Async result", ()=>
     
 
 
+    test ("Stats", async () =>
+    {
+        const arrExec: string[] = [];
+
+        const calls =   CB.s( "Sequential calls 1" ,
+                            CB.f (fnTestWithTimeout, arrExec, 200, "S1"),
+                            CB.f (fnTestWithTimeout, arrExec, 100, "S2"),
+                            CB.f (fnTestWithTimeout, arrExec, 300, "S3"),
+                            CB.f (fnTestWithTimeout, arrExec,  50, "S4"),
+                            CB.f (fnTestWithTimeout, arrExec,  20, "S5"),
+                            CB.f (fnTestWithTimeout, arrExec, 100, "S6"),
+                            CB.f ("fn7",
+                                  fnTestWithTimeout, arrExec,  20, "S7"),
+                        );
+
+        const objResult: Result = await CB.e(calls, 5000, false, true);
+
+        expect(objResult.Timeout)
+        .toBe(false);
+
+        expect(objResult.Error)
+        .toBe(false);
+
+        expect(objResult[0].Stats)
+        .toBeGreaterThanOrEqual(790);
+
+        expect(objResult[1].Stats)
+        .toBeGreaterThanOrEqual(200);
+
+        expect(objResult[2].Stats)
+        .toBeGreaterThanOrEqual(100);
+    })
+
+
 
     test ("Timeout", async () =>
     {
@@ -322,6 +378,22 @@ describe ("Async result", ()=>
     })
 
 
+
+    test ("Negative timeout", async () =>
+    {
+        const arrExec: string[] = [];
+
+        const calls =   CB.s( "Sequential calls 1" ,
+                            CB.f (fnTestWithTimeout, arrExec, 200, "S1"),
+                            CB.f (fnTestWithTimeout, arrExec, 100, "S2")
+                        );
+
+
+        const objResult: Result = await CB.e(calls, -50);
+
+        expect(objResult.Timeout)
+        .toBe(false);
+    })
 
 
     test ("Exception in execution", async () =>

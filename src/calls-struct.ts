@@ -28,6 +28,9 @@ export type BaseStruct =
 
     RootIndex:   number;
     ParentIndex: number;
+
+    TsStart:     number;
+    TsFinish:    number;
 }
 
 
@@ -49,6 +52,7 @@ export type RootStruct = ExecStruct &
     Break?:     boolean;
     MainResult: InternalResult;
     PlainCalls: Array<ExecStruct | CallsStruct>;
+    GetStats:   boolean;
 }
 
 

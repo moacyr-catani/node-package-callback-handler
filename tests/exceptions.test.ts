@@ -96,4 +96,13 @@ describe ("Exceptions", () =>
         .toThrow()
     })
 
+
+
+    
+    test ("Invalid param", async () =>
+    {
+        expect(() => CB.e(<ExecStruct><unknown>{Type: CallTypes.Parallel}, 5000, true))
+        .toThrow()
+    })
+    
 });
