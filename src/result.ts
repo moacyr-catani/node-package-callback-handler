@@ -475,7 +475,7 @@ export class Result
         if (0 === this.#_Stats)
             throw new CBException(CBExceptions.NoStatsGathered);
 
-        return this.#_Stats;
+        return this[0].Stats;
     }
 
     public get Timeout(): boolean

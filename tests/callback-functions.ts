@@ -22,6 +22,16 @@ export const fnTest: Function = function (p_Array:    string[],
 }
 
 
+export const fnTestTwoCallbacks: Function = function (p_Array:    string[],
+                                                      p_Value:    string, 
+                                                      p_Callback: Function)
+{
+    p_Array.push(p_Value);
+    p_Callback(null, p_Value + " returned from callback");
+    p_Callback(null, p_Value + " returned from callback");
+}
+
+
 export const fnTestWithError: Function = function (p_Array:    string[],
                                                    p_Value:    string, 
                                                    p_Callback: Function)

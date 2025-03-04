@@ -16,6 +16,7 @@ import { fnTest,
          fnTestPrevious8,
          fnTestPrevious9,
          fnTestPreviousError,
+         fnTestTwoCallbacks,
          fnTestWithError, 
          fnTestWithTimeout } from "./callback-functions";
 
@@ -394,6 +395,47 @@ describe ("Async result", ()=>
         expect(objResult.Timeout)
         .toBe(false);
     })
+
+
+
+    test ("Result iterator", async () =>
+    {
+        const arrExec: string[] = [];
+
+        const calls =   CB.s( "Sequential calls 1" ,
+                            CB.f (fnTestWithTimeout, arrExec, 200, "S1"),
+                            CB.f (fnTestWithTimeout, arrExec, 100, "S2")
+                        );
+
+
+        const objResult: Result = await CB.e(calls, -50);
+        let intIterator: number = 0;
+
+        for (let itemResult of objResult)
+        {
+            intIterator++;
+        }
+
+        expect(intIterator)
+        .toBe(3);
+    })
+
+
+    test ("Callback more than once", async () =>
+    {
+        const arrExec: string[] = [];
+
+        const calls =   CB.s( "Sequential calls 1" ,
+                            CB.f (fnTestWithTimeout, arrExec, 200, "S1"),
+                            CB.f (fnTestTwoCallbacks, arrExec, "S2")
+                        );
+
+
+        await expect(CB.e(calls, 5000, true))
+        .rejects
+        .toThrow()
+    })
+
 
 
     test ("Exception in execution", async () =>
