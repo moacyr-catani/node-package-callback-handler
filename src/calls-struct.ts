@@ -19,6 +19,7 @@ export type BaseStruct =
 
     Exception?:  any;
     Invoked:     boolean;
+    Finished:    boolean;
     
 
     Parent:      ExecStruct | null;
@@ -38,8 +39,9 @@ export type BaseStruct =
 export type ExecStruct = BaseStruct &
 {
     Type:      CallTypes.Parallel | CallTypes.Sequential;
-    Calls:     CallsStruct[],
     CallCount: number,
+    CallQty:   number,
+    Calls:     CallsStruct[],
     Error:     boolean;
     Errors:    any[];
     Results:   any[];

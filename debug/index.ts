@@ -1,13 +1,16 @@
 import util from "node:util";
 import { CB, 
+         ExecStruct, 
          Result } from "./../src";
 
 import { fnTest,
          fnTestException,
+         fnTestPrevious0,
          fnTestPrevious1,
          fnTestTwoCallbacks,
          fnTestWithError,
          fnTestWithTimeout} from "./../tests/callback-functions"
+import { CBException } from "../src/exceptions";
 
 
 
@@ -16,7 +19,7 @@ import { fnTest,
     try
     {
         // Mixed structs
-        if (false)
+        if (true)
         {
         
             const arrResults: any[] = [];
@@ -32,19 +35,26 @@ import { fnTest,
                                         CB.p ( "Parallel calls in a sequence call",
                                                 CB.f (fnTestWithTimeout, arrResults, 300, "S4 P1"),
                                                 CB.f (fnTestWithTimeout, arrResults, 200, "S4 P2"),
-                                                CB.f (fnTestWithTimeout, arrResults, 100, "S4 P3")
-                                        )
+                                                CB.f (fnTestWithTimeout, arrResults, 100, "S4 P3"),
+                                                CB.s ( "Sequential call 1",
+                                                       CB.f (fnTest, arrResults, "S1"),
+                                                       CB.f (fnTest, arrResults, "S2"),
+                                                       CB.f (fnTest, arrResults, "S3")
+                                                )
+                                        ),
+                                        //CB.f ("fn",fnTest, arrResults, "___")
+                                        CB.f ("fn",fnTestPrevious1, arrResults, "___", CB.PREVIOUS_ERROR)
                                 ),
                                 CB.s ( "Sequential call 2",
                                         CB.f ("alias", 
                                               fnTest, arrResults, "S5"),
-                                        CB.f (fnTestPrevious1, arrResults, "S6", CB.PREVIOUS_RESULT1),
+                                        CB.f (fnTest, arrResults, "S6"),
                                         CB.f (fnTest, arrResults, "S7")
                                 )
                             );
         
         
-            const objResult: Result = await CB.e(calls, 5000)
+            const objResult: Result = await CB.e(calls, 200000)
             console.log(objResult);
             console.log(objResult.ByAlias("alias"));
         }
@@ -71,7 +81,7 @@ import { fnTest,
 
 
         // More than 1 callback
-        if (true)
+        if (false)
         {
             const arrExec: string[] = [];
 
@@ -81,6 +91,45 @@ import { fnTest,
                             );
 
             const objResult: Result = await CB.e(calls, 5000, false)
+        }
+
+
+        // Exception in function execution
+        if (false)
+        {
+            const arrExec: string[] = [];
+
+            const calls = CB.s( 
+                              CB.f (fnTestException,   arrExec, "S0"),
+                              CB.f (fnTestWithTimeout, arrExec, 200, "S1")
+                          );
+    
+    
+    
+            const fnCallback = (error: any, timeout: boolean, objResult: Result) =>
+            {
+                console.log(error, objResult );
+            }
+    
+            
+            CB.e(calls, 5000, true, true, fnCallback);
+        }
+
+
+        // Invalid param
+        if (false)
+        {
+            const arrExec: string[] = [];
+
+            const calls =   CB.f (fnTestPrevious0, arrExec, "S0");
+
+            const fnCallback = (error: any, timeout: boolean, objResult: Result) =>
+            {
+                console.log (error )
+            }
+
+            
+            CB.e(<ExecStruct><unknown>calls, 5000, true, true, fnCallback);
         }
 
     }

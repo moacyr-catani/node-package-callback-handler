@@ -50,16 +50,17 @@ describe ("Exceptions", () =>
 
 
 
-        const fnCallback = (error: any, objResult: Result) =>
+        const fnCallback = (error: any, timeout: boolean, objResult: Result) =>
         {
+            expect (error )
+            .toBeInstanceOf(CBException);
+
             done();
         }
 
         
-        expect( CB.e(calls, 5000, true, true, fnCallback) )
-        .toThrow();
-    }, 
-    20000)
+        CB.e(calls, 5000, true, true, fnCallback);
+    })
 
 
 
@@ -119,29 +120,47 @@ describe ("Exceptions", () =>
                         );
 
 
-        // await expect(CB.e(calls, 5000, true))
-        // .rejects
-        // .toThrow()
-
-        expect(() => CB.e(calls, 5000, true))
+        await expect(CB.e(calls, 5000, true))
+        .rejects
         .toThrow()
+
+        // expect(async () => await CB.e(calls, 5000, true))
+        // .toThrow()
 
     })
 
 
 
-    test ("Wrong struct definition to execute", async () =>
+    test ("Wrong struct definition to execute - async", async () =>
     {
         const arrExec: string[] = [];
 
-        const calls =   CB.f ("previous0",
-                              fnTestPrevious0,   arrExec, "S0");
+        const calls =   CB.f (fnTestPrevious0,   arrExec, "S0");
 
 
         expect(() => CB.e(<ExecStruct><unknown>calls, 5000, true))
         .toThrow()
     })
 
+
+    
+    test ("Wrong struct definition to execute - callback", (done) =>
+    {
+        const arrExec: string[] = [];
+
+        const calls =   CB.f (fnTestPrevious0, arrExec, "S0");
+
+        const fnCallback = (error: any, timeout: boolean, objResult: Result) =>
+        {
+            expect (error )
+            .toBeInstanceOf(CBException);
+
+            done();
+        }
+        
+        CB.e(<ExecStruct><unknown>calls, 5000, true, true, fnCallback);
+    })
+    
 
     
     test ("Invalid param - async", async () =>
@@ -152,9 +171,17 @@ describe ("Exceptions", () =>
 
 
 
-    test ("Invalid param - callback", () =>
+    test ("Invalid param - callback", (done) =>
     {
-        expect(() => CB.e(<ExecStruct><unknown>{Type: CallTypes.Parallel}, 5000, true, (error, result) => console.log(error, result)))
-        .toThrow()
+        const fnCallback = (error: any, timeout: boolean, objResult: Result) =>
+            {
+                expect (error )
+                .toBeInstanceOf(CBException);
+    
+                done();
+            }
+
+        CB.e(<ExecStruct><unknown>{Type: CallTypes.Parallel}, 5000, true, fnCallback);
+        
     })
 });

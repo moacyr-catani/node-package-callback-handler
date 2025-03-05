@@ -1,4 +1,5 @@
 import { CB, 
+         ExecStruct, 
          FunctionResult, 
          ParallelResult,
          Result,
@@ -45,6 +46,7 @@ describe ("Async result", ()=>
 
 
         const objResult: Result = await CB.e(calls, 5000);
+        const fn7: FunctionResult = <FunctionResult>objResult.ByAlias("fn7");
 
         expect(objResult.Timeout)
         .toBe(false);
@@ -61,7 +63,7 @@ describe ("Async result", ()=>
         expect(arrExec[6])
         .toBe("P1");
 
-        expect( objResult.ByAlias("fn7").Results[0])
+        expect( fn7.Results[0])
         .toBe("P7 returned from callback");
 
         expect( objResult[1].Error)
@@ -193,13 +195,17 @@ describe ("Async result", ()=>
                         );
 
 
-        const objResult: Result = await CB.e(calls, 5000);
+        const objResult:           Result           = await CB.e(calls, 5000);
+        const objSequentialResult: SequentialResult = <SequentialResult>objResult[0];
 
         expect(objResult.Timeout)
         .toBe(false);
 
         expect(objResult.Error)
         .toBe(false);
+
+        expect(objSequentialResult.Count)
+        .toBe(11);
 
         expect(arrExec[0])
         .toBe("S0");
@@ -549,5 +555,41 @@ describe ("Async result", ()=>
         await expect(CB.e(calls, 5000, true))
         .rejects
         .toThrow()
+    })
+
+
+
+    test ("Nested calls", async () =>
+    {
+        const arrExec: string[] = [];
+
+        const calls: ExecStruct = CB.p( "Parallel calls 1" ,
+                                        CB.f (fnTestWithTimeout, arrExec, 300, "P1"),
+                                        CB.f (fnTestWithTimeout, arrExec, 200, "P2"),
+                                        CB.f (fnTestWithTimeout, arrExec, 100, "P3"),
+                                        CB.s ( "Sequential call 1",
+                                                CB.f (fnTest, arrExec, "S1"),
+                                                CB.f (fnTest, arrExec, "S2"),
+                                                CB.f (fnTest, arrExec, "S3"),
+                                                CB.p ( "Parallel calls in a sequence call",
+                                                        CB.f (fnTestWithTimeout, arrExec, 300, "S4 P1"),
+                                                        CB.f (fnTestWithTimeout, arrExec, 200, "S4 P2"),
+                                                        CB.f (fnTestWithTimeout, arrExec, 100, "S4 P3")
+                                                )
+                                        ),
+                                        CB.s ( "Sequential call 2",
+                                                CB.f ("alias", 
+                                                    fnTest, arrExec, "S5"),
+                                                CB.f (fnTestPrevious1, arrExec, "S6", CB.PREVIOUS_RESULT1),
+                                                CB.f (fnTest, arrExec, "S7")
+                                        )
+                                    );
+        const objResult: Result = await CB.e(calls, 5000);
+
+        expect(objResult[0].Results[3][3][2][0])
+        .toBe("S4 P3 returned from callback");
+
+        expect(objResult[0].Error[3][3][2])
+        .toBe(null);
     })
 });

@@ -101,7 +101,9 @@ export abstract class CB
             Fn:          fnCall,
             Args:        arrArgs,
             
+            Finished:    false,
             Invoked:     false,
+
             Error:       null,
             Results:     null,
             
@@ -189,9 +191,12 @@ export abstract class CB
             Type:        CallTypes.Parallel,
   
             Calls:       arrStructs,
+            CallQty:     0,
             CallCount:   0,
               
+            Finished:    false,
             Invoked:     false,
+
             Error:       false,
             Errors:      [],
             Results:     [],
@@ -246,67 +251,65 @@ export abstract class CB
                     p_Stats:         boolean): Promise<Result>;
     public static e(p_CallStruct:    ExecStruct, 
                     p_Timeout:       number,
-                    p_Callback:      (p_Error: any, p_Result: Result) => void): void;
+                    p_Callback:      (p_Error: boolean | Error, p_Timeout: boolean, p_Result: Result) => void): void;
     public static e(p_CallStruct:    ExecStruct, 
                     p_Timeout:       number,
                     p_BreakOnError:  boolean,
-                    p_Callback:      (p_Error: any, p_Result: Result) => void): void;
+                    p_Callback:      (p_Error: boolean | Error, p_Timeout: boolean, p_Result: Result) => void): void;
     public static e(p_CallStruct:    ExecStruct, 
                     p_Timeout:       number,
                     p_BreakOnError:  boolean,
                     p_Stats:         boolean,
-                    p_Callback:      (p_Error: any, p_Result: Result) => void): void
+                    p_Callback:      (p_Error: boolean | Error, p_Timeout: boolean, p_Result: Result) => void): void
     public static e(p_CallStruct:    ExecStruct, 
                     p_Timeout:       number,
                     p_Param3?:       boolean | Function,
                     p_Param4?:       boolean | Function,
-                    p_Param5?:       (p_Error: any, p_Result: Result) => void): void | Promise<Result>
+                    p_Param5?:       (p_Error: boolean | Error, p_Timeout: boolean, p_Result: Result) => void): void | Promise<Result>
     {
+        let fnCallback:      Function | undefined,
+            blnBreakOnError: boolean = true,   // 🠄 default value
+            blnStats:        boolean = false;  // 🠄 default value
+
+
+
         try
         {
             //---------------------------------------------------------------------------------------------------------
             // #region Params
             //---------------------------------------------------------------------------------------------------------
             
-            // Check params
-            if (<unknown>p_CallStruct.Type !== CallTypes.Parallel &&
-                <unknown>p_CallStruct.Type !== CallTypes.Sequential)
-                throw new CBException(CBExceptions.InvalidStructToExecute);
-            if (p_Timeout < 0)
+            // Default timeout
+            if (p_Timeout <= 0)
                 p_Timeout = 5000;
 
 
-
-            // Get overloaded params
-            let fnCallback:      Function | undefined,
-                blnBreakOnError: boolean = true,   // 🠄 default value
-                blnStats:        boolean = false;  // 🠄 default value
-
-
+            // Overloaded params
             if ("function" === typeof p_Param3)
-            {
                 fnCallback = p_Param3;
-            }
+
             else if ("boolean" === typeof p_Param3)
             {
                 blnBreakOnError = p_Param3;
 
 
                 if ("function" === typeof p_Param4)
-                {
                     fnCallback = p_Param4;
-                }
+
                 else if ("boolean" === typeof p_Param4)
                 {
                     blnStats = p_Param4;
 
-
                     if ("function" === typeof p_Param5)
-                    {
                         fnCallback = p_Param5;
-                    }
                 }
             }
+
+
+            // Check params
+            if (<unknown>p_CallStruct.Type !== CallTypes.Parallel &&
+                <unknown>p_CallStruct.Type !== CallTypes.Sequential)
+                throw new CBException(CBExceptions.InvalidStructToExecute);
 
             // #endregion
             //---------------------------------------------------------------------------------------------------------
@@ -322,6 +325,7 @@ export abstract class CB
             // Root values
             const structRoot: RootStruct = (<RootStruct><unknown>p_CallStruct);
             let   intCalls:   number = -1;
+
             structRoot.PlainCalls = [];
             structRoot.GetStats   = blnStats;
 
@@ -335,16 +339,16 @@ export abstract class CB
                     p_CallStructSetRoot = p_Root;
 
 
-                // Set root in element
-                p_CallStructSetRoot.Root = p_Root;
-
-
                 // Store in plain calls
                 structRoot.PlainCalls.push(p_CallStructSetRoot);
 
 
                 // Set call position in main call struct
                 (<CallsStruct><unknown>p_CallStructSetRoot).RootIndex = ++intCalls;
+
+
+                // Set root in element
+                p_CallStructSetRoot.Root = p_Root;
 
 
                 // Set root in children
@@ -375,13 +379,14 @@ export abstract class CB
                 // onFinish function passed to Result instance
                 const onFinish: Function = (p_Exception?: Error) =>
                 { 
-                    // Break current execution
+                    // Break current execution     
                     structRoot.Break = true;
 
 
                     // Reject
                     if (p_Exception)
                     {
+                        // Assert exception is instance of CBException
                         if (!(p_Exception instanceof CBException))
                             p_Exception = new CBException(CBExceptions.InternalError, <Error>p_Exception);
 
@@ -409,28 +414,27 @@ export abstract class CB
 
 
 
-
-            // No callback function provided -> return Promise ...
+            // No callback function provided ➔ return Promise ...
             if (!fnCallback)
                 return prmsReturn;
 
             // ... invoke callback function
             else
                 prmsReturn
-                .then( value => fnCallback(value.Error, value) )
-                .catch( error => 
-                {
-                    console.log("Exc");
-                    throw error
-                });
+                .then( value  => fnCallback!(value.Error, value.Timeout, value) )
+                .catch( error => fnCallback!(error) );
         }
 
         catch (p_Exception)
         {
-            if (p_Exception instanceof CBException)
-                throw p_Exception
+            const excptUnknow: CBException = p_Exception instanceof CBException ?
+                                                 p_Exception :
+                                                 new CBException(CBExceptions.InternalError, <Error>p_Exception);
+
+            if (!fnCallback)
+                throw excptUnknow;
             else
-                throw new CBException(CBExceptions.InternalError, <Error>p_Exception);
+                fnCallback(excptUnknow);
         }
     }
 
@@ -476,10 +480,13 @@ export abstract class CB
             Alias:       strAlias,
             Type:        CallTypes.Sequential,
   
-            Calls:       arrStructs,
             CallCount:   0,
-              
+            CallQty:     0,
+            Calls:       arrStructs,
+            
+            Finished:    false,
             Invoked:     false,
+
             Error:       false,
             Errors:      [],
             Results:     [],
@@ -551,7 +558,12 @@ export abstract class CB
             p_Call.TsStart = Date.now();
 
 
-        // Callback function
+
+
+        // ------------------------------------------------------------------------------------------------------------
+        // #region Callback function
+        // ------------------------------------------------------------------------------------------------------------
+
         const fnCallback: Function = function()
         {
             // Ignore if execution was broken
@@ -568,10 +580,9 @@ export abstract class CB
             const structCallCallback: CallsStruct = <CallsStruct>p_Call;
 
 
-            // No error, store results ...
+            // No error ➔ store results ...
             if (!structCallCallback.Exception)
             {
-                structCallCallback.Invoked = true;
                 structCallCallback.Error   = arguments[0];
                 structCallCallback.Results = Array.prototype.slice.call(arguments, 1);
 
@@ -581,10 +592,6 @@ export abstract class CB
                                      structCallCallback.TsStart, 
                                      structCallCallback.TsFinish,
                                      structCallCallback.Results);
-
-                // Invoke next call in sequence struct
-                if (p_Call.Next)
-                    CB.#Invoke(p_Call.Next);
             }
 
             // ... some error ➔ stop execution
@@ -594,16 +601,47 @@ export abstract class CB
                                          p_Call.Alias,     
                                          p_Call.Exception);
             }
+
+
+            // Mark as finished and increment parent's results
+            const fnFinishCall: Function = (p_FinishCall: CallsStruct | ExecStruct) =>
+            {
+                p_FinishCall.Finished = true;
+
+                if (p_FinishCall.Parent)
+                {
+                    p_FinishCall.Parent.CallCount++;
+
+                    if (p_FinishCall.Parent.CallCount === p_FinishCall.Parent.Calls.length)
+                        fnFinishCall(p_FinishCall.Parent)
+                }
+            }
+            fnFinishCall(p_Call);
+
+
+            // Invoke next call in sequence struct
+            if (p_Call.Next)
+                CB.#Invoke(p_Call.Next);
+
+
+            // Invoke next token in parent
+            else if (p_Call.Parent!.Next && p_Call.Parent!.Finished)
+                CB.#Invoke(p_Call.Parent!.Next);
         }
+
+        // #endregion
+        // ------------------------------------------------------------------------------------------------------------
+
 
 
 
         // Set position in parent structure
         if (p_Call.Parent)
-            p_Call.ParentIndex = p_Call.Parent.CallCount++;
+            p_Call.ParentIndex = p_Call.Parent.CallQty++;
 
 
 
+        // Invoke
         switch (p_Call.Type)
         {
             case CallTypes.Function:
@@ -615,13 +653,16 @@ export abstract class CB
                         if (p_Call.Parent!.Type === CallTypes.Sequential &&
                             p_Call.UseToken)
                         {
-                            let intResult: number = -1;
+
 
 
                             // Substitute token for previous result
                             for (let intA = 0; intA < p_Call.Args.length; intA++)
                             {
-                                const varArg: any = p_Call.Args[intA];
+                                const varArg:  any     = p_Call.Args[intA];
+                                let intResult: number  = -1,
+                                    blnError:  boolean = false;
+
 
                                 if ("symbol" === typeof varArg)
                                 {
@@ -629,7 +670,7 @@ export abstract class CB
                                     {
                                         // Error
                                         case CB.PREVIOUS_ERROR:
-                                            p_Call.Args[intA] = p_Call.Previous!.Error;
+                                            blnError = true;
                                             break;
 
 
@@ -672,21 +713,37 @@ export abstract class CB
                                     }
 
 
-                                    // Substitute result
-                                    if (intResult > -1)
+                                    // Previous error
+                                    if (blnError)
+                                        p_Call.Args[intA] = objResult[p_Call.Previous!.RootIndex].Error; // p_Call.Previous!.Error;
+
+
+                                    // Previous result
+                                    else if (intResult > -1)
                                     {
-                                        // Check if result exists
-                                        if ("undefined" === typeof p_Call.Previous!.Results![intResult])
-                                            throw new CBException(CBExceptions.InvalidTokenResult);
-                                        
-                                        // Change arg value
-                                        p_Call.Args[intA] = p_Call.Previous!.Results![intResult];
+                                        if (p_Call.Previous!.Type === CallTypes.Function)
+                                        {
+                                            // Check if result exists
+                                            if ("undefined" === typeof objResult[p_Call.Previous!.RootIndex].Results[intResult])
+                                                throw new CBException(CBExceptions.InvalidTokenResult);
+                                            
+                                            // Change arg value
+                                            p_Call.Args[intA] = objResult[p_Call.Previous!.RootIndex].Results[intResult];//  p_Call.Previous!.Results![intResult];
+                                        }
+
+                                        else
+                                        {
+                                            // Create array with results in all children, in all levels
+                                            const arrPreviousResults: any[] = [];
+
+                                        }
                                     }
                                 }
                             }
                         }
 
 
+                        // Execute function
                         p_Call.Fn(...p_Call.Args, fnCallback);
                     }
                     catch (p_Exception)
@@ -705,16 +762,18 @@ export abstract class CB
                 {
                     CB.#Invoke(call);
                 }
-                p_Call.Invoked = true;
                 break;
 
 
 
             case CallTypes.Sequential:
                 CB.#Invoke(p_Call.Calls[0]);
-                p_Call.Invoked = true;
                 break;
         }
+
+
+        // Set invoked
+        p_Call.Invoked = true;
     }
 
     // #endregion

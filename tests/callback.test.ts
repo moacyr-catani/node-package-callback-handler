@@ -43,7 +43,7 @@ describe ("Callback", ()=>
                         );
 
 
-        const fnCallback = (error: any, objResult: Result) =>
+        const fnCallback = (error: any, timeout: boolean, objResult: Result) =>
         {
             expect(objResult.Timeout)
             .toBe(false);
@@ -91,7 +91,7 @@ describe ("Callback", ()=>
 
 
 
-        const fnCallback = (error: any, objResult: Result) =>
+        const fnCallback = (error: any, timeout: boolean, objResult: Result) =>
         {
             expect(objResult.Error)
             .toBe(true);
@@ -131,7 +131,7 @@ describe ("Callback", ()=>
 
 
 
-        const fnCallback = (error: any, objResult: Result) =>
+        const fnCallback = (error: any, timeout: boolean, objResult: Result) =>
         {
             expect(objResult.Timeout)
             .toBe(false);

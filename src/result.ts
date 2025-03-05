@@ -44,7 +44,7 @@ export class FunctionResult
     // These are just to avoid typescript errors
     public get Count() {return 0;}
     [key:number]: FunctionResult | BaseStructResult;
-    [Symbol.iterator]() 
+    protected [Symbol.iterator]() 
     {
         return {
             next() 
@@ -73,6 +73,9 @@ class BaseStructResult
     #_Count:    number;
     #_TsStart:  number;
     #_TsFinish: number;
+    #_Results?: any[];
+    #_Errors?:  any[];
+
 
 
 
@@ -85,13 +88,33 @@ class BaseStructResult
 
     public get Error(): any
     {
-        throw new Error("Use indexed properties to access error")
+        if (!this.#_Errors)
+        {
+            this.#_Errors = [];
+
+            for(let intA = 0; intA < this.Count; intA++)
+            {
+                this.#_Errors[intA] = this[intA].Error;
+            }
+        }
+
+        return this.#_Errors;
     }
 
 
     public get Results(): any
     {
-        throw new Error("Use indexed properties to access results")
+        if (!this.#_Results)
+        {
+            this.#_Results = [];
+
+            for(let intA = 0; intA < this.Count; intA++)
+            {
+                this.#_Results[intA] = this[intA].Results;
+            }
+        }
+
+        return this.#_Results;
     }
 
 
@@ -121,8 +144,7 @@ class BaseStructResult
     [key:number]: FunctionResult | BaseStructResult;
 
 
-
-    [Symbol.iterator]() 
+    protected [Symbol.iterator]() 
     {
         let index = 0;
         const data = this;
@@ -287,13 +309,12 @@ export class InternalResult
             }
 
 
-            // Check if needs to store stats info
+            // Store stats info
             if (this.#_RootStruct.GetStats)
             {
                 (<BaseStructResult>this[p_CallStruct.Parent.RootIndex]).SetTsStart!(p_TsStart);
                 (<BaseStructResult>this[p_CallStruct.Parent.RootIndex]).SetTsFinish!(p_TsFinish);
             }
-
 
 
             // Check alias
@@ -486,7 +507,7 @@ export class Result
 
 
 
-    [Symbol.iterator]() 
+    protected [Symbol.iterator]() 
     {
         let index = 0;
         const data = this;
