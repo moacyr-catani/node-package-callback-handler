@@ -43,7 +43,7 @@ import { CBException } from "../src/exceptions";
                                                 )
                                         ),
                                         //CB.f ("fn",fnTest, arrResults, "___")
-                                        CB.f ("fn",fnTestPrevious1, arrResults, "___", CB.PREVIOUS_ERROR)
+                                        CB.f ("fn",fnTestPrevious1, arrResults, "___", CB.PREVIOUS_RESULT1)
                                 ),
                                 CB.s ( "Sequential call 2",
                                         CB.f ("alias", 

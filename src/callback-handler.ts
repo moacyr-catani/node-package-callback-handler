@@ -2,8 +2,10 @@ import { CallTypes,
          CallsStruct,
          ExecStruct,
          RootStruct }    from "./calls-struct";
-import { InternalResult,
-         Result }        from "./result";
+import { FunctionResult, InternalResult,
+         ParallelResult,
+         Result, 
+         SequentialResult}        from "./result";
 import { CBException,
          CBExceptions }  from "./exceptions"
 
@@ -734,8 +736,35 @@ export abstract class CB
                                         else
                                         {
                                             // Create array with results in all children, in all levels
-                                            const arrPreviousResults: any[] = [];
+                                            const arrPreviousResults: any[] = objResult[p_Call.Previous!.RootIndex].Results;
+                                            const arrFilteredResults: any[] = [];
 
+                                            const fnGetResults: Function = (p_Results:         any[], 
+                                                                            p_ResultsFiltered: any[], 
+                                                                            p_Struct:          FunctionResult | ParallelResult | SequentialResult) =>
+                                            {
+                                                for (let intA = 0; intA < p_Struct.Count; intA++)
+                                                {
+                                                    if (p_Struct[intA] instanceof FunctionResult)
+                                                    {
+                                                        p_ResultsFiltered[intA] = p_Results[intA][intResult];
+                                                    }
+                                                    else
+                                                    {
+                                                        p_ResultsFiltered[intA] = [];
+
+                                                        fnGetResults(p_Results[intA],
+                                                                     p_ResultsFiltered[intA],
+                                                                     p_Struct[intA]);
+                                                    }
+                                                }
+                                            }
+
+                                            fnGetResults(arrPreviousResults, arrFilteredResults, objResult[p_Call.Previous!.RootIndex]);
+
+
+                                            // Change arg value
+                                            p_Call.Args[intA] = arrFilteredResults;
                                         }
                                     }
                                 }
