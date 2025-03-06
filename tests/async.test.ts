@@ -592,4 +592,86 @@ describe ("Async result", ()=>
         expect(objResult[0].Error[3][3][2])
         .toBe(null);
     })
+
+
+
+    test ("Sequential calls with struct as previous ", async () =>
+    {
+        const arrResults: any[] = [];
+        
+        const calls   = CB.p( "Parallel calls 1" ,
+                            CB.f (fnTestWithTimeout, arrResults, 300, "P1"),
+                            CB.f (fnTestWithTimeout, arrResults, 200, "P2"),
+                            CB.f (fnTestWithTimeout, arrResults, 100, "P3"),
+                            CB.s ( "Sequential call 1",
+                                    CB.f (fnTest, arrResults, "S1"),
+                                    CB.f (fnTest, arrResults, "S2"),
+                                    CB.f (fnTest, arrResults, "S3"),
+                                    CB.p ( "Parallel calls in a sequence call",
+                                            CB.f (fnTestWithTimeout, arrResults, 300, "S4 P1"),
+                                            CB.f (fnTestWithTimeout, arrResults, 200, "S4 P2"),
+                                            CB.f (fnTestWithTimeout, arrResults, 100, "S4 P3"),
+                                            CB.s ( "Sequential call 1",
+                                                   CB.f (fnTest, arrResults, "S1"),
+                                                   CB.f (fnTest, arrResults, "S2"),
+                                                   CB.f (fnTest, arrResults, "S3")
+                                            )
+                                    ),
+                                    //CB.f ("fn",fnTest, arrResults, "___")
+                                    CB.f ("fn",fnTestPrevious1, arrResults, "___", CB.PREVIOUS_RESULT1)
+                            ),
+                            CB.s ( "Sequential call 2",
+                                    CB.f ("alias", 
+                                          fnTest, arrResults, "S5"),
+                                    CB.f (fnTest, arrResults, "S6"),
+                                    CB.f (fnTest, arrResults, "S7")
+                            )
+                        );
+    
+        const objResult: Result = await CB.e(calls, 5000)
+
+
+        expect( Array.isArray(objResult[16].Results[1]) )
+        .toBe(true);
+    })
+
+
+
+    test ("Sequential calls with struct as previous with invalid request ", async () =>
+    {
+        const arrResults: any[] = [];
+        
+        const calls   = CB.p( "Parallel calls 1" ,
+                            CB.f (fnTestWithTimeout, arrResults, 300, "P1"),
+                            CB.f (fnTestWithTimeout, arrResults, 200, "P2"),
+                            CB.f (fnTestWithTimeout, arrResults, 100, "P3"),
+                            CB.s ( "Sequential call 1",
+                                    CB.f (fnTest, arrResults, "S1"),
+                                    CB.f (fnTest, arrResults, "S2"),
+                                    CB.f (fnTest, arrResults, "S3"),
+                                    CB.p ( "Parallel calls in a sequence call",
+                                            CB.f (fnTestWithTimeout, arrResults, 300, "S4 P1"),
+                                            CB.f (fnTestWithTimeout, arrResults, 200, "S4 P2"),
+                                            CB.f (fnTestWithTimeout, arrResults, 100, "S4 P3"),
+                                            CB.s ( "Sequential call 1",
+                                                   CB.f (fnTest, arrResults, "S1"),
+                                                   CB.f (fnTest, arrResults, "S2"),
+                                                   CB.f (fnTest, arrResults, "S3")
+                                            )
+                                    ),
+                                    //CB.f ("fn",fnTest, arrResults, "___")
+                                    CB.f ("fn",fnTestPrevious1, arrResults, "___", CB.PREVIOUS_RESULT3)
+                            ),
+                            CB.s ( "Sequential call 2",
+                                    CB.f ("alias", 
+                                          fnTest, arrResults, "S5"),
+                                    CB.f (fnTest, arrResults, "S6"),
+                                    CB.f (fnTest, arrResults, "S7")
+                            )
+                        );
+    
+        await expect(CB.e(calls, 5000, true))
+        .rejects
+        .toThrow()
+    })
 });

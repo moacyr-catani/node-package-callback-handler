@@ -738,29 +738,38 @@ export abstract class CB
                                             // Create array with results in all children, in all levels
                                             const arrPreviousResults: any[] = objResult[p_Call.Previous!.RootIndex].Results;
                                             const arrFilteredResults: any[] = [];
-
-                                            const fnGetResults: Function = (p_Results:         any[], 
-                                                                            p_ResultsFiltered: any[], 
-                                                                            p_Struct:          FunctionResult | ParallelResult | SequentialResult) =>
+                                            const fnGetResults:       Function = (p_Results:         any[], 
+                                                                                  p_ResultsFiltered: any[], 
+                                                                                  p_Struct:          FunctionResult | ParallelResult | SequentialResult) =>
                                             {
                                                 for (let intA = 0; intA < p_Struct.Count; intA++)
                                                 {
+                                                    // Check if result exists
+                                                    if ( ! Array.isArray(p_Results[intA]) ||
+                                                         p_Results[intA].length < (intResult + 1) )
+                                                        return new CBException(CBExceptions.InvalidTokenResult);
+
+
                                                     if (p_Struct[intA] instanceof FunctionResult)
-                                                    {
                                                         p_ResultsFiltered[intA] = p_Results[intA][intResult];
-                                                    }
                                                     else
                                                     {
                                                         p_ResultsFiltered[intA] = [];
 
-                                                        fnGetResults(p_Results[intA],
-                                                                     p_ResultsFiltered[intA],
-                                                                     p_Struct[intA]);
+                                                        return fnGetResults(p_Results[intA],
+                                                                            p_ResultsFiltered[intA],
+                                                                            p_Struct[intA]);
                                                     }
                                                 }
                                             }
 
-                                            fnGetResults(arrPreviousResults, arrFilteredResults, objResult[p_Call.Previous!.RootIndex]);
+
+                                            // Get results and check if result requested is valid
+                                            const errGetResultsReturn: Error | undefined = fnGetResults(arrPreviousResults, 
+                                                                                                        arrFilteredResults, 
+                                                                                                        objResult[p_Call.Previous!.RootIndex]);
+                                            if (errGetResultsReturn)
+                                                throw errGetResultsReturn;
 
 
                                             // Change arg value
