@@ -1,5 +1,5 @@
 export { CB }               from "./callback-handler";
-export { CallsStruct,
+export { FunctionStruct as CallsStruct,
          ExecStruct }       from "./calls-struct";
 export { FunctionResult, 
          ParallelResult,

@@ -1,5 +1,5 @@
 import { CallTypes,
-         CallsStruct,
+         FunctionStruct,
          ExecStruct,
          RootStruct }       from "./calls-struct";
 import { FunctionResult,
@@ -60,12 +60,12 @@ export abstract class CB
 
     public static f(p_Alias:   string,   
                     p_Fn:      Function, 
-                    ...p_Args: any[]): CallsStruct;
+                    ...p_Args: any[]): FunctionStruct;
     public static f(p_Fn:      Function, 
-                    ...p_Args: any[]): CallsStruct;
+                    ...p_Args: any[]): FunctionStruct;
     public static f(p_Param1:  string | Function, 
                     p_Param2:   any, 
-                    ...p_Args:  any[]): CallsStruct
+                    ...p_Args:  any[]): FunctionStruct
     {
 
         let strAlias: string;
@@ -107,9 +107,6 @@ export abstract class CB
             Finished:    false,
             Invoked:     false,
 
-            //Error:       null,
-            //Results:     null,
-            
             Parent:      null,
             Next:        null,
             Previous:    null,
@@ -151,7 +148,7 @@ export abstract class CB
      * @param p_Fns Functions structs to be executed in parallel
      * @returns A struct {@link ExecStruct} representing functions to be executed in parallel
      */
-    public static p(...p_Fns: Array<CallsStruct | ExecStruct>): ExecStruct;
+    public static p(...p_Fns: Array<FunctionStruct | ExecStruct>): ExecStruct;
     /**
      * Creates a struct of functions to be executed in parallel
      * ```js
@@ -169,9 +166,9 @@ export abstract class CB
      * @returns A struct ({@link ExecStruct}) representing functions to be executed in parallel
      */
     public static p(p_Alias:  string, 
-                    ...p_Fns: Array<CallsStruct | ExecStruct>): ExecStruct;
-    public static p(p_Param1: string | CallsStruct | ExecStruct, 
-                    ...p_Fns: Array<CallsStruct | ExecStruct>): ExecStruct
+                    ...p_Fns: Array<FunctionStruct | ExecStruct>): ExecStruct;
+    public static p(p_Param1: string | FunctionStruct | ExecStruct, 
+                    ...p_Fns: Array<FunctionStruct | ExecStruct>): ExecStruct
     {
         let strAlias:   string;
         let arrStructs: Array<any>;
@@ -200,10 +197,6 @@ export abstract class CB
             Finished:    false,
             Invoked:     false,
 
-            //Error:       false,
-            //Errors:      [],
-            //Results:     [],
-              
             Parent:      null,
             Next:        null,
             Previous:    null,
@@ -243,6 +236,7 @@ export abstract class CB
      *                     Create a struct with {@link CB.p} (for parallel functions) or {@link CB.s} (for sequential functions).
      * @param p_Timeout Maximum time (in milliseconds) for execution to complete
      */
+    public static e(p_CallStruct:    ExecStruct): Promise<Result>;
     public static e(p_CallStruct:    ExecStruct, 
                     p_Timeout:       number): Promise<Result>;
     public static e(p_CallStruct:    ExecStruct, 
@@ -257,6 +251,9 @@ export abstract class CB
                     p_Callback:      (p_Error: boolean | Error, p_Timeout: boolean, p_Result: Result) => void): void;
     public static e(p_CallStruct:    ExecStruct, 
                     p_Timeout:       number,
+                    p_Callback:      (p_Error: boolean | Error, p_Timeout: boolean, p_Result: Result) => void): void;
+    public static e(p_CallStruct:    ExecStruct, 
+                    p_Timeout:       number,
                     p_BreakOnError:  boolean,
                     p_Callback:      (p_Error: boolean | Error, p_Timeout: boolean, p_Result: Result) => void): void;
     public static e(p_CallStruct:    ExecStruct, 
@@ -265,7 +262,7 @@ export abstract class CB
                     p_Stats:         boolean,
                     p_Callback:      (p_Error: boolean | Error, p_Timeout: boolean, p_Result: Result) => void): void
     public static e(p_CallStruct:    ExecStruct, 
-                    p_Timeout:       number,
+                    p_Timeout:       number = 5000,
                     p_Param3?:       boolean | Function,
                     p_Param4?:       boolean | Function,
                     p_Param5?:       (p_Error: boolean | Error, p_Timeout: boolean, p_Result: Result) => void): void | Promise<Result>
@@ -335,7 +332,7 @@ export abstract class CB
 
             // Function to set root 
             const fnSetRoot: Function = function(p_Root:               ExecStruct,
-                                                 p_CallStructSetRoot?: CallsStruct | ExecStruct ): void
+                                                 p_CallStructSetRoot?: FunctionStruct | ExecStruct ): void
             {
                 // If second parameter is absent, we are in root element
                 if (!p_CallStructSetRoot)
@@ -347,7 +344,7 @@ export abstract class CB
 
 
                 // Set call position in main call struct
-                (<CallsStruct><unknown>p_CallStructSetRoot).RootIndex = ++intCalls;
+                (<FunctionStruct><unknown>p_CallStructSetRoot).RootIndex = ++intCalls;
 
 
                 // Set root in element
@@ -450,18 +447,18 @@ export abstract class CB
      * 
      *              Create a function struct with {@link CB.f}
      */
-    public static s(...p_Fns: Array<CallsStruct | ExecStruct >): ExecStruct;
+    public static s(...p_Fns: Array<FunctionStruct | ExecStruct >): ExecStruct;
     /**
      * Creates a struct of functions to be executed in sequence
      * @param p_Alias A unique name to retrieve results of this struct
-     * @param {...(CallsStruct | ExecStruct)} p_Fns One or more function structs to be executed in sequence
+     * @param {...(FunctionStruct | ExecStruct)} p_Fns One or more function structs to be executed in sequence
      * 
      *              Create a function struct with {@link CB.f}
      */
     public static s(p_Alias:  string, 
-                    ...p_Fns: Array<CallsStruct | ExecStruct >): ExecStruct;
-    public static s(p_Param1: string | CallsStruct | ExecStruct, 
-                    ...p_Fns: Array<CallsStruct | ExecStruct >): ExecStruct
+                    ...p_Fns: Array<FunctionStruct | ExecStruct >): ExecStruct;
+    public static s(p_Param1: string | FunctionStruct | ExecStruct, 
+                    ...p_Fns: Array<FunctionStruct | ExecStruct >): ExecStruct
     {
         let strAlias:   string;
         let arrStructs: Array<any>;
@@ -490,10 +487,6 @@ export abstract class CB
             Finished:    false,
             Invoked:     false,
 
-            //Error:       false,
-            //Errors:      [],
-           //  Results:     [],
-              
             Parent:      null,
             Next:        null,
             Previous:    null,
@@ -510,7 +503,7 @@ export abstract class CB
         // Set parent, previous, next and check tokens validity
         for (let intA = 0; intA < structSequential.Calls.length; intA++)
         {
-            const structCall: CallsStruct = <CallsStruct><unknown>structSequential.Calls[intA];
+            const structCall: FunctionStruct = <FunctionStruct><unknown>structSequential.Calls[intA];
 
 
             // Check tokens in first function
@@ -524,9 +517,9 @@ export abstract class CB
 
             // Previous and next
             if (intA < structSequential.Calls.length - 1)
-                structCall.Next = <CallsStruct><unknown>structSequential.Calls[intA + 1];
+                structCall.Next = <FunctionStruct><unknown>structSequential.Calls[intA + 1];
             if (intA > 0)
-                structCall.Previous = <CallsStruct><unknown>structSequential.Calls[intA - 1];
+                structCall.Previous = <FunctionStruct><unknown>structSequential.Calls[intA - 1];
         }
 
 
@@ -544,7 +537,7 @@ export abstract class CB
     // #region Private methods
     // ----------------------------------------------------------------------------------------------------------------
 
-    static #Invoke(p_Call: CallsStruct | ExecStruct ): void
+    static #Invoke(p_Call: FunctionStruct | ExecStruct ): void
     {
         const objRoot:   RootStruct     = (<RootStruct><unknown>p_Call.Root);
         const objResult: InternalResult = (<RootStruct><unknown>p_Call.Root).MainResult;
@@ -583,7 +576,7 @@ export abstract class CB
 
 
             // Unboxing (callback is used only for functions structures)
-            const structCallCallback: CallsStruct = <CallsStruct>p_Call;
+            const structCallCallback: FunctionStruct = <FunctionStruct>p_Call;
 
 
             // No error ➔ store results ...
@@ -604,7 +597,7 @@ export abstract class CB
 
 
             // Mark as finished and increment parent's results
-            const fnFinishCall: Function = (p_FinishCall: CallsStruct | ExecStruct) =>
+            const fnFinishCall: Function = (p_FinishCall: FunctionStruct | ExecStruct) =>
             {
                 p_FinishCall.Finished = true;
 

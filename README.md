@@ -1,9 +1,9 @@
 # Callback handler
 
 
-A handler to deal with **callback functions** and avoid callback "hell".
+A package to deal with **callback functions** and avoid **callback "hell"**.
 
-You can run several calls in **parallel** or in **sequence**, even **mixing both types**, and receive a single result object with results for every call.
+You can run several functions in **parallel** or in **sequence**, even **mixing both types**, and receive a single result object with results for every call.
 
 A **timeout** limit is used to avoid never returning calls.
 
@@ -17,11 +17,11 @@ All code excerpts will be provided in typescript. To use it in plain javascript,
 
 Below an example of a call struct that runs functions in parallel and in sequence:
 
-```javascript
+```ts
 import { CB } from "callback-handler";
 
 
-// Writes text to console waiting up to half a second
+// Writes text to console waiting up to half of a second
 const fnTest = (p_Value:    string, 
                 p_Callback: Function) =>
 {

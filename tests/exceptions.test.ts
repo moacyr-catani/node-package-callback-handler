@@ -7,7 +7,7 @@ import { CBException,
          CBExceptions }      from "../src/exceptions";
 import { BaseStruct,
          CallTypes,
-         CallsStruct,
+         FunctionStruct,
          ExecStruct,
          RootStruct}         from "../src/calls-struct"
 import { fnTest, 

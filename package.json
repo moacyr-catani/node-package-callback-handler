@@ -42,6 +42,7 @@
         "build:local": "tsc -p tsconfig.local.json",
         "clean": "shx rm -rf ./lib",
         "copy": "shx rm -rf ./lib",
+        "examples": "tsx ./examples/index.ts",
         "prepack": "npm run build",
         "test": "jest ./tests --verbose --coverage --detectOpenHandles"
     },

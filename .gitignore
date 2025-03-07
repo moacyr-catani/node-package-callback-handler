@@ -128,3 +128,6 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+examples/writefile-parallel/_files/*
+examples/log-from-several-files/_files/*

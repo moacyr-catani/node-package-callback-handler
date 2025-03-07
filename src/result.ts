@@ -1,4 +1,4 @@
-import { CallsStruct, 
+import { FunctionStruct, 
          CallTypes, 
          ExecStruct, 
          RootStruct }   from "./calls-struct";
@@ -141,7 +141,7 @@ export class InternalResult
 
 
 
-    #_SetParentResult(p_CallStruct: CallsStruct | ExecStruct,
+    #_SetParentResult(p_CallStruct: FunctionStruct | ExecStruct,
                       p_TsStart:    number,
                       p_TsFinish:   number): void
     {
