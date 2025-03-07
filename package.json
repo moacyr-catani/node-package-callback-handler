@@ -36,15 +36,17 @@
         "lib/**/*"
     ],
     "scripts": {
-        "clean": "shx rm -rf ./lib",
         "build": "npm run clean && npm run build:esm && npm run build:cjs",
         "build:esm": "tsc -p ./configs/tsconfig.esm.json && shx mv lib/esm/index.js lib/esm/index.mjs",
         "build:cjs": "tsc -p ./configs/tsconfig.cjs.json",
-        "debug": "tsc -p tsconfig.debug.json",
+        "build:local": "tsc -p tsconfig.local.json",
+        "clean": "shx rm -rf ./lib",
+        "copy": "shx rm -rf ./lib",
         "prepack": "npm run build",
         "test": "jest ./tests --verbose --coverage --detectOpenHandles"
     },
     "devDependencies": {
+        "@inquirer/prompts": "^7.3.2",
         "@types/jest": "^29.5.14",
         "@types/node": "^22.13.5",
         "jest": "^29.7.0",

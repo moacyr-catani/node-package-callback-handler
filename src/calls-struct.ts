@@ -16,11 +16,9 @@ export type BaseStruct =
     Type:        CallTypes;
     Alias:       string; 
 
-
     Exception?:  any;
     Invoked:     boolean;
     Finished:    boolean;
-    
 
     Parent:      ExecStruct | null;
     Next:        ExecStruct | CallsStruct | null;
@@ -39,12 +37,9 @@ export type BaseStruct =
 export type ExecStruct = BaseStruct &
 {
     Type:      CallTypes.Parallel | CallTypes.Sequential;
-    CallCount: number,
-    CallQty:   number,
-    Calls:     CallsStruct[],
-    Error:     boolean;
-    Errors:    any[];
-    Results:   any[];
+    CallCount: number;
+    CallQty:   number;
+    Calls:     CallsStruct[];
 }
 
 
@@ -58,13 +53,11 @@ export type RootStruct = ExecStruct &
 }
 
 
+
 export type CallsStruct = BaseStruct &
 {
     Type:        CallTypes.Function;
     Fn:          Function;
     Args:        any[];
     UseToken:    boolean;
-    
-    Error:       any | null;
-    Results:     any[] | null;
 }

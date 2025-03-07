@@ -1,6 +1,6 @@
 import * as MainExports from '../src/index';
 
-describe('MyLib', () => 
+describe('Package', () => 
 {
     test('Exports', () => 
     {

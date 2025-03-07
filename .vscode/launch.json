@@ -17,7 +17,7 @@
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
             ],
-            "preLaunchTask": "npm: debug"
+            "preLaunchTask": "npm: build:local"
         }
     ]
 }

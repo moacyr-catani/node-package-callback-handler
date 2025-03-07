@@ -8,167 +8,10 @@ import { CBException,
 
 
 
-export class FunctionResult
-{
-    constructor(p_Error:   any, 
-                p_Results: any, 
-                p_Stats:   number)
-    {
-        this.#_Error   = p_Error;
-        this.#_Results = p_Results;
-        this.#_Stats   = p_Stats;
 
-        Object.seal(this);
-    }
-
-
-    // Private holders
-    #_Error:   any;
-    #_Results: any;
-    #_Stats:   number;
-
-
-    // Public properties
-    public get Error():   any { return this.#_Error}
-    public get Results(): any { return this.#_Results}
-    public get Stats():   any 
-    { 
-        if (0 === this.#_Stats)
-            throw new CBException(CBExceptions.NoStatsGathered);
-
-        return this.#_Stats;
-
-    }
-
-
-    // These are just to avoid typescript errors
-    public get Count() {return 0;}
-    [key:number]: FunctionResult | BaseStructResult;
-    protected [Symbol.iterator]() 
-    {
-        return {
-            next() 
-            {
-                return { value: undefined, done: true };
-            }
-        }
-    }
-}
-
-
-
-
-class BaseStructResult
-{
-    constructor(p_CallsCount: number)
-    {
-        this.#_Count    = p_CallsCount;
-        this.#_TsStart  = 0;
-        this.#_TsFinish = 0;
-    }
-
-
-
-    // Private holders
-    #_Count:    number;
-    #_TsStart:  number;
-    #_TsFinish: number;
-    #_Results?: any[];
-    #_Errors?:  any[];
-
-
-
-
-    // Public properties
-    public get Count(): number
-    {
-        return this.#_Count;
-    }
-
-
-    public get Error(): any
-    {
-        if (!this.#_Errors)
-        {
-            this.#_Errors = [];
-
-            for(let intA = 0; intA < this.Count; intA++)
-            {
-                this.#_Errors[intA] = this[intA].Error;
-            }
-        }
-
-        return this.#_Errors;
-    }
-
-
-    public get Results(): any
-    {
-        if (!this.#_Results)
-        {
-            this.#_Results = [];
-
-            for(let intA = 0; intA < this.Count; intA++)
-            {
-                this.#_Results[intA] = this[intA].Results;
-            }
-        }
-
-        return this.#_Results;
-    }
-
-
-    public get Stats(): any
-    {
-        if (0 === this.#_TsStart)
-            throw new CBException(CBExceptions.NoStatsGathered);
-
-        return this.#_TsFinish - this.#_TsStart;
-    }
-
-
-    public SetTsFinish?(p_Value: number)
-    {
-        if (p_Value > this.#_TsFinish)
-            this.#_TsFinish = p_Value;
-    }
-
-
-    public SetTsStart?(p_Value: number)
-    {
-        if (this.#_TsStart === 0 || p_Value < this.#_TsStart)
-            this.#_TsStart = p_Value;
-    }
-
-
-    [key:number]: FunctionResult | BaseStructResult;
-
-
-    protected [Symbol.iterator]() 
-    {
-        let index = 0;
-        const data = this;
-        return {
-            next() 
-            {
-                if (index < data.Count) 
-                    return { value: data[index++], done: false };
-                else 
-                    return { done: true };
-            }
-        }
-    }
-}
-
-
-
-export class ParallelResult   extends BaseStructResult {}
-
-
-export class SequentialResult extends BaseStructResult {}
-
-
-
+// --------------------------------------------------------------------------------------------------------------------
+// #region Internal classes
+// --------------------------------------------------------------------------------------------------------------------
 
 export class InternalResult 
 {
@@ -186,6 +29,7 @@ export class InternalResult
         this.#_StopOnError = p_StopOnError;
 
         this.#_CallResults = new Array(this.#_Count).fill(false);
+        this.#_Stats       = new Array(this.#_Count).fill([-1, -1]);
 
         this.#_TimeoutPtr  = setTimeout(() =>
                                         { 
@@ -195,13 +39,16 @@ export class InternalResult
     }
 
 
+
+
+
     // ----------------------------------------------------------------------------------------------------------------
     // #region Private fields
     // ----------------------------------------------------------------------------------------------------------------
 
     #_Error:        boolean = false;
     #_Timeout:      boolean = false;
-    #_AliasResult:  Record<string, FunctionResult | ParallelResult | SequentialResult> = {};
+    #_AliasResult:  Record<string, SequentialResult | ParallelResult | FunctionResult> = {};
     #_Count:        number = 0;
 
 
@@ -214,6 +61,7 @@ export class InternalResult
     #_RootStruct:   RootStruct;
     #_StopOnError:  boolean = false;
     #_TimeoutPtr:   NodeJS.Timeout;
+    #_Stats:        Array<[number, number]>
 
     // #endregion
     // ----------------------------------------------------------------------------------------------------------------
@@ -226,7 +74,7 @@ export class InternalResult
     // #region Public properties
     // ----------------------------------------------------------------------------------------------------------------
 
-    public get AliasResult(): Record<string, FunctionResult | ParallelResult | SequentialResult>
+    public get AliasResult(): Record<string, SequentialResult | ParallelResult | FunctionResult>
     {
         return this.#_AliasResult;
     }
@@ -259,7 +107,7 @@ export class InternalResult
 
 
 
-    [key:number]: FunctionResult | BaseStructResult;
+    [key:number]: SequentialResult | ParallelResult | FunctionResult;
 
 
     // #endregion
@@ -300,30 +148,41 @@ export class InternalResult
         // Set parent results and errors
         if (p_CallStruct.Parent)
         {
-            if (!this[p_CallStruct.Parent.RootIndex]) // 
-            {
-                if (p_CallStruct.Parent.Type === CallTypes.Parallel)
-                    this[p_CallStruct.Parent.RootIndex] = new ParallelResult(p_CallStruct.Parent.Calls.length);
-                else
-                    this[p_CallStruct.Parent.RootIndex] = new SequentialResult(p_CallStruct.Parent.Calls.length);
-            }
+            // Retrieves array to store stats
+            const arrStats: [number, number] = this.#_Stats[p_CallStruct.Parent.RootIndex];
 
 
-            // Store stats info
+            // Stores stats info
             if (this.#_RootStruct.GetStats)
             {
-                (<BaseStructResult>this[p_CallStruct.Parent.RootIndex]).SetTsStart!(p_TsStart);
-                (<BaseStructResult>this[p_CallStruct.Parent.RootIndex]).SetTsFinish!(p_TsFinish);
+                if (arrStats[0] === -1 || p_TsStart < arrStats[0])
+                    arrStats[0] = p_TsStart;
+                if (p_TsFinish > arrStats[1])
+                    arrStats[1] = p_TsFinish;
             }
 
 
-            // Check alias
+            // Creates result object
+            if (!this[p_CallStruct.Parent.RootIndex])
+            {
+                if (p_CallStruct.Parent.Type === CallTypes.Parallel)
+                    this[p_CallStruct.Parent.RootIndex] = new ParallelResult(p_CallStruct.Parent.Calls.length, 
+                                                                             this.#_RootStruct.GetStats,
+                                                                             arrStats);
+                else
+                    this[p_CallStruct.Parent.RootIndex] = new SequentialResult(p_CallStruct.Parent.Calls.length, 
+                                                                               this.#_RootStruct.GetStats,
+                                                                               arrStats);
+            }
+
+
+            // Checks alias
             if (p_CallStruct.Parent.Alias !== "")
                 this.#_AliasResult[p_CallStruct.Parent.Alias] = this[p_CallStruct.Parent.RootIndex];
 
             
             // Set value at parent position
-            (<BaseStructResult>this[p_CallStruct.Parent.RootIndex])[p_CallStruct.ParentIndex] = this[p_CallStruct.RootIndex];
+            this[p_CallStruct.Parent.RootIndex][p_CallStruct.ParentIndex] = this[p_CallStruct.RootIndex];
 
 
             // Check parent
@@ -369,7 +228,7 @@ export class InternalResult
                      p_TsFinish: number, 
                      p_Results:  any[] | null): void
     {
-        // Check if result has already been set
+        // Checks if result has already been set
         if (this.#_CallResults![p_Index])
         {
             this.SetException!(p_Index, p_Alias, new CBException(CBExceptions.ResultAlreadySet));
@@ -379,30 +238,26 @@ export class InternalResult
             this.#_CallResults![p_Index] = true;
 
 
+        // Creates Result object
+        const objResult: FunctionResult = new FunctionResult(p_Error, 
+                                                             p_Results, 
+                                                             (p_TsFinish - p_TsStart) );
 
-        // Result
-        const objResult: FunctionResult = new FunctionResult(p_Error, p_Results, (p_TsFinish - p_TsStart) );
-
-
-
-        // Store result in dictionary
+        // Stores result in dictionary
         if (p_Alias !== "")
             this.#_AliasResult[p_Alias] = objResult;
-
 
 
         // Indexed property
         this[p_Index] = objResult;
 
 
-
-        // Set parent result
+        // Sets parent result
         const callStruct = this.#_RootStruct!.PlainCalls[p_Index]
         this.#_SetParentResult(callStruct, p_TsStart, p_TsFinish);
 
 
-
-        // Check error
+        // Checks error
         if (p_Error)
         {
             this.#_Error = true;
@@ -412,10 +267,8 @@ export class InternalResult
         }
 
 
-
-        // Increment # calls that returned
+        // Increments # calls that returned
         this.#_ResultsCount!++;
-
 
 
         // If all calls returned, finish 
@@ -428,9 +281,166 @@ export class InternalResult
 
 }
 
+// #endregion
+// --------------------------------------------------------------------------------------------------------------------
 
 
 
+
+
+// --------------------------------------------------------------------------------------------------------------------
+// #region Public classes
+// --------------------------------------------------------------------------------------------------------------------
+
+abstract class BaseResult
+{
+    constructor(p_Count:       number,
+                p_Error?:      any,
+                p_Results?:    any,
+                p_Stats?:      number,
+                p_StatsArray?: [number, number])
+    {
+        this.#_Length      = p_Count;
+        this.#_Errors     = p_Error   ? p_Error   : null;
+        this.#_Results    = p_Results ? p_Results : null;
+        this.#_Stats      = p_Stats ? p_Stats : -1;
+        this.#_StatsArray = p_StatsArray;
+    }
+
+
+    // Private holders
+    #_Length:       number;
+    #_Errors?:     any[];
+    #_Results?:    any[];
+    #_Stats:       number;
+    #_StatsArray?: [number, number];
+
+
+    public get length(): number
+    {
+        return this.#_Length;
+    }
+
+
+    public get error(): any
+    {
+        if (!this.#_Errors && this.#_Length > 0)
+        {
+            this.#_Errors = [];
+
+            for(let intA = 0; intA < this.length; intA++)
+            {
+                this.#_Errors[intA] = this[intA].error;
+            }
+        }
+
+        return this.#_Errors;
+    }
+
+
+
+    public get results(): any
+    {
+        if (!this.#_Results && this.#_Length > 0)
+        {
+            this.#_Results = [];
+
+            for(let intA = 0; intA < this.length; intA++)
+            {
+                this.#_Results[intA] = this[intA].results;
+            }
+        }
+
+        return this.#_Results;
+    }
+    
+
+    
+    public get stats(): number
+    {
+        // Gets stats
+        if (-2 === this.#_Stats)
+            this.#_Stats = this.#_StatsArray![1] - this.#_StatsArray![0];
+
+        if (-1 === this.#_Stats)
+            throw new CBException(CBExceptions.NoStatsGathered);
+
+        return this.#_Stats;
+    }
+
+
+    [key:number]: BaseResult; 
+
+
+    protected [Symbol.iterator](): any
+    {
+        let index = 0;
+        const data = this;
+        return {
+            next() 
+            {
+                if (index < data.length) 
+                    return { value: data[index++], done: false };
+                else 
+                    return { done: true };
+            }
+        }
+    }
+}
+
+abstract class BaseStructResult extends BaseResult
+{
+    constructor(p_Count:      number,
+                p_GetStats:   boolean,
+                p_StatsArray: [number, number])
+    {
+        super(p_Count,
+              null,
+              null,
+              p_GetStats ? -2 : -1,
+              p_StatsArray
+        );
+    }
+}
+
+
+
+
+/**
+ * Stores results from function structure execution.
+ */
+export class FunctionResult extends BaseResult
+{
+    constructor(p_Error:   any,
+                p_Results: any,
+                p_Stats:   number)
+    {
+        super(0, 
+              p_Error, 
+              p_Results, 
+              p_Stats);
+    }
+}
+
+
+
+/**
+ * Stores results from parallel structure execution.
+ */
+export class ParallelResult extends BaseStructResult {}
+
+
+
+/**
+ * Stores results from sequential structure execution.
+ */
+export class SequentialResult extends BaseStructResult {}
+
+
+
+/**
+ * Stores results from all structures execution and flags if errors or timeout occured.
+ */
 export class Result 
 {
     constructor(p_InternalResult: InternalResult)
@@ -446,7 +456,10 @@ export class Result
             this[intA] = p_InternalResult[intA];
         }
 
-        this.#_Stats = (p_InternalResult.GetStats ? this[0].Stats : -1);
+        this.#_Stats = (p_InternalResult.GetStats ? this[0].stats : -1);
+
+
+        Object.seal(this);
     }
 
 
@@ -456,7 +469,7 @@ export class Result
     // #region Private fields
     // ----------------------------------------------------------------------------------------------------------------
 
-    #_AliasResult:  Record<string, FunctionResult | ParallelResult | SequentialResult> = {};
+    #_AliasResult:  Record<string, SequentialResult | ParallelResult | FunctionResult> = {};
     #_Count:        number  = 0;
     #_Error:        boolean = false;
     #_Stats:        number  = 0;
@@ -473,38 +486,34 @@ export class Result
     // #region Public properties
     // ----------------------------------------------------------------------------------------------------------------
 
-    public get Count(): number
+    public get length(): number
     {
         return this.#_Count;
     }
 
 
-
-    public get Error(): boolean
+    public get error(): boolean
     {
         return this.#_Error;
     }
 
 
-    public get Stats(): number
+    public get stats(): number
     {
         if (-1 === this.#_Stats)
             throw new CBException(CBExceptions.NoStatsGathered);
 
-        return this[0].Stats;
+        return this[0].stats;
     }
 
 
-
-    public get Timeout(): boolean
+    public get timeout(): boolean
     {
         return this.#_Timeout;
     }
 
 
-
-    [key:number]: FunctionResult | BaseStructResult;
-
+    [key:number]: SequentialResult | ParallelResult | FunctionResult;
 
 
     protected [Symbol.iterator]() 
@@ -514,7 +523,7 @@ export class Result
         return {
             next() 
             {
-                if (index < data.Count) 
+                if (index < data.length) 
                     return { value: data[index++], done: false };
                 else 
                     return { done: true };
@@ -533,7 +542,7 @@ export class Result
     // #region Public methods
     // ----------------------------------------------------------------------------------------------------------------
 
-    public ByAlias(p_Alias: string): FunctionResult | ParallelResult | SequentialResult
+    public getByAlias(p_Alias: string): SequentialResult | ParallelResult | FunctionResult
     {
         return this.#_AliasResult[p_Alias];
     }
@@ -541,3 +550,6 @@ export class Result
     // #endregion
     // ----------------------------------------------------------------------------------------------------------------
 }
+
+// #endregion
+// --------------------------------------------------------------------------------------------------------------------

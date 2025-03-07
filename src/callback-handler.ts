@@ -1,13 +1,14 @@
 import { CallTypes,
          CallsStruct,
          ExecStruct,
-         RootStruct }    from "./calls-struct";
-import { FunctionResult, InternalResult,
+         RootStruct }       from "./calls-struct";
+import { FunctionResult,
+         InternalResult,
          ParallelResult,
          Result, 
-         SequentialResult}        from "./result";
+         SequentialResult } from "./result";
 import { CBException,
-         CBExceptions }  from "./exceptions"
+         CBExceptions }     from "./exceptions"
 
 
 
@@ -106,8 +107,8 @@ export abstract class CB
             Finished:    false,
             Invoked:     false,
 
-            Error:       null,
-            Results:     null,
+            //Error:       null,
+            //Results:     null,
             
             Parent:      null,
             Next:        null,
@@ -199,9 +200,9 @@ export abstract class CB
             Finished:    false,
             Invoked:     false,
 
-            Error:       false,
-            Errors:      [],
-            Results:     [],
+            //Error:       false,
+            //Errors:      [],
+            //Results:     [],
               
             Parent:      null,
             Next:        null,
@@ -423,7 +424,7 @@ export abstract class CB
             // ... invoke callback function
             else
                 prmsReturn
-                .then( value  => fnCallback!(value.Error, value.Timeout, value) )
+                .then( value  => fnCallback!(value.error, value.timeout, value) )
                 .catch( error => fnCallback!(error) );
         }
 
@@ -489,9 +490,9 @@ export abstract class CB
             Finished:    false,
             Invoked:     false,
 
-            Error:       false,
-            Errors:      [],
-            Results:     [],
+            //Error:       false,
+            //Errors:      [],
+           //  Results:     [],
               
             Parent:      null,
             Next:        null,
@@ -515,7 +516,7 @@ export abstract class CB
             // Check tokens in first function
             if (intA === 0 && structCall.UseToken)
                 throw new CBException(CBExceptions.TokenInFirstCall);
-            
+           
 
             // Parent
             structCall.Parent = structSequential;
@@ -560,6 +561,9 @@ export abstract class CB
             p_Call.TsStart = Date.now();
 
 
+        // Set position in parent structure
+        if (p_Call.Parent)
+            p_Call.ParentIndex = p_Call.Parent.CallQty++;
 
 
         // ------------------------------------------------------------------------------------------------------------
@@ -568,41 +572,35 @@ export abstract class CB
 
         const fnCallback: Function = function()
         {
-            // Ignore if execution was broken
+            // Ignores if execution was broken
             if (objRoot.Break)
                 return;
 
 
-            // Check if we're getting stats info
+            // Checks if we're getting stats info
             if (objRoot.GetStats)
                 p_Call.TsFinish = Date.now();
 
 
-            // Unboxing
+            // Unboxing (callback is used only for functions structures)
             const structCallCallback: CallsStruct = <CallsStruct>p_Call;
 
 
             // No error ➔ store results ...
             if (!structCallCallback.Exception)
-            {
-                structCallCallback.Error   = arguments[0];
-                structCallCallback.Results = Array.prototype.slice.call(arguments, 1);
-
                 objResult.SetResult( structCallCallback.RootIndex, 
                                      structCallCallback.Alias, 
-                                     structCallCallback.Error, 
+                                     arguments[0],
                                      structCallCallback.TsStart, 
                                      structCallCallback.TsFinish,
-                                     structCallCallback.Results);
-            }
+                                     Array.prototype.slice.call(arguments, 1));
+
 
             // ... some error ➔ stop execution
             else
-            {
                 objResult.SetException( p_Call.RootIndex, 
-                                         p_Call.Alias,     
-                                         p_Call.Exception);
-            }
+                                        p_Call.Alias,     
+                                        p_Call.Exception);
 
 
             // Mark as finished and increment parent's results
@@ -635,15 +633,10 @@ export abstract class CB
         // ------------------------------------------------------------------------------------------------------------
 
 
+        // ------------------------------------------------------------------------------------------------------------
+        // #region Invokes
+        // ------------------------------------------------------------------------------------------------------------
 
-
-        // Set position in parent structure
-        if (p_Call.Parent)
-            p_Call.ParentIndex = p_Call.Parent.CallQty++;
-
-
-
-        // Invoke
         switch (p_Call.Type)
         {
             case CallTypes.Function:
@@ -655,9 +648,6 @@ export abstract class CB
                         if (p_Call.Parent!.Type === CallTypes.Sequential &&
                             p_Call.UseToken)
                         {
-
-
-
                             // Substitute token for previous result
                             for (let intA = 0; intA < p_Call.Args.length; intA++)
                             {
@@ -717,7 +707,7 @@ export abstract class CB
 
                                     // Previous error
                                     if (blnError)
-                                        p_Call.Args[intA] = objResult[p_Call.Previous!.RootIndex].Error; // p_Call.Previous!.Error;
+                                        p_Call.Args[intA] = objResult[p_Call.Previous!.RootIndex].error;
 
 
                                     // Previous result
@@ -726,23 +716,23 @@ export abstract class CB
                                         if (p_Call.Previous!.Type === CallTypes.Function)
                                         {
                                             // Check if result exists
-                                            if ("undefined" === typeof objResult[p_Call.Previous!.RootIndex].Results[intResult])
+                                            if ("undefined" === typeof objResult[p_Call.Previous!.RootIndex].results[intResult])
                                                 throw new CBException(CBExceptions.InvalidTokenResult);
                                             
                                             // Change arg value
-                                            p_Call.Args[intA] = objResult[p_Call.Previous!.RootIndex].Results[intResult];//  p_Call.Previous!.Results![intResult];
+                                            p_Call.Args[intA] = objResult[p_Call.Previous!.RootIndex].results[intResult];
                                         }
 
                                         else
                                         {
                                             // Create array with results in all children, in all levels
-                                            const arrPreviousResults: any[] = objResult[p_Call.Previous!.RootIndex].Results;
+                                            const arrPreviousResults: any[] = objResult[p_Call.Previous!.RootIndex].results;
                                             const arrFilteredResults: any[] = [];
                                             const fnGetResults:       Function = (p_Results:         any[], 
                                                                                   p_ResultsFiltered: any[], 
                                                                                   p_Struct:          FunctionResult | ParallelResult | SequentialResult) =>
                                             {
-                                                for (let intA = 0; intA < p_Struct.Count; intA++)
+                                                for (let intA = 0; intA < p_Struct.length; intA++)
                                                 {
                                                     // Check if result exists
                                                     if ( ! Array.isArray(p_Results[intA]) ||
@@ -750,8 +740,12 @@ export abstract class CB
                                                         return new CBException(CBExceptions.InvalidTokenResult);
 
 
+                                                    // Gets the required result from function execution (leaf)
                                                     if (p_Struct[intA] instanceof FunctionResult)
                                                         p_ResultsFiltered[intA] = p_Results[intA][intResult];
+
+
+                                                    // Gets the required result from parallel or sequential execution (node)
                                                     else
                                                     {
                                                         p_ResultsFiltered[intA] = [];
@@ -808,6 +802,9 @@ export abstract class CB
                 CB.#Invoke(p_Call.Calls[0]);
                 break;
         }
+
+        // #endregion
+        // ------------------------------------------------------------------------------------------------------------
 
 
         // Set invoked

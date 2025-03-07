@@ -45,28 +45,28 @@ describe ("Callback", ()=>
 
         const fnCallback = (error: any, timeout: boolean, objResult: Result) =>
         {
-            expect(objResult.Timeout)
+            expect(objResult.timeout)
             .toBe(false);
 
-            expect(objResult.Error)
+            expect(objResult.error)
             .toBe(false);
 
             expect(arrExec[0])
             .toBe("S1");
 
-            expect( objResult.ByAlias("alias").Results[0])
+            expect( objResult.getByAlias("alias").results[0])
             .toBe("S5 returned from callback");
 
-            expect( objResult[1].Error)
+            expect( objResult[1].error)
             .toBe(null);
 
-            expect( objResult[1].Results[0] )
+            expect( objResult[1].results[0] )
             .toBe("P1 returned from callback");
 
-            expect( objResult[4][0].Error)
+            expect( objResult[4][0].error)
             .toBe(null);
 
-            expect( objResult[4][0].Results[0] )
+            expect( objResult[4][0].results[0] )
             .toBe("S1 returned from callback");
 
             done();
@@ -93,10 +93,10 @@ describe ("Callback", ()=>
 
         const fnCallback = (error: any, timeout: boolean, objResult: Result) =>
         {
-            expect(objResult.Error)
+            expect(objResult.error)
             .toBe(true);
     
-            expect( objResult[1].Error)
+            expect( objResult[1].error)
             .toBeTruthy();
     
             expect( objResult[2])
@@ -133,22 +133,22 @@ describe ("Callback", ()=>
 
         const fnCallback = (error: any, timeout: boolean, objResult: Result) =>
         {
-            expect(objResult.Timeout)
+            expect(objResult.timeout)
             .toBe(false);
     
-            expect(objResult.Error)
+            expect(objResult.error)
             .toBe(false);
     
-            expect(objResult.Stats)
+            expect(objResult.stats)
             .toBeGreaterThanOrEqual(790);
     
-            expect(objResult[0].Stats)
+            expect(objResult[0].stats)
             .toBeGreaterThanOrEqual(790);
     
-            expect(objResult[1].Stats)
+            expect(objResult[1].stats)
             .toBeGreaterThanOrEqual(200);
     
-            expect(objResult[2].Stats)
+            expect(objResult[2].stats)
             .toBeGreaterThanOrEqual(100);
     
             

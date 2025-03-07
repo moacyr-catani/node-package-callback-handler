@@ -46,12 +46,12 @@ describe ("Async result", ()=>
 
 
         const objResult: Result = await CB.e(calls, 5000);
-        const fn7: FunctionResult = <FunctionResult>objResult.ByAlias("fn7");
+        const fn7: FunctionResult = <FunctionResult>objResult.getByAlias("fn7");
 
-        expect(objResult.Timeout)
+        expect(objResult.timeout)
         .toBe(false);
 
-        expect(objResult.Error)
+        expect(objResult.error)
         .toBe(false);
 
         expect(arrExec[0])
@@ -63,10 +63,10 @@ describe ("Async result", ()=>
         expect(arrExec[6])
         .toBe("P1");
 
-        expect( fn7.Results[0])
+        expect( fn7.results[0])
         .toBe("P7 returned from callback");
 
-        expect( objResult[1].Error)
+        expect( objResult[1].error)
         .toBeFalsy();
     })
 
@@ -90,10 +90,10 @@ describe ("Async result", ()=>
 
         const objResult: Result = await CB.e(calls, 5000);
 
-        expect(objResult.Timeout)
+        expect(objResult.timeout)
         .toBe(false);
 
-        expect(objResult.Error)
+        expect(objResult.error)
         .toBe(false);
 
         expect(arrExec[0])
@@ -105,10 +105,10 @@ describe ("Async result", ()=>
         expect(arrExec[6])
         .toBe("P1");
 
-        expect( objResult.ByAlias("fn7").Results[0])
+        expect( objResult.getByAlias("fn7").results[0])
         .toBe("P7 returned from callback");
 
-        expect( objResult[1].Error)
+        expect( objResult[1].error)
         .toBeFalsy();
     })
 
@@ -132,10 +132,10 @@ describe ("Async result", ()=>
 
         const objResult: Result = await CB.e(calls, 5000);
 
-        expect(objResult.Timeout)
+        expect(objResult.timeout)
         .toBe(false);
 
-        expect(objResult.Error)
+        expect(objResult.error)
         .toBe(false);
 
         expect(arrExec[0])
@@ -147,19 +147,19 @@ describe ("Async result", ()=>
         expect(arrExec[6])
         .toBe("S7");
 
-        expect( objResult[0].Count)
+        expect( objResult[0].length)
         .toBe(7);
 
-        expect( objResult[1].Results[0])
+        expect( objResult[1].results[0])
         .toBe("S1 returned from callback");
 
-        expect( objResult.ByAlias("fn7").Results[0])
+        expect( objResult.getByAlias("fn7").results[0])
         .toBe("S7 returned from callback");
 
-        expect( objResult.ByAlias("Sequential calls 1")[0].Results[0])
+        expect( objResult.getByAlias("Sequential calls 1")[0].results[0])
         .toBe("S1 returned from callback");
 
-        expect( objResult[1].Error)
+        expect( objResult[1].error)
         .toBeFalsy();
     })
 
@@ -198,13 +198,13 @@ describe ("Async result", ()=>
         const objResult:           Result           = await CB.e(calls, 5000);
         const objSequentialResult: SequentialResult = <SequentialResult>objResult[0];
 
-        expect(objResult.Timeout)
+        expect(objResult.timeout)
         .toBe(false);
 
-        expect(objResult.Error)
+        expect(objResult.error)
         .toBe(false);
 
-        expect(objSequentialResult.Count)
+        expect(objSequentialResult.length)
         .toBe(11);
 
         expect(arrExec[0])
@@ -276,10 +276,10 @@ describe ("Async result", ()=>
         const objResult: Result = await CB.e(calls, 5000, true);                        
         
 
-        expect(objResult.Error)
+        expect(objResult.error)
         .toBe(true);
 
-        expect( objResult[1].Error)
+        expect( objResult[1].error)
         .toBeTruthy();
 
         expect( objResult[2])
@@ -300,10 +300,10 @@ describe ("Async result", ()=>
         const objResult: Result = await CB.e(calls, 5000, true);                        
         
 
-        expect(objResult.Error)
+        expect(objResult.error)
         .toBe(true);
 
-        expect( objResult[1].Error)
+        expect( objResult[1].error)
         .toBeTruthy();
 
         expect( objResult[2])
@@ -324,13 +324,13 @@ describe ("Async result", ()=>
         const objResult: Result = await CB.e(calls, 5000, false);
 
         
-        expect(objResult.Error)
+        expect(objResult.error)
         .toBe(true);
 
-        expect( objResult[1].Error)
+        expect( objResult[1].error)
         .toBeTruthy();
 
-        expect( objResult[2].Error)
+        expect( objResult[2].error)
         .toBeFalsy();
     })
     
@@ -353,22 +353,22 @@ describe ("Async result", ()=>
 
         const objResult: Result = await CB.e(calls, 5000, false, true);
 
-        expect(objResult.Timeout)
+        expect(objResult.timeout)
         .toBe(false);
 
-        expect(objResult.Error)
+        expect(objResult.error)
         .toBe(false);
 
-        expect(objResult.Stats)
+        expect(objResult.stats)
         .toBeGreaterThanOrEqual(790);
 
-        expect(objResult[0].Stats)
+        expect(objResult[0].stats)
         .toBeGreaterThanOrEqual(790);
 
-        expect(objResult[1].Stats)
+        expect(objResult[1].stats)
         .toBeGreaterThanOrEqual(200);
 
-        expect(objResult[2].Stats)
+        expect(objResult[2].stats)
         .toBeGreaterThanOrEqual(100);
     })
 
@@ -391,19 +391,19 @@ describe ("Async result", ()=>
 
         const objResult: Result = await CB.e(calls, 5000, false, false);
 
-        expect(objResult.Timeout)
+        expect(objResult.timeout)
         .toBe(false);
 
-        expect(objResult.Error)
+        expect(objResult.error)
         .toBe(false);
 
-        expect(() => objResult.Stats)
+        expect(() => objResult.stats)
         .toThrow();
 
-        expect(() => objResult[0].Stats)
+        expect(() => objResult[0].stats)
         .toThrow();
         
-        expect(() => objResult[1].Stats)
+        expect(() => objResult[1].stats)
         .toThrow();
     })
 
@@ -421,7 +421,7 @@ describe ("Async result", ()=>
 
         const objResult: Result = await CB.e(calls, 50);
 
-        expect(objResult.Timeout)
+        expect(objResult.timeout)
         .toBe(true);
     })
 
@@ -439,7 +439,7 @@ describe ("Async result", ()=>
 
         const objResult: Result = await CB.e(calls, -50);
 
-        expect(objResult.Timeout)
+        expect(objResult.timeout)
         .toBe(false);
     })
 
@@ -500,7 +500,7 @@ describe ("Async result", ()=>
         expect(intIterator)
         .toBe(0);
 
-        expect(objResult[1].Count)
+        expect(objResult[1].length)
         .toBe(0);
 
     })
@@ -586,10 +586,10 @@ describe ("Async result", ()=>
                                     );
         const objResult: Result = await CB.e(calls, 5000);
 
-        expect(objResult[0].Results[3][3][2][0])
+        expect(objResult[0].results[3][3][2][0])
         .toBe("S4 P3 returned from callback");
 
-        expect(objResult[0].Error[3][3][2])
+        expect(objResult[0].error[3][3][2])
         .toBe(null);
     })
 
@@ -631,7 +631,7 @@ describe ("Async result", ()=>
         const objResult: Result = await CB.e(calls, 5000)
 
 
-        expect( Array.isArray(objResult[16].Results[1]) )
+        expect( Array.isArray(objResult[16].results[1]) )
         .toBe(true);
     })
 

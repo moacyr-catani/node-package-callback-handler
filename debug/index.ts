@@ -54,9 +54,9 @@ import { CBException } from "../src/exceptions";
                             );
         
         
-            const objResult: Result = await CB.e(calls, 200000)
+            const objResult: Result = await CB.e(calls, 200000, false, true)
             console.log(objResult);
-            console.log(objResult.ByAlias("alias"));
+            console.log(objResult.getByAlias("alias"));
         }
 
 
@@ -75,7 +75,7 @@ import { CBException } from "../src/exceptions";
         
             const objResult: Result = await CB.e(calls, 5000, false)
             console.log(objResult);
-            console.log(objResult.ByAlias("alias"));
+            console.log(objResult.getByAlias("alias"));
 
         }
 
