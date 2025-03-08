@@ -1,19 +1,19 @@
-import * as MainExports from '../src/index';
+import * as Exports from '../src/index';
 
 describe('Package', () => 
 {
     test('Exports', () => 
     {
-        expect(MainExports).toEqual(expect.any(Object));
+        expect(Exports).toEqual(expect.any(Object));
     });
 
 
     
     test('No undefined exports', () => 
     {
-        for (const k of Object.keys(MainExports))
+        for (const k of Object.keys(Exports))
         {
-            expect(MainExports).not.toHaveProperty(k, undefined);
+            expect(Exports).not.toHaveProperty(k, undefined);
         }
     });
 });

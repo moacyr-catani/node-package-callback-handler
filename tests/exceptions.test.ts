@@ -2,9 +2,9 @@ import { CB,
          FunctionResult, 
          ParallelResult,
          Result,
-         SequentialResult }  from "../src";
+         SequentialResult}  from "../src";
 import { CBException, 
-         CBExceptions }      from "../src/exceptions";
+         CBExceptions }      from "../src/exception";
 import { BaseStruct,
          CallTypes,
          FunctionStruct,
@@ -100,14 +100,28 @@ describe ("Exceptions", () =>
 
     test ("Exception with details", () =>
     {
-        const errTest: CBException = new CBException(CBExceptions.InternalError, "Details", "stack", new Error("Error test"));
+        const errTest: CBException = new CBException(CBExceptions.InternalError, {callAlias: "alias", callIndex: 1}, "stack", new Error("Error test"));
 
-        expect(errTest.details)
-        .toBe("Details")
+        expect(errTest.details?.callAlias)
+        .toBe("alias")
+
+        expect(errTest.details?.callIndex)
+        .toBe(1)
+
     });
 
 
 
+    test ("Exception with no explanation", () =>
+    {
+        const errTest: CBException = new CBException(CBExceptions.NoError);
+
+        expect( !("explanation" in errTest) )
+        .toBe(true)
+    });
+
+
+    
     test ("Wrong function signature", async () =>
     {
         const arrExec: string[] = [];

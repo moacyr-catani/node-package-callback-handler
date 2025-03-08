@@ -3,7 +3,8 @@ import { FunctionStruct,
          ExecStruct, 
          RootStruct }   from "./calls-struct";
 import { CBException, 
-         CBExceptions } from "./exceptions";
+         CBExceptions, 
+         DetailsStruct} from "./exception";
 
 
 
@@ -54,6 +55,7 @@ export class InternalResult
 
     #_CallsCount:   number;
     #_CallResults:  Array<boolean>;
+    #_Errors:       Array<CBException> = [];
     #_Finished:     boolean = false;
     #_GetStats:     boolean;
     #_onFinish:     Function;
@@ -92,6 +94,14 @@ export class InternalResult
     {
         return this.#_Error;
     }
+
+
+
+    public get Errors(): Array<CBException>
+    {
+        return this.#_Errors;
+    }
+
 
 
     public get GetStats(): boolean
@@ -137,6 +147,32 @@ export class InternalResult
 
             this.#_Finished = true;
         }
+    }
+
+
+
+    #_SetError(p_Error:  Error,
+               p_Index:  number,
+               p_Alias?: string): CBException
+    {
+        const structDetails: DetailsStruct = {callIndex: p_Index};
+        if (p_Alias)
+            structDetails.callAlias = p_Alias;
+    
+
+        if (p_Error instanceof CBException)
+            p_Error.details = structDetails;
+        else
+            p_Error = new CBException(CBExceptions.ExecutionException, 
+                                      structDetails,
+                                      undefined,
+                                      p_Error);
+
+        // Stores error
+        this.#_Errors.push(<CBException>p_Error);
+
+
+        return <CBException>p_Error;
     }
 
 
@@ -210,13 +246,14 @@ export class InternalResult
 
 
 
-    public SetException(p_Index:     number, 
+    public SetException(p_Index:      number, 
                          p_Alias:     string, 
-                         p_Exception: Error)
+                         p_Exception: CBException)
     {
-        (<CBException>p_Exception).details = `Call alias: "${p_Alias}"\nCall index: ${p_Index}`,
-
-        this.#_Finish(p_Exception);
+        // Finish execution
+        this.#_Finish( this.#_SetError(p_Exception, 
+                                       p_Index, 
+                                       p_Alias) );
     }
 
 
@@ -242,6 +279,13 @@ export class InternalResult
         const objResult: FunctionResult = new FunctionResult(p_Error, 
                                                              p_Results, 
                                                              (p_TsFinish - p_TsStart) );
+
+        // Stores error
+        if (p_Error)
+            this.#_SetError(p_Error, 
+                            p_Index, 
+                            p_Alias)
+
 
         // Stores result in dictionary
         if (p_Alias !== "")
@@ -309,7 +353,7 @@ abstract class BaseResult
 
 
     // Private holders
-    #_Length:       number;
+    #_Length:      number;
     #_Errors?:     any[];
     #_Results?:    any[];
     #_Stats:       number;
@@ -448,6 +492,7 @@ export class Result
         this.#_AliasResult = p_InternalResult.AliasResult;
         this.#_Count       = p_InternalResult.Count;
         this.#_Error       = p_InternalResult.Error;
+        this.#_Errors      = p_InternalResult.Errors;
         this.#_Timeout     = p_InternalResult.Timeout;
 
 
@@ -472,6 +517,7 @@ export class Result
     #_AliasResult:  Record<string, SequentialResult | ParallelResult | FunctionResult> = {};
     #_Count:        number  = 0;
     #_Error:        boolean = false;
+    #_Errors:       Array<CBException>;
     #_Stats:        number  = 0;
     #_Timeout:      boolean = false;
 
@@ -545,6 +591,12 @@ export class Result
     public getByAlias(p_Alias: string): SequentialResult | ParallelResult | FunctionResult
     {
         return this.#_AliasResult[p_Alias];
+    }
+
+
+    public getErrors(): Array<CBException>
+    {
+        return this.#_Errors;
     }
 
     // #endregion

@@ -8,7 +8,7 @@ import { FunctionResult,
          Result, 
          SequentialResult } from "./result";
 import { CBException,
-         CBExceptions }     from "./exceptions"
+         CBExceptions }     from "./exception"
 
 
 
@@ -385,13 +385,7 @@ export abstract class CB
 
                     // Reject
                     if (p_Exception)
-                    {
-                        // Assert exception is instance of CBException
-                        if (!(p_Exception instanceof CBException))
-                            p_Exception = new CBException(CBExceptions.InternalError, <Error>p_Exception);
-
                         reject(p_Exception);
-                    }
 
 
                     // Resolve

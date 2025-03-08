@@ -108,4 +108,14 @@ Fn: is a function that uses callback to return data.
 <br>
 <br>
 
+## Executing functions
+
+### Parallel 
+
+### Sequential
+
+## Getting results
+
+## Checking errors
+
 ## Exceptions

@@ -5,4 +5,4 @@ export { FunctionResult,
          ParallelResult,
          Result,
          SequentialResult } from "./result";
-export { CBException }      from "./exceptions";
+export { CBException }      from "./exception";

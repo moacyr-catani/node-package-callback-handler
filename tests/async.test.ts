@@ -25,8 +25,6 @@ import { fnTest,
 
 
 
-
-
 describe ("Async result", ()=>
 {
     test ("Parallel", async () =>
@@ -318,6 +316,8 @@ describe ("Async result", ()=>
 
         const calls =   CB.s( "Sequential calls 1" ,
                             CB.f (fnTestWithError,   arrExec, "S1"),
+                            CB.f (fnTestWithTimeout, arrExec, 100, "S2"),
+                            CB.f (fnTestWithError,   arrExec, "S1"),
                             CB.f (fnTestWithTimeout, arrExec, 100, "S2")
                         );
 
@@ -332,6 +332,10 @@ describe ("Async result", ()=>
 
         expect( objResult[2].error)
         .toBeFalsy();
+
+        expect( objResult.getErrors().length)
+        .toBe(2);
+
     })
     
 
@@ -423,6 +427,24 @@ describe ("Async result", ()=>
 
         expect(objResult.timeout)
         .toBe(true);
+    })
+
+
+
+    test ("Timeout - default", async () =>
+    {
+        const arrExec: string[] = [];
+
+        const calls =   CB.s( "Sequential calls 1" ,
+                            CB.f (fnTestWithTimeout, arrExec, 200, "S1"),
+                            CB.f (fnTestWithTimeout, arrExec, 100, "S2")
+                        );
+
+
+        const objResult: Result = await CB.e(calls);
+
+        expect(objResult.timeout)
+        .toBe(false);
     })
 
 
