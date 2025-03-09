@@ -7,12 +7,12 @@ You can run several functions in **parallel** or in **sequence** (even **mixing 
 In sequential statements, you can access results from immediately previous function, creating cascading calls (**waterfall**).
 
 You can get the result in a **Promise** (using async/await) or providing a **single callback function** that receives the `Result` object with results for every call.
-
 <br/>
+<br />
 
 ## Example
 
-Creating a log file from the content of several files using `node:fs` (callbacks). The order in which every file is appended to log is not importante, so we can parallelize it.
+Creating a log file from the content of several files using `node:fs` (callbacks). The order in which every file is appended to log is not important, so we can parallelize it.
 
 The code will:
 - delete current log file (if exists) with `fs.rm()`
@@ -20,7 +20,8 @@ The code will:
   - read content with `fs.readFile()`, then (sequentially)
   - write content retrieved from previous function to log file with `fs.appendFile()`
 
-All code excerpts will be provided in typescript. To use it in plain javascript, just ignore all types declaration (the **`: type`** part of the code).
+> [!NOTE]
+> All code excerpts will be provided in typescript. To use it in plain javascript, just ignore all types declaration (the **`: type`** part of the code).
 
 ```ts
 /**
@@ -71,62 +72,19 @@ const structCB =
         )
     );
 
-// Execute and retrieve results
+
+// Execute and retrieve results using Promise (async/await)
 const objResult = await CB.e (structCB);
 
 
 // Check results
 if (objResult.timeout || objResult.error)
-{
     console.log("Something went wrong while creating the log");
-}
 else
-{
     console.log("Log created");
-}
 ```
-
-You can run functions in parallel or in sequence, even mixing both ways at the same struct call.  
-
-To insert a call in the struct, use function `CB.f`, which has two overloaded signatures:
-
-```typescript
-// Without alias
-CB.f ( Fn:      Function, 
-       ...Args: any[]);
-
-
-// With alias
-CB.f ( Alias:   string, 
-       Fn:      Function, 
-       ...Args: any[]);
-```
-
-| Param   | Description |
-|---------|-------------|
-| Alias   | String to uniquely identify a call in result object. |
-| Fn      | Function that uses callback to return data (don't write de parenthesis) |
-| ...Args | Arguments for the provided function (don't include the callback param)  |
-
 <br/>
-
-Example using function `fs.writeFile` to write some text in UTF-8 enconding to a file: 
-
-```typescript
-// Mind:
-// - don't include parenthesis after function name
-// - don't include the callback parameter
-CB.f (fs.writeFile, PathToFile, TextToWrite, "utf-8")
-```
-
-Alias: is a string to uniquely identify a call in result object.
-
-Fn: is a function that uses callback to return data.
-
-...Args: are zero or more arguments that you need to pass to Fn in order to get it called with a valid signature (except for the callback function, which will be provided dinamically).
-
-<br>
-<br>
+<br/>
 
 
 
@@ -134,7 +92,8 @@ Fn: is a function that uses callback to return data.
 The execution structure stores information about what functions to run (including arguments) and when (execution order).
 
 It is composed of three different structures:
-
+<br/>
+<br/>
 
 
 
@@ -142,21 +101,21 @@ It is composed of three different structures:
 
 Stores info about what function to execute and the arguments to be used, except for the callback (which is always the last argument).
 
-Is is created through `CB.p()` function, which has two overload signatures:
+It is created through `CB.p()` function, which has two overload signatures:
 
 ```ts
 // Without alias
-CB.f ( fn: Function,   // 🠄 function to be executed
-       ...args: any[]) // 🠄 arguments to be passed to function
+CB.f ( fn: Function,    // 🠄 function to be executed
+       ...args: any[]); // 🠄 arguments to be passed to function
 ```
 ```ts
 // With alias
-CB.f ( alias: string,  // 🠄 alias for this call, to facilitate results retrieval
-       fn: Function,   // 🠄 function to be executed
-       ...args: any[]) // 🠄 arguments to be passed to function
+CB.f ( alias: string,   // 🠄 alias for this call, to facilitate results retrieval
+       fn: Function,    // 🠄 function to be executed
+       ...args: any[]); // 🠄 arguments to be passed to function
 ```
 
-Example using function `fs.writeFile` to write some text in UTF-8 enconding to a file: 
+Example using `fs.writeFile()` to write some text in UTF-8 enconding to a file: 
 
 ```typescript
 // Mind:
@@ -164,81 +123,116 @@ Example using function `fs.writeFile` to write some text in UTF-8 enconding to a
 // - don't include the callback parameter
 CB.f (fs.writeFile, PathToFile, TextToWrite, "utf-8")
 ```
+<br/>
+<br/>
+
 
 
 ### Parallel structure
 
-Stores info about sub structures to be executed in parallel. Every sub structure can be a **Function Structure** (`FunctionStruct`), a **Sequential Structure** or even another **Parallel Structure**..
+Stores info about sub structures to be executed in parallel. Every sub structure can be a:
+- **Function Structure** (`FunctionStruct`), 
+- **Sequential Structure** (`SequentialStruct`),
+- or even another **Parallel Structure** (`ParallelStruct`).
 
-Is is created through `CB.p()` function, which has two overload signatures:
+It is created through `CB.p()` function, which has two overload signatures:
 
 ```ts
+// Without alias
+CB.p ( ...subStructs: FunctionStruct | ParallelStruct | SequentialStruct);
+```
+```ts
+// With alias
+CB.p ( alias: string,
+      ...subStructs: FunctionStruct | ParallelStruct | SequentialStruct);
+```
+
+Example using `fs.writeFile()` to write text in UTF-8 enconding to 3 files in parallel: 
+
+```typescript
+CB. p (
+    CB.f (fs.writeFile, PathToFile1, TextToWrite1, "utf-8"),
+    CB.f (fs.writeFile, PathToFile2, TextToWrite2, "utf-8"),
+    CB.f (fs.writeFile, PathToFile3, TextToWrite3, "utf-8")
+);
+```
+<br/>
+<br/>
+
+### Sequential structure
+
+Stores info about sub structures to be executed in sequence (execution only starts after the previous one finishes). Every sub structure can be a:
+- **Function Structure** (`FunctionStruct`), 
+- **Sequential Structure** (`SequentialStruct`),
+- or even another **Parallel Structure** (`ParallelStruct`).
+
+It is created through `CB.s()` function, which has two overload signatures:
+
+```ts
+// Without alias
 CB.p ( ...subStructs: FunctionStruct | ParallelStruct | SequentialStruct)
 ```
 ```ts
+// With alias
 CB.p ( alias: string,
       ...subStructs: FunctionStruct | ParallelStruct | SequentialStruct)
 ```
+Results from the immediately previous call can be used as arguments in a **Function Structure**
 
+Example using `fs.writeFile()` to write text in UTF-8 enconding to 3 files in parallel: 
+
+```typescript
+CB. p (
+    CB.f (fs.writeFile, PathToFile1, TextToWrite1, "utf-8"),
+    CB.f (fs.writeFile, PathToFile2, TextToWrite2, "utf-8"),
+    CB.f (fs.writeFile, PathToFile3, TextToWrite3, "utf-8")
+)
+```
+
+### Anatomy of execution structure
+
+Execution structure is a tree where:
+- all leaves are **Function Structures**,
+- all nodes are **Parallel Structures** or **Sequential Structures**,
+- root is a **Parallel Structure** or **Sequential Structure**.
+<br/>
+<br/>
 
 ## Executing functions
 
-### Parallel 
+You can execute structures using **async/await** (Promise) or providing a **callback function**.
+<br/>
+<br/>
 
-### Sequential
+#### Callback function
+
+To use the callback approach, provide a function as last argument to execution function
+```ts
+CB.e (structure, callbackFunction);
+```
+
+The callback function must have the signature:
+```ts
+function(error:   boolean, // 🠄 true if an error was returned for any function structure execution
+                           //    or if any exception was thrown
+         timeout: boolean, // 🠄 true if ellapsed execution time exceeds defined timeout
+         result:  Result); // 🠄 Result object
+```
+<br/>
+
+#### Async/await
+
+To use async/await approach, just ignore the callback argument of execution function 
+```ts
+const result = await CB.e (structure);
+```
+<br/>
+<br/>
+
+
 
 ## Getting results
 
 ## Checking errors
 
 ## Exceptions
-
-
-
-
-
-// Writes text to console waiting up to half of a second
-const fnTest = (p_Value:    string, 
-                p_Callback: Function) =>
-{
-    setTimeout( 
-        () =>
-        {
-            console.log(p_Value);
-            p_Callback(null, p_Value + " returned from callback");
-        }, 
-        Math.random() * 500 // <- Up to 1/2 second before function returns
-    );
-}
-
-// Creates calls struct
-const calls: ParallelStruct = CB.p(
-                                  "Parallel calls 1" ,
-                                  CB.f (fnTest, "P1"),
-                                  CB.f (fnTest, "P2"),
-                                  CB.f (fnTest, "P3"),
-                                  CB.s ( 
-                                      "Sequential call 1",
-                                      CB.f (fnTest, "S1"),
-                                      CB.f (fnTest, "S2"),
-                                      CB.f (fnTest, "S3"),
-                                      CB.p ( 
-                                          "Parallel calls in a sequence call",
-                                          CB.f (fnTest, "S4 P1"),
-                                          CB.f (fnTest, "S4 P2"),
-                                          CB.f (fnTest, "S4 P3")
-                                      )
-                                  ),
-                                  CB.s ( 
-                                      "Sequential call 2",
-                                      CB.f ("alias", fnTest, "S5"),
-                                      CB.f (fnTest, "S6"),
-                                      CB.f (fnTest, "S7")
-                                  )
-                              );
-
-// Execute calls struct
-const results: await Result = CB.r (calls) // Runs the calls structure
-
-
-A **timeout** limit is used to avoid never returning calls.
