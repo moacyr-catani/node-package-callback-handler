@@ -34,48 +34,42 @@ const logFile: string = path.resolve(__dirname, "mainLog.log"),
       file1:   string = path.resolve(__dirname, "file1.log"),
       file2:   string = path.resolve(__dirname, "file2.log"),
       file3:   string = path.resolve(__dirname, "file3.log"),
-      file4:   string = path.resolve(__dirname, "file4.log"),
-      file5:   string = path.resolve(__dirname, "file5.log"),
-      file6:   string = path.resolve(__dirname, "file6.log");
+      file4:   string = path.resolve(__dirname, "file4.log");
 
 
-// Create sequential execution structure using CB.s()
-const structCB = CB.s (
-                     // Delete current log file
-                     CB.f ( fs.rm, logFile, {force: true}), // 🠄 Creates a function structure using CB.f()
+// Create execution structure 
+const structCB = 
+    CB.s ( // 🠄 sequential structure as root
+
+        // Delete current log file
+        CB.f ( fs.rm, logFile, {force: true}), // 🠄 Creates a function structure using CB.f()
 
 
-                     // Create log from several files
-                     CB.p ( // 🠄 parallel structure, since the order in which every file is written in
-                            //    log is not important (can be parallelized)
+        // Create log from several files
+        CB.p ( // 🠄 parallel structure, since the order in which every file is written in
+               //    log is not important (can be parallelized)
 
-                         CB.s ( // 🠄 sequential structure
-                             CB.f ( fs.readFile, file1, {encoding: 'utf-8'} ),      // 🠄 read content 
-                             CB.f ( fs.appendFile, strLogFile, CB.PREVIOUS_RESULT1) // 🠄 write results from 
-                                                                                    //    previous call to log file
-                         ),
-                         CB.s (
-                             CB.f ( fs.readFile, file2, {encoding: 'utf-8'} ),
-                             CB.f ( fs.appendFile, logFile, CB.PREVIOUS_RESULT1)
-                         ),
-                         CB.s (
-                             CB.f ( fs.readFile, file3, {encoding: 'utf-8'} ),
-                             CB.f ( fs.appendFile, logFile, CB.PREVIOUS_RESULT1)
-                         ),
-                         CB.s (
-                             CB.f ( fs.readFile, file4, {encoding: 'utf-8'} ),
-                             CB.f ( fs.appendFile, logFile, CB.PREVIOUS_RESULT1)
-                         ),
-                         CB.s (
-                             CB.f ( fs.readFile, file5, {encoding: 'utf-8'} ),
-                             CB.f ( fs.appendFile, logFile, CB.PREVIOUS_RESULT1)
-                         ),
-                         CB.s (
-                             CB.f ( fs.readFile, file6, {encoding: 'utf-8'} ),
-                             CB.f ( fs.appendFile, logFile, CB.PREVIOUS_RESULT1)
-                        )
-                    )
-                 );
+            CB.s ( // 🠄 sequential structure
+                CB.f ( fs.readFile, file1, {encoding: 'utf-8'} ),      // 🠄 read content 
+                CB.f ( fs.appendFile, strLogFile, CB.PREVIOUS_RESULT1) // 🠄 write results from 
+                                                                       //    previous call to log file
+            ),
+
+            // Repeats for every file ...
+            CB.s (
+                CB.f ( fs.readFile, file2, {encoding: 'utf-8'} ),
+                CB.f ( fs.appendFile, logFile, CB.PREVIOUS_RESULT1)
+            ),
+            CB.s (
+                CB.f ( fs.readFile, file3, {encoding: 'utf-8'} ),
+                CB.f ( fs.appendFile, logFile, CB.PREVIOUS_RESULT1)
+            ),
+            CB.s (
+                CB.f ( fs.readFile, file4, {encoding: 'utf-8'} ),
+                CB.f ( fs.appendFile, logFile, CB.PREVIOUS_RESULT1)
+            )
+        )
+    );
 
 // Execute and retrieve results
 const objResult = await CB.e (structCB);
@@ -85,7 +79,10 @@ const objResult = await CB.e (structCB);
 if (objResult.timeout || objResult.error)
 {
     console.log("Something went wrong while creating the log");
-    return;
+}
+else
+{
+    console.log("Log created");
 }
 ```
 
