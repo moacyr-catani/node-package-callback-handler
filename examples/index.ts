@@ -9,7 +9,7 @@ import { WriteLog } from './log-from-several-files';
 
     const answer = await select(
     {
-        message: 'What example do you want to run',
+        message: 'What example do you want to run?\n',
         choices: [
           {
             name: 'files in parallel',
@@ -20,22 +20,9 @@ import { WriteLog } from './log-from-several-files';
             name: 'log-from-files',
             value: 'log-from-several-files',
             description: '\nCreate a log from several files\nRead content of several files and apend to a single log file',
-          },
-        //   new Separator(),
-        //   {
-        //     name: 'jspm',
-        //     value: 'jspm',
-        //     disabled: true,
-        //   },
-        //   {
-        //     name: 'pnpm',
-        //     value: 'pnpm',
-        //     disabled: '(pnpm is not available)',
-        //   },
+          }
         ],
     });
-
-    console.log(answer)
 
 
     switch (answer)
