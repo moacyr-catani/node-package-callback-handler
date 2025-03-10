@@ -1,206 +1,150 @@
 "use strict";
-//const CB = require("./../../lib/cjs/index");
 
 
-const util = require("node:util");
-const { CB, 
-        ExecStruct, 
-        Result,
-        CBException } = require("./../../lib");
-
-//const CB = require("./../lib/cjs/index");
-
-//console.log(CB);
-
-// import { fnTest,
-//          fnTestException,
-//          fnTestPrevious0,
-//          fnTestPrevious1,
-//          fnTestTwoCallbacks,
-//          fnTestWithError,
-//          fnTestWithTimeout} from "./../tests/callback-functions"
+const util   = require("node:util");
+const { CB } = require("./../../lib");
+const fns    = require("./../../dist/tests/callback-functions")
 
 
-const fnTestWithTimeout = function (p_Array,
-                                    p_Timeout,
-                                    p_Value, 
-                                    p_Callback)
+
+
+const blnMixedStructs  = true,
+      blnWithErrors    = false,
+      blnMoreThan1CB   = false,
+      blnWithException = false,
+      blnInvalidParam  = false;
+
+
+(async ()=>
 {
-    setTimeout( () =>
-    {
-        p_Array.push(p_Value);
-        p_Callback(null, p_Value + " returned from callback");
-    }, 
-    p_Timeout);
-}
-
-
-
-const fnTest = function (p_Array,
-                         p_Value, 
-                         p_Callback)
-{
-    p_Array.push(p_Value);
-    p_Callback(null, p_Value + " returned from callback");
-}
-
-const fnTestPrevious1 = function (p_Array,
-                                  p_Value, 
-                                  p_Previous1,
-                                  p_Callback)
-{
-    p_Array.push(p_Previous1 + " " + p_Value);
-    p_Callback(null, p_Value, p_Previous1);
-}
-
-
-// (function() 
-// {
-	// console.log("S");
-// })();
-
-// (async () =>
-// {
     try
     {
         // Mixed structs
-        if (true)
+        if (blnMixedStructs)
         {
         
             const arrResults = [];
         
             const calls   = CB.p( "Parallel calls 1" ,
-                                CB.f (fnTestWithTimeout, arrResults, 300, "P1"),
-                                CB.f (fnTestWithTimeout, arrResults, 200, "P2"),
-                                CB.f (fnTestWithTimeout, arrResults, 100, "P3"),
+                                CB.f (fns.fnTestWithTimeout, arrResults, 300, "P1"),
+                                CB.f (fns.fnTestWithTimeout, arrResults, 200, "P2"),
+                                CB.f (fns.fnTestWithTimeout, arrResults, 100, "P3"),
                                 CB.s ( "Sequential call 1",
-                                        CB.f (fnTest, arrResults, "S1"),
-                                        CB.f (fnTest, arrResults, "S2"),
-                                        CB.f (fnTest, arrResults, "S3"),
+                                        CB.f (fns.fnTest, arrResults, "S1"),
+                                        CB.f (fns.fnTest, arrResults, "S2"),
+                                        CB.f (fns.fnTest, arrResults, "S3"),
                                         CB.p ( "Parallel calls in a sequence call",
-                                                CB.f (fnTestWithTimeout, arrResults, 300, "S4 P1"),
-                                                CB.f (fnTestWithTimeout, arrResults, 200, "S4 P2"),
-                                                CB.f (fnTestWithTimeout, arrResults, 100, "S4 P3"),
+                                                CB.f (fns.fnTestWithTimeout, arrResults, 300, "S4 P1"),
+                                                CB.f (fns.fnTestWithTimeout, arrResults, 200, "S4 P2"),
+                                                CB.f (fns.fnTestWithTimeout, arrResults, 100, "S4 P3"),
                                                 CB.s ( "Sequential call 1",
-                                                       CB.f (fnTest, arrResults, "S1"),
-                                                       CB.f (fnTest, arrResults, "S2"),
-                                                       CB.f (fnTest, arrResults, "S3")
+                                                        CB.f (fns.fnTest, arrResults, "S1"),
+                                                        CB.f (fns.fnTest, arrResults, "S2"),
+                                                        CB.f (fns.fnTest, arrResults, "S3")
                                                 )
                                         ),
-                                        //CB.f ("fn",fnTest, arrResults, "___")
-                                        CB.f ("fn",fnTestPrevious1, arrResults, "___", CB.PREVIOUS_RESULT1)
+                                        CB.f ("fn", 
+                                            fns.fnTestPrevious1, arrResults, "___", CB.PREVIOUS_RESULT1)
                                 ),
                                 CB.s ( "Sequential call 2",
                                         CB.f ("alias", 
-                                              fnTest, arrResults, "S5"),
-                                        CB.f (fnTest, arrResults, "S6"),
-                                        CB.f (fnTest, arrResults, "S7")
+                                            fns.fnTest, arrResults, "S5"),
+                                        CB.f (fns.fnTest, arrResults, "S6"),
+                                        CB.f (fns.fnTest, arrResults, "S7")
                                 )
                             );
         
             CB.e(calls, 200000, false, true)
-			.then( (value) =>
-			{
-				console.log(value);
-				console.log(value[1].results);
-				console.log(util.inspect( value.getByAlias("alias").results, {depth: 5}));
-			})
-			.catch( (error) =>
-			{
-			});
-            //console.log(objResult);
-            //console.log(objResult.getByAlias("alias"));
+            .then( (value) =>
+            {
+                console.log(value);
+                console.log(value[1].results);
+                console.log(util.inspect( value.getByAlias("alias").results, {depth: 5}));
+            })
+            .catch( (error) =>
+            {
+            });
         }
 
 
 
-        // // With error
-        // if (false)
-        // {
-        //     const arrResults = [];
+        // With error
+        if (blnWithErrors)
+        {
+            const arrResults = [];
         
-        //     const calls   = CB.s( "Parallel calls 1" ,
-        //                         CB.f (fnTestWithTimeout, arrResults, 300, "P1"),
-        //                         CB.f (fnTestWithError, arrResults, "P2"),
-        //                         CB.f (fnTestWithTimeout, arrResults, 500, "P3")
-        //                     );
+            const calls   = CB.s( "Parallel calls 1" ,
+                                CB.f (fnTestWithTimeout, arrResults, 300, "P1"),
+                                CB.f (fnTestWithError, arrResults, "P2"),
+                                CB.f (fnTestWithTimeout, arrResults, 500, "P3")
+                            );
         
         
-        //     const objResult = await CB.e(calls, 5000, false)
-        //     console.log(objResult);
-        //     console.log(objResult.getByAlias("alias"));
+            const objResult = await CB.e(calls, 5000, false)
+            console.log(objResult);
+            console.log(objResult.getByAlias("alias"));
 
-        // }
-
-
-        // // More than 1 callback
-        // if (false)
-        // {
-        //     const arrExec = [];
-
-        //     const calls =   CB.s( "Sequential calls 1" ,
-        //                         CB.f (fnTestTwoCallbacks, arrExec, "S2"),
-        //                         CB.f (fnTestWithTimeout, arrExec, 200, "S1"),
-        //                     );
-
-        //     const objResult = await CB.e(calls, 5000, false)
-        // }
+        }
 
 
-        // // Exception in function execution
-        // if (false)
-        // {
-        //     const arrExec = [];
 
-        //     const calls = CB.s( 
-        //                       CB.f (fnTestException,   arrExec, "S0"),
-        //                       CB.f (fnTestWithTimeout, arrExec, 200, "S1")
-        //                   );
-    
-    
-    
-        //     const fnCallback = (error, timeout, objResult) =>
-        //     {
-        //         console.log(error, objResult );
-        //     }
-    
-            
-        //     CB.e(calls, 5000, true, true, fnCallback);
-        // }
+        // More than 1 callback
+        if (blnMoreThan1CB)
+        {
+            const arrExec = [];
+
+            const calls =   CB.s( "Sequential calls 1" ,
+                                CB.f (fnTestTwoCallbacks, arrExec, "S2"),
+                                CB.f (fnTestWithTimeout, arrExec, 200, "S1"),
+                            );
+
+            const objResult = await CB.e(calls, 5000, false)
+        }
 
 
-        // // Invalid param
-        // if (false)
-        // {
-        //     const arrExec = [];
 
-        //     const calls =   CB.f (fnTestPrevious0, arrExec, "S0");
+        // Exception in function execution
+        if (blnWithException)
+        {
+            const arrExec = [];
 
-        //     const fnCallback = (error, timeout, objResult) =>
-        //     {
-        //         console.log (error )
-        //     }
+            const calls = CB.s( 
+                              CB.f (fnTestException,   arrExec, "S0"),
+                              CB.f (fnTestWithTimeout, arrExec, 200, "S1")
+                          );
+
+
+
+            const fnCallback = (error, timeout, objResult) =>
+            {
+                console.log(error, objResult );
+            }
 
             
-        //     CB.e(calls, 5000, true, true, fnCallback);
-        // }
+            CB.e(calls, 5000, true, true, fnCallback);
+        }
 
+
+
+        // Invalid param
+        if (blnInvalidParam)
+        {
+            const arrExec = [];
+
+            const calls =   CB.f (fnTestPrevious0, arrExec, "S0");
+
+            const fnCallback = (error, timeout, objResult) =>
+            {
+                console.log (error )
+            }
+
+            
+            CB.e(calls, 5000, true, true, fnCallback);
+        }
     }
     catch (p_Exception)
     {
         console.log(p_Exception);
     }
-//})();
 
-
-/*
-
-0 = SequentialResult {#_Count: 3, 0: FunctionResult, 1: FunctionResult, 2: FunctionResult}
-1 = FunctionResult {#_Error: null, #_Results: Array(1)}
-2 = FunctionResult {#_Error: Error: Error test\n    at Object.fnTestWithErr… (C:\Repos\GitHub\node-package-callback-hand…, #_Results: Array(0)}
-3 = FunctionResult {#_Error: null, #_Results: Array(1)}
-
-Count   = 4
-Error   = true
-Timeout = false
-*/
+})();

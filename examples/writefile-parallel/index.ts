@@ -13,7 +13,7 @@ type FileStruct =
 
 export const WriteParallel: Function = async function()
 {
-    const strBasePath: string = path.resolve(__dirname, "./_files");
+    const strBasePath: string = path.resolve(path.dirname(""), "examples/writefile-parallel/_files");
     const arrFiles:    Array<FileStruct> =
     [
         {file: path.resolve(strBasePath, "file1"), content: "Content of file 1"},
@@ -41,6 +41,7 @@ export const WriteParallel: Function = async function()
     // Check results
     if (objResultDelete.timeout || objResultDelete.error)
     {
+        console.log(objResultDelete.getErrors())
         console.log("Something went wrong while deleting current and writing them again");
         return;
     }

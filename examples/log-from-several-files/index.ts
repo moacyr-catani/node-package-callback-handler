@@ -13,7 +13,7 @@ type FileStruct =
 
 export const WriteLog: Function = async function()
 {
-    const strBasePath: string = path.resolve(__dirname, "./_files");
+    const strBasePath: string = path.resolve(path.dirname(""), "examples/log-from-several-files/_files");
     const dtmNow:      Date   = new Date(Date.now());
     const strLogFile:  string = path.resolve(strBasePath, dtmNow.toISOString().substring(0, 10) + ".log");
     const arrFiles:    Array<FileStruct> =

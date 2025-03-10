@@ -3,22 +3,7 @@ import { CB,
          FunctionResult,
          Result,
          SequentialResult }  from "../../../src";
-import { fnTest, 
-         fnTestException, 
-         fnTestPrevious0, 
-         fnTestPrevious1, 
-         fnTestPrevious2, 
-         fnTestPrevious3, 
-         fnTestPrevious4, 
-         fnTestPrevious5,
-         fnTestPrevious6,
-         fnTestPrevious7,
-         fnTestPrevious8,
-         fnTestPrevious9,
-         fnTestPreviousError,
-         fnTestTwoCallbacks,
-         fnTestWithError, 
-         fnTestWithTimeout } from "../../common/callback-functions.js";
+import * as fns from "../../common/callback-functions";
 
 
 
@@ -31,16 +16,15 @@ describe ("Async result", ()=>
         const arrExec: string[] = [];
 
         const calls =   CB.p( "Parallel calls 1" ,
-                            CB.f (fnTestWithTimeout, arrExec, 1200, "P1"),
-                            CB.f (fnTestWithTimeout, arrExec, 1100, "P2"),
-                            CB.f (fnTestWithTimeout, arrExec, 1000, "P3"),
-                            CB.f (fnTestWithTimeout, arrExec,  900, "P4"),
-                            CB.f (fnTestWithTimeout, arrExec,  800, "P5"),
-                            CB.f (fnTestWithTimeout, arrExec,  700, "P6"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 1200, "P1"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 1100, "P2"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 1000, "P3"),
+                            CB.f (fns.fnTestWithTimeout, arrExec,  900, "P4"),
+                            CB.f (fns.fnTestWithTimeout, arrExec,  800, "P5"),
+                            CB.f (fns.fnTestWithTimeout, arrExec,  700, "P6"),
                             CB.f ("fn7",
-                                  fnTestWithTimeout, arrExec,  600, "P7"),
+                                fns.fnTestWithTimeout, arrExec,  600, "P7"),
                         );
-
 
         const objResult: Result = await CB.e(calls, 5000);
         const fn7: FunctionResult = <FunctionResult>objResult.getByAlias("fn7");
@@ -74,14 +58,14 @@ describe ("Async result", ()=>
         const arrExec: string[] = [];
 
         const calls =   CB.p (
-                            CB.f (fnTestWithTimeout, arrExec, 1200, "P1"),
-                            CB.f (fnTestWithTimeout, arrExec, 1100, "P2"),
-                            CB.f (fnTestWithTimeout, arrExec, 1000, "P3"),
-                            CB.f (fnTestWithTimeout, arrExec,  900, "P4"),
-                            CB.f (fnTestWithTimeout, arrExec,  800, "P5"),
-                            CB.f (fnTestWithTimeout, arrExec,  700, "P6"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 1200, "P1"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 1100, "P2"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 1000, "P3"),
+                            CB.f (fns.fnTestWithTimeout, arrExec,  900, "P4"),
+                            CB.f (fns.fnTestWithTimeout, arrExec,  800, "P5"),
+                            CB.f (fns.fnTestWithTimeout, arrExec,  700, "P6"),
                             CB.f ("fn7",
-                                  fnTestWithTimeout, arrExec,  600, "P7"),
+                                  fns.fnTestWithTimeout, arrExec,  600, "P7"),
                         );
 
 
@@ -116,14 +100,14 @@ describe ("Async result", ()=>
         const arrExec: string[] = [];
 
         const calls =   CB.s( "Sequential calls 1" ,
-                            CB.f (fnTestWithTimeout, arrExec, 200, "S1"),
-                            CB.f (fnTestWithTimeout, arrExec, 100, "S2"),
-                            CB.f (fnTestWithTimeout, arrExec, 300, "S3"),
-                            CB.f (fnTestWithTimeout, arrExec,  50, "S4"),
-                            CB.f (fnTestWithTimeout, arrExec,  20, "S5"),
-                            CB.f (fnTestWithTimeout, arrExec, 100, "S6"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 200, "S1"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 100, "S2"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 300, "S3"),
+                            CB.f (fns.fnTestWithTimeout, arrExec,  50, "S4"),
+                            CB.f (fns.fnTestWithTimeout, arrExec,  20, "S5"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 100, "S6"),
                             CB.f ("fn7",
-                                  fnTestWithTimeout, arrExec,  20, "S7"),
+                                  fns.fnTestWithTimeout, arrExec,  20, "S7"),
                         );
 
 
@@ -168,27 +152,27 @@ describe ("Async result", ()=>
 
         const calls =   CB.s( "Sequential calls 1" ,
                             CB.f ("previous0",
-                                  fnTestPrevious0,   arrExec, "S0"),
+                                  fns.fnTestPrevious0,   arrExec, "S0"),
                             CB.f ("previous1",
-                                  fnTestPrevious1,   arrExec, "S1", CB.PREVIOUS_RESULT1),
+                                  fns.fnTestPrevious1,   arrExec, "S1", CB.PREVIOUS_RESULT1),
                             CB.f ("previous2",
-                                  fnTestPrevious2,   arrExec, "S2", CB.PREVIOUS_RESULT1, CB.PREVIOUS_RESULT2),
+                                  fns.fnTestPrevious2,   arrExec, "S2", CB.PREVIOUS_RESULT1, CB.PREVIOUS_RESULT2),
                             CB.f ("previous3",
-                                  fnTestPrevious3,   arrExec, "S3", CB.PREVIOUS_RESULT1, CB.PREVIOUS_RESULT2, CB.PREVIOUS_RESULT3),
+                                  fns.fnTestPrevious3,   arrExec, "S3", CB.PREVIOUS_RESULT1, CB.PREVIOUS_RESULT2, CB.PREVIOUS_RESULT3),
                             CB.f ("previous4",
-                                  fnTestPrevious4,   arrExec, "S4", CB.PREVIOUS_RESULT1, CB.PREVIOUS_RESULT2, CB.PREVIOUS_RESULT3, CB.PREVIOUS_RESULT4),
+                                  fns.fnTestPrevious4,   arrExec, "S4", CB.PREVIOUS_RESULT1, CB.PREVIOUS_RESULT2, CB.PREVIOUS_RESULT3, CB.PREVIOUS_RESULT4),
                             CB.f ("previous5",
-                                  fnTestPrevious5,   arrExec, "S5", CB.PREVIOUS_RESULT1, CB.PREVIOUS_RESULT2, CB.PREVIOUS_RESULT3, CB.PREVIOUS_RESULT4, CB.PREVIOUS_RESULT5),
+                                  fns.fnTestPrevious5,   arrExec, "S5", CB.PREVIOUS_RESULT1, CB.PREVIOUS_RESULT2, CB.PREVIOUS_RESULT3, CB.PREVIOUS_RESULT4, CB.PREVIOUS_RESULT5),
                             CB.f ("previous6",
-                                  fnTestPrevious6,   arrExec, "S6", CB.PREVIOUS_RESULT1, CB.PREVIOUS_RESULT2, CB.PREVIOUS_RESULT3, CB.PREVIOUS_RESULT4, CB.PREVIOUS_RESULT5, CB.PREVIOUS_RESULT6),
+                                  fns.fnTestPrevious6,   arrExec, "S6", CB.PREVIOUS_RESULT1, CB.PREVIOUS_RESULT2, CB.PREVIOUS_RESULT3, CB.PREVIOUS_RESULT4, CB.PREVIOUS_RESULT5, CB.PREVIOUS_RESULT6),
                             CB.f ("previous7",
-                                  fnTestPrevious7,   arrExec, "S7", CB.PREVIOUS_RESULT1, CB.PREVIOUS_RESULT2, CB.PREVIOUS_RESULT3, CB.PREVIOUS_RESULT4, CB.PREVIOUS_RESULT5, CB.PREVIOUS_RESULT6, CB.PREVIOUS_RESULT7),
+                                  fns.fnTestPrevious7,   arrExec, "S7", CB.PREVIOUS_RESULT1, CB.PREVIOUS_RESULT2, CB.PREVIOUS_RESULT3, CB.PREVIOUS_RESULT4, CB.PREVIOUS_RESULT5, CB.PREVIOUS_RESULT6, CB.PREVIOUS_RESULT7),
                             CB.f ("previous8",
-                                  fnTestPrevious8,   arrExec, "S8", CB.PREVIOUS_RESULT1, CB.PREVIOUS_RESULT2, CB.PREVIOUS_RESULT3, CB.PREVIOUS_RESULT4, CB.PREVIOUS_RESULT5, CB.PREVIOUS_RESULT6, CB.PREVIOUS_RESULT7, CB.PREVIOUS_RESULT8),
+                                  fns.fnTestPrevious8,   arrExec, "S8", CB.PREVIOUS_RESULT1, CB.PREVIOUS_RESULT2, CB.PREVIOUS_RESULT3, CB.PREVIOUS_RESULT4, CB.PREVIOUS_RESULT5, CB.PREVIOUS_RESULT6, CB.PREVIOUS_RESULT7, CB.PREVIOUS_RESULT8),
                             CB.f ("previous9",
-                                  fnTestPrevious9,   arrExec, "S9", CB.PREVIOUS_RESULT1, CB.PREVIOUS_RESULT2, CB.PREVIOUS_RESULT3, CB.PREVIOUS_RESULT4, CB.PREVIOUS_RESULT5, CB.PREVIOUS_RESULT6, CB.PREVIOUS_RESULT7, CB.PREVIOUS_RESULT8, CB.PREVIOUS_RESULT9),
+                                  fns.fnTestPrevious9,   arrExec, "S9", CB.PREVIOUS_RESULT1, CB.PREVIOUS_RESULT2, CB.PREVIOUS_RESULT3, CB.PREVIOUS_RESULT4, CB.PREVIOUS_RESULT5, CB.PREVIOUS_RESULT6, CB.PREVIOUS_RESULT7, CB.PREVIOUS_RESULT8, CB.PREVIOUS_RESULT9),
                             CB.f ("previous_Error",
-                                  fnTestPreviousError, arrExec, "E", CB.PREVIOUS_ERROR)
+                                  fns.fnTestPreviousError, arrExec, "E", CB.PREVIOUS_ERROR)
                         );
 
 
@@ -246,9 +230,9 @@ describe ("Async result", ()=>
 
         const calls =   CB.s( "Sequential calls 1" ,
                             CB.f ("previous0",
-                                  fnTestPrevious0,   arrExec, "S0"),
+                                  fns.fnTestPrevious0,   arrExec, "S0"),
                             CB.f ("previous2",
-                                  fnTestPrevious2,   arrExec, "S2", CB.PREVIOUS_RESULT1, CB.PREVIOUS_RESULT2)
+                                  fns.fnTestPrevious2,   arrExec, "S2", CB.PREVIOUS_RESULT1, CB.PREVIOUS_RESULT2)
                         );
 
 
@@ -266,8 +250,8 @@ describe ("Async result", ()=>
         const arrExec: string[] = [];
 
         const calls =   CB.p( "Parallel calls 1" ,
-                            CB.f (fnTestWithError,   arrExec, "S1"),
-                            CB.f (fnTestWithTimeout, arrExec, 100, "S2")
+                            CB.f (fns.fnTestWithError,   arrExec, "S1"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 100, "S2")
                         );
 
         const objResult: Result = await CB.e(calls, 5000, true);                        
@@ -290,8 +274,8 @@ describe ("Async result", ()=>
         const arrExec: string[] = [];
 
         const calls =   CB.s( "Sequential calls 1" ,
-                            CB.f (fnTestWithError,   arrExec, "S1"),
-                            CB.f (fnTestWithTimeout, arrExec, 100, "S2")
+                            CB.f (fns.fnTestWithError,   arrExec, "S1"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 100, "S2")
                         );
 
         const objResult: Result = await CB.e(calls, 5000, true);                        
@@ -314,10 +298,10 @@ describe ("Async result", ()=>
         const arrExec: string[] = [];
 
         const calls =   CB.s( "Sequential calls 1" ,
-                            CB.f (fnTestWithError,   arrExec, "S1"),
-                            CB.f (fnTestWithTimeout, arrExec, 100, "S2"),
-                            CB.f (fnTestWithError,   arrExec, "S1"),
-                            CB.f (fnTestWithTimeout, arrExec, 100, "S2")
+                            CB.f (fns.fnTestWithError,   arrExec, "S1"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 100, "S2"),
+                            CB.f (fns.fnTestWithError,   arrExec, "S1"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 100, "S2")
                         );
 
         const objResult: Result = await CB.e(calls, 5000, false);
@@ -344,14 +328,14 @@ describe ("Async result", ()=>
         const arrExec: string[] = [];
 
         const calls =   CB.s( "Sequential calls 1" ,
-                            CB.f (fnTestWithTimeout, arrExec, 200, "S1"),
-                            CB.f (fnTestWithTimeout, arrExec, 100, "S2"),
-                            CB.f (fnTestWithTimeout, arrExec, 300, "S3"),
-                            CB.f (fnTestWithTimeout, arrExec,  50, "S4"),
-                            CB.f (fnTestWithTimeout, arrExec,  20, "S5"),
-                            CB.f (fnTestWithTimeout, arrExec, 100, "S6"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 200, "S1"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 100, "S2"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 300, "S3"),
+                            CB.f (fns.fnTestWithTimeout, arrExec,  50, "S4"),
+                            CB.f (fns.fnTestWithTimeout, arrExec,  20, "S5"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 100, "S6"),
                             CB.f ("fn7",
-                                  fnTestWithTimeout, arrExec,  20, "S7"),
+                                  fns.fnTestWithTimeout, arrExec,  20, "S7"),
                         );
 
         const objResult: Result = await CB.e(calls, 5000, false, true);
@@ -382,14 +366,14 @@ describe ("Async result", ()=>
         const arrExec: string[] = [];
 
         const calls =   CB.s( "Sequential calls 1" ,
-                            CB.f (fnTestWithTimeout, arrExec, 200, "S1"),
-                            CB.f (fnTestWithTimeout, arrExec, 100, "S2"),
-                            CB.f (fnTestWithTimeout, arrExec, 300, "S3"),
-                            CB.f (fnTestWithTimeout, arrExec,  50, "S4"),
-                            CB.f (fnTestWithTimeout, arrExec,  20, "S5"),
-                            CB.f (fnTestWithTimeout, arrExec, 100, "S6"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 200, "S1"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 100, "S2"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 300, "S3"),
+                            CB.f (fns.fnTestWithTimeout, arrExec,  50, "S4"),
+                            CB.f (fns.fnTestWithTimeout, arrExec,  20, "S5"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 100, "S6"),
                             CB.f ("fn7",
-                                  fnTestWithTimeout, arrExec,  20, "S7"),
+                                  fns.fnTestWithTimeout, arrExec,  20, "S7"),
                         );
 
         const objResult: Result = await CB.e(calls, 5000, false, false);
@@ -417,8 +401,8 @@ describe ("Async result", ()=>
         const arrExec: string[] = [];
 
         const calls =   CB.s( "Sequential calls 1" ,
-                            CB.f (fnTestWithTimeout, arrExec, 200, "S1"),
-                            CB.f (fnTestWithTimeout, arrExec, 100, "S2")
+                            CB.f (fns.fnTestWithTimeout, arrExec, 200, "S1"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 100, "S2")
                         );
 
 
@@ -435,8 +419,8 @@ describe ("Async result", ()=>
         const arrExec: string[] = [];
 
         const calls =   CB.s( "Sequential calls 1" ,
-                            CB.f (fnTestWithTimeout, arrExec, 200, "S1"),
-                            CB.f (fnTestWithTimeout, arrExec, 100, "S2")
+                            CB.f (fns.fnTestWithTimeout, arrExec, 200, "S1"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 100, "S2")
                         );
 
 
@@ -453,8 +437,8 @@ describe ("Async result", ()=>
         const arrExec: string[] = [];
 
         const calls =   CB.s( "Sequential calls 1" ,
-                            CB.f (fnTestWithTimeout, arrExec, 200, "S1"),
-                            CB.f (fnTestWithTimeout, arrExec, 100, "S2")
+                            CB.f (fns.fnTestWithTimeout, arrExec, 200, "S1"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 100, "S2")
                         );
 
 
@@ -471,8 +455,8 @@ describe ("Async result", ()=>
         const arrExec: string[] = [];
 
         const calls =   CB.s( "Sequential calls 1" ,
-                            CB.f (fnTestWithTimeout, arrExec, 200, "S1"),
-                            CB.f (fnTestWithTimeout, arrExec, 100, "S2")
+                            CB.f (fns.fnTestWithTimeout, arrExec, 200, "S1"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 100, "S2")
                         );
 
 
@@ -507,8 +491,8 @@ describe ("Async result", ()=>
         const arrExec: string[] = [];
 
         const calls =   CB.s( "Sequential calls 1" ,
-                            CB.f (fnTestWithTimeout, arrExec, 200, "S1"),
-                            CB.f (fnTestWithTimeout, arrExec, 100, "S2")
+                            CB.f (fns.fnTestWithTimeout, arrExec, 200, "S1"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 100, "S2")
                         );
 
 
@@ -536,8 +520,8 @@ describe ("Async result", ()=>
         const arrExec: string[] = [];
 
         const calls =   CB.s( "Sequential calls 1" ,
-                            CB.f (fnTestTwoCallbacks, arrExec, "S2"),
-                            CB.f (fnTestWithTimeout, arrExec, 200, "S1"),
+                            CB.f (fns.fnTestTwoCallbacks, arrExec, "S2"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 200, "S1"),
                         );
 
 
@@ -553,25 +537,25 @@ describe ("Async result", ()=>
         const arrExec: string[] = [];
 
         const calls =   CB.p( "Parallel calls 1" ,
-                            CB.f (fnTestWithTimeout, arrExec, 1200, "P1"),
-                            CB.f (fnTestWithTimeout, arrExec, 1100, "P2"),
-                            CB.f (fnTestException,   arrExec, "P3"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 1200, "P1"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 1100, "P2"),
+                            CB.f (fns.fnTestException,   arrExec, "P3"),
                             CB.s ( 
                                 "Sequential call 1",
-                                CB.f (fnTest, arrExec, "S1"),
-                                CB.f (fnTest, arrExec, "S2"),
-                                CB.f (fnTest, arrExec, "S3"),
+                                CB.f (fns.fnTest, arrExec, "S1"),
+                                CB.f (fns.fnTest, arrExec, "S2"),
+                                CB.f (fns.fnTest, arrExec, "S3"),
                                 CB.p ( 
                                     "Parallel calls in a sequence call",
-                                    CB.f (fnTestWithTimeout, arrExec, 1200, "S4 P1"),
-                                    CB.f (fnTestWithTimeout, arrExec, 1100, "S4 P2"),
-                                    CB.f (fnTestWithTimeout, arrExec, 1000, "S4 P3")
+                                    CB.f (fns.fnTestWithTimeout, arrExec, 1200, "S4 P1"),
+                                    CB.f (fns.fnTestWithTimeout, arrExec, 1100, "S4 P2"),
+                                    CB.f (fns.fnTestWithTimeout, arrExec, 1000, "S4 P3")
                                 )
                             ),
                             CB.s ( 
-                                CB.f ("alias", fnTest, arrExec, "S5"),
-                                CB.f (fnTest, arrExec, "S6"),
-                                CB.f (fnTest, arrExec, "S7")
+                                CB.f ("alias", fns.fnTest, arrExec, "S5"),
+                                CB.f (fns.fnTest, arrExec, "S6"),
+                                CB.f (fns.fnTest, arrExec, "S7")
                             )
                         );
 
@@ -588,24 +572,24 @@ describe ("Async result", ()=>
         const arrExec: string[] = [];
 
         const calls: ExecStruct = CB.p( "Parallel calls 1" ,
-                                        CB.f (fnTestWithTimeout, arrExec, 300, "P1"),
-                                        CB.f (fnTestWithTimeout, arrExec, 200, "P2"),
-                                        CB.f (fnTestWithTimeout, arrExec, 100, "P3"),
+                                        CB.f (fns.fnTestWithTimeout, arrExec, 300, "P1"),
+                                        CB.f (fns.fnTestWithTimeout, arrExec, 200, "P2"),
+                                        CB.f (fns.fnTestWithTimeout, arrExec, 100, "P3"),
                                         CB.s ( "Sequential call 1",
-                                                CB.f (fnTest, arrExec, "S1"),
-                                                CB.f (fnTest, arrExec, "S2"),
-                                                CB.f (fnTest, arrExec, "S3"),
+                                                CB.f (fns.fnTest, arrExec, "S1"),
+                                                CB.f (fns.fnTest, arrExec, "S2"),
+                                                CB.f (fns.fnTest, arrExec, "S3"),
                                                 CB.p ( "Parallel calls in a sequence call",
-                                                        CB.f (fnTestWithTimeout, arrExec, 300, "S4 P1"),
-                                                        CB.f (fnTestWithTimeout, arrExec, 200, "S4 P2"),
-                                                        CB.f (fnTestWithTimeout, arrExec, 100, "S4 P3")
+                                                        CB.f (fns.fnTestWithTimeout, arrExec, 300, "S4 P1"),
+                                                        CB.f (fns.fnTestWithTimeout, arrExec, 200, "S4 P2"),
+                                                        CB.f (fns.fnTestWithTimeout, arrExec, 100, "S4 P3")
                                                 )
                                         ),
                                         CB.s ( "Sequential call 2",
                                                 CB.f ("alias", 
-                                                    fnTest, arrExec, "S5"),
-                                                CB.f (fnTestPrevious1, arrExec, "S6", CB.PREVIOUS_RESULT1),
-                                                CB.f (fnTest, arrExec, "S7")
+                                                    fns.fnTest, arrExec, "S5"),
+                                                CB.f (fns.fnTestPrevious1, arrExec, "S6", CB.PREVIOUS_RESULT1),
+                                                CB.f (fns.fnTest, arrExec, "S7")
                                         )
                                     );
         const objResult: Result = await CB.e(calls, 5000);
@@ -624,31 +608,31 @@ describe ("Async result", ()=>
         const arrResults: any[] = [];
         
         const calls   = CB.p( "Parallel calls 1" ,
-                            CB.f (fnTestWithTimeout, arrResults, 300, "P1"),
-                            CB.f (fnTestWithTimeout, arrResults, 200, "P2"),
-                            CB.f (fnTestWithTimeout, arrResults, 100, "P3"),
+                            CB.f (fns.fnTestWithTimeout, arrResults, 300, "P1"),
+                            CB.f (fns.fnTestWithTimeout, arrResults, 200, "P2"),
+                            CB.f (fns.fnTestWithTimeout, arrResults, 100, "P3"),
                             CB.s ( "Sequential call 1",
-                                    CB.f (fnTest, arrResults, "S1"),
-                                    CB.f (fnTest, arrResults, "S2"),
-                                    CB.f (fnTest, arrResults, "S3"),
+                                    CB.f (fns.fnTest, arrResults, "S1"),
+                                    CB.f (fns.fnTest, arrResults, "S2"),
+                                    CB.f (fns.fnTest, arrResults, "S3"),
                                     CB.p ( "Parallel calls in a sequence call",
-                                            CB.f (fnTestWithTimeout, arrResults, 300, "S4 P1"),
-                                            CB.f (fnTestWithTimeout, arrResults, 200, "S4 P2"),
-                                            CB.f (fnTestWithTimeout, arrResults, 100, "S4 P3"),
+                                            CB.f (fns.fnTestWithTimeout, arrResults, 300, "S4 P1"),
+                                            CB.f (fns.fnTestWithTimeout, arrResults, 200, "S4 P2"),
+                                            CB.f (fns.fnTestWithTimeout, arrResults, 100, "S4 P3"),
                                             CB.s ( "Sequential call 1",
-                                                   CB.f (fnTest, arrResults, "S1"),
-                                                   CB.f (fnTest, arrResults, "S2"),
-                                                   CB.f (fnTest, arrResults, "S3")
+                                                   CB.f (fns.fnTest, arrResults, "S1"),
+                                                   CB.f (fns.fnTest, arrResults, "S2"),
+                                                   CB.f (fns.fnTest, arrResults, "S3")
                                             )
                                     ),
-                                    //CB.f ("fn",fnTest, arrResults, "___")
-                                    CB.f ("fn",fnTestPrevious1, arrResults, "___", CB.PREVIOUS_RESULT1)
+                                    //CB.f ("fn",fns.fnTest, arrResults, "___")
+                                    CB.f ("fn",fns.fnTestPrevious1, arrResults, "___", CB.PREVIOUS_RESULT1)
                             ),
                             CB.s ( "Sequential call 2",
                                     CB.f ("alias", 
-                                          fnTest, arrResults, "S5"),
-                                    CB.f (fnTest, arrResults, "S6"),
-                                    CB.f (fnTest, arrResults, "S7")
+                                          fns.fnTest, arrResults, "S5"),
+                                    CB.f (fns.fnTest, arrResults, "S6"),
+                                    CB.f (fns.fnTest, arrResults, "S7")
                             )
                         );
     
@@ -666,31 +650,31 @@ describe ("Async result", ()=>
         const arrResults: any[] = [];
         
         const calls   = CB.p( "Parallel calls 1" ,
-                            CB.f (fnTestWithTimeout, arrResults, 300, "P1"),
-                            CB.f (fnTestWithTimeout, arrResults, 200, "P2"),
-                            CB.f (fnTestWithTimeout, arrResults, 100, "P3"),
+                            CB.f (fns.fnTestWithTimeout, arrResults, 300, "P1"),
+                            CB.f (fns.fnTestWithTimeout, arrResults, 200, "P2"),
+                            CB.f (fns.fnTestWithTimeout, arrResults, 100, "P3"),
                             CB.s ( "Sequential call 1",
-                                    CB.f (fnTest, arrResults, "S1"),
-                                    CB.f (fnTest, arrResults, "S2"),
-                                    CB.f (fnTest, arrResults, "S3"),
+                                    CB.f (fns.fnTest, arrResults, "S1"),
+                                    CB.f (fns.fnTest, arrResults, "S2"),
+                                    CB.f (fns.fnTest, arrResults, "S3"),
                                     CB.p ( "Parallel calls in a sequence call",
-                                            CB.f (fnTestWithTimeout, arrResults, 300, "S4 P1"),
-                                            CB.f (fnTestWithTimeout, arrResults, 200, "S4 P2"),
-                                            CB.f (fnTestWithTimeout, arrResults, 100, "S4 P3"),
+                                            CB.f (fns.fnTestWithTimeout, arrResults, 300, "S4 P1"),
+                                            CB.f (fns.fnTestWithTimeout, arrResults, 200, "S4 P2"),
+                                            CB.f (fns.fnTestWithTimeout, arrResults, 100, "S4 P3"),
                                             CB.s ( "Sequential call 1",
-                                                   CB.f (fnTest, arrResults, "S1"),
-                                                   CB.f (fnTest, arrResults, "S2"),
-                                                   CB.f (fnTest, arrResults, "S3")
+                                                   CB.f (fns.fnTest, arrResults, "S1"),
+                                                   CB.f (fns.fnTest, arrResults, "S2"),
+                                                   CB.f (fns.fnTest, arrResults, "S3")
                                             )
                                     ),
-                                    //CB.f ("fn",fnTest, arrResults, "___")
-                                    CB.f ("fn",fnTestPrevious1, arrResults, "___", CB.PREVIOUS_RESULT3)
+                                    //CB.f ("fn",fns.fnTest, arrResults, "___")
+                                    CB.f ("fn",fns.fnTestPrevious1, arrResults, "___", CB.PREVIOUS_RESULT3)
                             ),
                             CB.s ( "Sequential call 2",
                                     CB.f ("alias", 
-                                          fnTest, arrResults, "S5"),
-                                    CB.f (fnTest, arrResults, "S6"),
-                                    CB.f (fnTest, arrResults, "S7")
+                                          fns.fnTest, arrResults, "S5"),
+                                    CB.f (fns.fnTest, arrResults, "S6"),
+                                    CB.f (fns.fnTest, arrResults, "S7")
                             )
                         );
     

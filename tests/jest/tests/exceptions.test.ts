@@ -1,14 +1,10 @@
 import { CB,
-         Result}  from "../../../src";
+         Result}        from "../../../src";
 import { CBException, 
-         CBExceptions }      from "../../../src/exception";
+         CBExceptions } from "../../../src/exception";
 import { CallTypes,
-         ExecStruct}         from "../../../src/calls-struct"
-import { fnTestException, 
-         fnTestPrevious0, 
-         fnTestPrevious1, 
-         fnTestPrevious2, 
-         fnTestWithTimeout } from "../../common/callback-functions";
+         ExecStruct}    from "../../../src/calls-struct"
+import * as fns         from "../../common/callback-functions";
 
 
 
@@ -19,8 +15,8 @@ describe ("Exceptions", () =>
         const arrExec: string[] = [];
 
         const calls = CB.s( 
-                          CB.f (fnTestException,   arrExec, "S0"),
-                          CB.f (fnTestWithTimeout, arrExec, 200, "S1")
+                          CB.f (fns.fnTestException,   arrExec, "S0"),
+                          CB.f (fns.fnTestWithTimeout, arrExec, 200, "S1")
                       );
 
 
@@ -37,8 +33,8 @@ describe ("Exceptions", () =>
         const arrExec: string[] = [];
 
         const calls = CB.s( 
-                          CB.f (fnTestException,   arrExec, "S0"),
-                          CB.f (fnTestWithTimeout, arrExec, 200, "S1")
+                          CB.f (fns.fnTestException,   arrExec, "S0"),
+                          CB.f (fns.fnTestWithTimeout, arrExec, 200, "S1")
                       );
 
 
@@ -71,8 +67,8 @@ describe ("Exceptions", () =>
         {
             CB.s( "Sequential calls 1" ,
                 CB.f ("previous",
-                      fnTestPrevious1,   arrExec, "S0", CB.PREVIOUS_RESULT1),
-                CB.f (fnTestWithTimeout, arrExec, 200, "S1")
+                      fns.fnTestPrevious1,   arrExec, "S0", CB.PREVIOUS_RESULT1),
+                CB.f (fns.fnTestWithTimeout, arrExec, 200, "S1")
             )
         })
         .toThrow()
@@ -88,8 +84,8 @@ describe ("Exceptions", () =>
         {
             CB.p ( 
                 "Sequential calls 1" ,
-                CB.f (fnTestWithTimeout, arrExec, 200, "S1"),
-                CB.f (fnTestPrevious1,   arrExec, "S0", CB.PREVIOUS_RESULT1)
+                CB.f (fns.fnTestWithTimeout, arrExec, 200, "S1"),
+                CB.f (fns.fnTestPrevious1,   arrExec, "S0", CB.PREVIOUS_RESULT1)
             )
         })
         .toThrow()
@@ -127,9 +123,9 @@ describe ("Exceptions", () =>
 
         const calls =   CB.s( "Sequential calls 1" ,
                             CB.f ("previous0",
-                                  fnTestPrevious0,   arrExec, "S0"),
+                                  fns.fnTestPrevious0,   arrExec, "S0"),
                             CB.f ("previous2",
-                                  fnTestPrevious2,   arrExec, "S2", CB.PREVIOUS_RESULT1)
+                                  fns.fnTestPrevious2,   arrExec, "S2", CB.PREVIOUS_RESULT1)
                         );
 
 
@@ -148,7 +144,7 @@ describe ("Exceptions", () =>
     {
         const arrExec: string[] = [];
 
-        const calls =   CB.f (fnTestPrevious0,   arrExec, "S0");
+        const calls =   CB.f (fns.fnTestPrevious0,   arrExec, "S0");
 
 
         expect(() => CB.e(<ExecStruct><unknown>calls, 5000, true))
@@ -161,7 +157,7 @@ describe ("Exceptions", () =>
     {
         const arrExec: string[] = [];
 
-        const calls =   CB.f (fnTestPrevious0, arrExec, "S0");
+        const calls =   CB.f (fns.fnTestPrevious0, arrExec, "S0");
 
         const fnCallback = (error: any) =>
         {

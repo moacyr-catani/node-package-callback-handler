@@ -43,6 +43,17 @@ export type ExecStruct = BaseStruct &
 }
 
 
+export type ParallelStruct = ExecStruct &
+{
+    Type:      CallTypes.Parallel;
+}
+
+
+export type SequentialStruct = ExecStruct &
+{
+    Type:      CallTypes.Sequential;
+}
+
 
 export type RootStruct = ExecStruct &
 {

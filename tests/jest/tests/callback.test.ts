@@ -1,9 +1,6 @@
 import { CB,
          Result }  from "../../../src";
-import { fnTest, 
-         fnTestWithError, 
-         fnTestWithTimeout } from "../../common/callback-functions";
-
+         import * as fns from "../../common/callback-functions";
 
 
 
@@ -15,26 +12,26 @@ describe ("Callback", ()=>
 
         const calls =   CB.p( 
                             "Parallel calls 1" ,
-                            CB.f (fnTestWithTimeout, arrExec, 1200, "P1"),
-                            CB.f (fnTestWithTimeout, arrExec, 1100, "P2"),
-                            CB.f (fnTestWithTimeout, arrExec, 1000, "P3"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 1200, "P1"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 1100, "P2"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 1000, "P3"),
                             CB.s ( 
                                 "Sequential call 1",
-                                CB.f (fnTest, arrExec, "S1"),
-                                CB.f (fnTest, arrExec, "S2"),
-                                CB.f (fnTest, arrExec, "S3"),
+                                CB.f (fns.fnTest, arrExec, "S1"),
+                                CB.f (fns.fnTest, arrExec, "S2"),
+                                CB.f (fns.fnTest, arrExec, "S3"),
                                 CB.p ( 
                                     "Parallel calls in a sequence call",
-                                    CB.f (fnTestWithTimeout, arrExec, 1200, "S4 P1"),
-                                    CB.f (fnTestWithTimeout, arrExec, 1100, "S4 P2"),
-                                    CB.f (fnTestWithTimeout, arrExec, 1000, "S4 P3")
+                                    CB.f (fns.fnTestWithTimeout, arrExec, 1200, "S4 P1"),
+                                    CB.f (fns.fnTestWithTimeout, arrExec, 1100, "S4 P2"),
+                                    CB.f (fns.fnTestWithTimeout, arrExec, 1000, "S4 P3")
                                 )
                             ),
                             CB.s (
                                 "Sequential call 2",
-                                CB.f ("alias", fnTest, arrExec, "S5"),
-                                CB.f (fnTest, arrExec, "S6"),
-                                CB.f (fnTest, arrExec, "S7")
+                                CB.f ("alias", fns.fnTest, arrExec, "S5"),
+                                CB.f (fns.fnTest, arrExec, "S6"),
+                                CB.f (fns.fnTest, arrExec, "S7")
                             )
                         );
 
@@ -87,8 +84,8 @@ describe ("Callback", ()=>
         const arrExec: string[] = [];
 
         const calls =   CB.p( "Parallel calls 1" ,
-                            CB.f (fnTestWithError,   arrExec, "S1"),
-                            CB.f (fnTestWithTimeout, arrExec, 100, "S2")
+                            CB.f (fns.fnTestWithError,   arrExec, "S1"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 100, "S2")
                         );
 
 
@@ -127,14 +124,14 @@ describe ("Callback", ()=>
         const arrExec: string[] = [];
 
         const calls =   CB.s( "Sequential calls 1" ,
-                            CB.f (fnTestWithTimeout, arrExec, 200, "S1"),
-                            CB.f (fnTestWithTimeout, arrExec, 100, "S2"),
-                            CB.f (fnTestWithTimeout, arrExec, 300, "S3"),
-                            CB.f (fnTestWithTimeout, arrExec,  50, "S4"),
-                            CB.f (fnTestWithTimeout, arrExec,  20, "S5"),
-                            CB.f (fnTestWithTimeout, arrExec, 100, "S6"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 200, "S1"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 100, "S2"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 300, "S3"),
+                            CB.f (fns.fnTestWithTimeout, arrExec,  50, "S4"),
+                            CB.f (fns.fnTestWithTimeout, arrExec,  20, "S5"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 100, "S6"),
                             CB.f ("fn7",
-                                  fnTestWithTimeout, arrExec,  20, "S7"),
+                                  fns.fnTestWithTimeout, arrExec,  20, "S7"),
                         );
 
 
@@ -174,4 +171,47 @@ describe ("Callback", ()=>
     }, 
     20000)
  
+
+
+    test ("Default timeout", (done) =>
+        {
+    
+            const arrExec: string[] = [];
+    
+            const calls =   CB.s( "Sequential calls 1" ,
+                                CB.f (fns.fnTestWithTimeout, arrExec, 200, "S1"),
+                                CB.f (fns.fnTestWithTimeout, arrExec, 100, "S2"),
+                                CB.f (fns.fnTestWithTimeout, arrExec, 300, "S3"),
+                                CB.f (fns.fnTestWithTimeout, arrExec,  50, "S4"),
+                                CB.f (fns.fnTestWithTimeout, arrExec,  20, "S5"),
+                                CB.f (fns.fnTestWithTimeout, arrExec, 100, "S6"),
+                                CB.f ("fn7",
+                                      fns.fnTestWithTimeout, arrExec,  20, "S7"),
+                            );
+    
+    
+    
+            const fnCallback = (error: any, timeout: boolean, objResult: Result) =>
+            {
+                expect(timeout)
+                .toBe(false);
+        
+                expect(error)
+                .toBe(false);
+    
+                expect(objResult.timeout)
+                .toBe(false);
+        
+                expect(objResult.error)
+                .toBe(false);
+        
+                
+                done();
+            }
+    
+    
+            CB.e(calls, fnCallback);
+        }, 
+        20000)
+     
 });

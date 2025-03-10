@@ -1,19 +1,7 @@
 import { CB, 
          ExecStruct, 
          Result } from "./../src/index.js";
-
-//const CB = require("./../lib/cjs/index");
-
-//console.log(CB);
-
-// import { fnTest,
-//          fnTestException,
-//          fnTestPrevious0,
-//          fnTestPrevious1,
-//          fnTestTwoCallbacks,
-//          fnTestWithError,
-//          fnTestWithTimeout} from "../tests/common/callback-functions.js"
-import * as fns from "../tests/common/callback-functions.js";
+import * as fns   from "../tests/common/callback-functions.js";
 
 
 
