@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": 
+  {
+    "diagnostics": true,
+    "outDir": "../dist",
+    "declarationDir": "../dist/types"
+
+  },
+  "files": ["../debug/index.ts", "../examples/index.ts"]
+}

@@ -1,7 +1,8 @@
-import { select, Separator } from '@inquirer/prompts';
-import { input } from '@inquirer/prompts';
-import { WriteParallel } from './writefile-parallel';
-import { WriteLog } from './log-from-several-files';
+import { select } from '@inquirer/prompts';
+//import {  Separator } from '@inquirer/prompts';
+//import { input } from '@inquirer/prompts';
+import { WriteParallel } from './writefile-parallel/index.js';
+import { WriteLog }      from './log-from-several-files/index.js';
 
 (async ()=>
 {

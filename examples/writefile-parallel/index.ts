@@ -1,13 +1,6 @@
 import fs   from "node:fs";
 import path from "node:path";
-import { CB,
-         CBException,
-         FunctionStruct,
-         ExecStruct,
-         FunctionResult,
-         ParallelResult,
-         Result,
-         SequentialResult } from "./../../src"
+import { CB } from "./../../src/index.js"
 
 
 

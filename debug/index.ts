@@ -16,13 +16,19 @@ import { fnTest,
 
 
 
+const blnMixedStructs  = true,
+      blnWithErrors    = false,
+      blnMoreThan1CB   = false,
+      blnWithException = false,
+      blnInvalidParam  = false;
+
 
 (async ()=>
 {
     try
     {
         // Mixed structs
-        if (true)
+        if (blnMixedStructs)
         {
         
             const arrResults: any[] = [];
@@ -65,7 +71,7 @@ import { fnTest,
 
 
         // With error
-        if (false)
+        if (blnWithErrors)
         {
             const arrResults: any[] = [];
         
@@ -84,7 +90,7 @@ import { fnTest,
 
 
         // More than 1 callback
-        if (false)
+        if (blnMoreThan1CB)
         {
             const arrExec: string[] = [];
 
@@ -99,7 +105,7 @@ import { fnTest,
 
 
         // Exception in function execution
-        if (false)
+        if (blnWithException)
         {
             const arrExec: string[] = [];
 
@@ -121,7 +127,7 @@ import { fnTest,
 
 
         // Invalid param
-        if (false)
+        if (blnInvalidParam)
         {
             const arrExec: string[] = [];
 
