@@ -101,7 +101,8 @@ import { CB } from "@mcatani/callback-handler";
 // cjs
 const { CB } = require("@mcatani/callback-handler");
 ```
-It can be used in JavaScript or TypeScript codes (no need for additional types).
+> [!TIP]
+> It can be used in JavaScript or TypeScript codes (no need for additional types).
 
 
 
