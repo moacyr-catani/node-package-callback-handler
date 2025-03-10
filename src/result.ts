@@ -289,7 +289,14 @@ export class InternalResult
 
         // Stores result in dictionary
         if (p_Alias !== "")
+        {
+            if (p_Alias in this.#_AliasResult)
+            {
+                this.SetException!(p_Index, p_Alias, new CBException(CBExceptions.ResultAlreadySetForAlias));
+                return;
+            }
             this.#_AliasResult[p_Alias] = objResult;
+        }
 
 
         // Indexed property

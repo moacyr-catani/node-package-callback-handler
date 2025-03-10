@@ -121,7 +121,7 @@ It is composed of three different structures:
 
 Stores info about what function to execute and the arguments to be used, except for the callback (which is always the last argument).
 
-It is created through `CB.p()` function, which has two overloaded signatures:
+It is created through `CB.f()` function, which has two overloaded signatures:
 
 ```ts
 // Without alias
@@ -276,10 +276,10 @@ CB.e (execStruct, callback);
 
 The callback function must have the signature:
 ```ts
-function(error:   boolean |,   // 🠄 true, if an error was returned from any function,
-                  CBException  //    or CBException, if any exception was thrown during execution
-         timeout: boolean,     // 🠄 true if ellapsed execution time exceeds defined timeout
-         result:  Result);     // 🠄 Result object
+function (error:   boolean |,   // 🠄 true, if an error was returned from any function,
+                   CBException  //    or CBException, if any exception was thrown during execution
+          timeout: boolean,     // 🠄 true if ellapsed execution time exceeds defined timeout
+          result:  Result);     // 🠄 Result object
 ```
 <br/>
 
@@ -287,7 +287,7 @@ function(error:   boolean |,   // 🠄 true, if an error was returned from any f
 
 To use async/await approach, just ignore the callback argument of execution function 
 ```ts
-const result = await CB.e (structure);
+const result: Result = await CB.e (structure);
 ```
 <br/>
 <br/>
@@ -297,43 +297,43 @@ const result = await CB.e (structure);
 The execution function has several overloads
 ```ts
     // For await/async approach
-    function e(execStruct:    ParallelStruct | SequentialStruct): Promise<Result>;
-    function e(execStruct:    ParallelStruct | SequentialStruct, 
-               timeout:       number): Promise<Result>;
-    function e(execStruct:    ParallelStruct | SequentialStruct, 
-               timeout:       number,
-               breakOnError:  boolean): Promise<Result>;
-    function e(execStruct:    ParallelStruct | SequentialStruct, 
-               timeout:       number,
-               breakOnError:  boolean,
-               stats:         boolean): Promise<Result>;
+    function e (execStruct:    ParallelStruct | SequentialStruct): Promise<Result>;
+    function e (execStruct:    ParallelStruct | SequentialStruct, 
+                timeout:       number): Promise<Result>;
+    function e (execStruct:    ParallelStruct | SequentialStruct, 
+                timeout:       number,
+                breakOnError:  boolean): Promise<Result>;
+    function e (execStruct:    ParallelStruct | SequentialStruct, 
+                timeout:       number,
+                breakOnError:  boolean,
+                stats:         boolean): Promise<Result>;
 
 
     // For callback approach
-    function e(execStruct:    ParallelStruct | SequentialStruct, 
-               callback:      TCallback): void;
-    function e(execStruct:    ParallelStruct | SequentialStruct, 
-               timeout:       number,
-               callback:      TCallback): void;
-    function e(execStruct:    ParallelStruct | SequentialStruct, 
-               timeout:       number,
-               callback:      TCallback): void;
-    function e(execStruct:    ParallelStruct | SequentialStruct, 
-               timeout:       number,
-               breakOnError:  boolean,
-               callback:      TCallback): void;
-    function e(execStruct:    ParallelStruct | SequentialStruct, 
-               timeout:       number,
-               breakOnError:  boolean,
-               stats:         boolean,
-               callback:      TCallback): void
+    function e (execStruct:    ParallelStruct | SequentialStruct, 
+                callback:      TCallback): void;
+    function e (execStruct:    ParallelStruct | SequentialStruct, 
+                timeout:       number,
+                callback:      TCallback): void;
+    function e (execStruct:    ParallelStruct | SequentialStruct, 
+                timeout:       number,
+                callback:      TCallback): void;
+    function e (execStruct:    ParallelStruct | SequentialStruct, 
+                timeout:       number,
+                breakOnError:  boolean,
+                callback:      TCallback): void;
+    function e (execStruct:    ParallelStruct | SequentialStruct, 
+                timeout:       number,
+                breakOnError:  boolean,
+                stats:         boolean,
+                callback:      TCallback): void
 ``` 
 
 | Argument     | Description | Default value |
 | ----------   | ----------- | ----------- |
 | execStruct   | Execution structure (`ParallelStruct` or `SequentialStruct`) to be executed            |       |
 | timeout      | Maximum time (in milliseconds) for the execution to complete                           | 5000  |
-| breakOnError | Defines if execution must be stopped at first error returned from a function structure | false |
+| breakOnError | Defines if execution must be stopped at first error returned from a function structure | true  |
 | stats        | Defines if the execution time ellapsed must be gathered)                               | false |
 | callback     | Callback function to retrieve results (only for callback approach)                     |       |
 
@@ -349,10 +349,9 @@ const result: Result = await CB.e (executionStructure,  // 🠄 Execution struct
                                    2000,                // 🠄 2 seconds for timeout
                                    false,               // 🠄 Don't stop execution if error is returned
                                    true);               // 🠄 Gather stats info
+```
 
-
-
-
+```ts
 // Using callback
 CB.e (executionStructure,           // 🠄 Execution structure
       (error, timeout, result) =>   // 🠄 Callback function
@@ -380,6 +379,95 @@ CB.e (executionStructure,           // 🠄 Execution structure
 ```
 
 ## Getting results
+
+Results for the execution are stored in an object of `Result` class.
+
+`Result` is an array-like object, i.e.:
+- it has a `lenght` property,
+- can be iterated using a `for` statement,
+- results can be retrieved by position
+
+
+### Getting results by position
+
+```ts
+/**
+ * Reading content from several files in parallel
+ */
+
+const struct = CB.p ( 
+                   CB.f (fs.readFile, PathToFile1, {encoding: 'utf-8'}), // 🠄 result[1]
+                   CB.f (fs.readFile, PathToFile2, {encoding: 'utf-8'}), // 🠄 result[2]
+                   CB.f (fs.readFile, PathToFile3, {encoding: 'utf-8'}), // 🠄 result[3]
+                   CB.f (fs.readFile, PathToFile4, {encoding: 'utf-8'}) //  🠄 result[4]
+               );
+
+const result = await CB.e (struct);
+
+
+if (result.error || result.timeout)
+{
+    console.log("Something wrong");
+}
+else
+{
+    const file1Content = result[1].results[0];
+    const file1Content = result[2].results[0];
+    const file1Content = result[3].results[0];
+    const file1Content = result[4].results[0];
+}
+```
+
+
+
+### Getting results by alias
+
+```ts
+/**
+ * Reading content from several files in parallel
+ */
+
+const struct = CB.p ( 
+                   //       ⮦ aliases
+                   CB.f ("file1", fs.readFile, PathToFile1, {encoding: 'utf-8'}),
+                   CB.f ("file2", fs.readFile, PathToFile2, {encoding: 'utf-8'}),
+                   CB.f ("file3", fs.readFile, PathToFile3, {encoding: 'utf-8'}),
+                   CB.f ("file4", fs.readFile, PathToFile4, {encoding: 'utf-8'})
+               );
+
+const result = await CB.e (struct);
+
+
+if (result.error || result.timeout)
+{
+    console.log("Something wrong");
+}
+else
+{
+    const file1Content = result.getByAlias("file1").results[0];
+    const file1Content = result.getByAlias("file2").results[0];
+    const file1Content = result.getByAlias("file3").results[0];
+    const file1Content = result.getByAlias("file4").results[0];
+}
+```
+
+
+### Anatomy of `Result` object
+
+Results for every **Execution structure** is stored in Result object in the same position as it was coded. Example:
+```ts
+Parallel            🠄 result[0]
+┣━ Function         🠄 result[1]
+┣━ Sequential       🠄 result[2]
+┃  ┣━ Function      🠄 leaf
+┃  ┣━ Function      🠄 leaf
+┃  ┗━ Parallel      🠄 node
+┃     ┣━ Function   🠄 leaf
+┃     ┗━ Function   🠄 leaf 
+┗━ Paralell         🠄 node
+   ┣━ Function      🠄 leaf
+   ┗━ Function      🠄 leaf
+```
 
 ## Checking errors
 

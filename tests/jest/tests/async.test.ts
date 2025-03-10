@@ -532,6 +532,23 @@ describe ("Async result", ()=>
 
 
 
+    test ("Duplicate aliases", async () =>
+    {
+        const arrExec: string[] = [];
+
+        const calls =   CB.s( "Sequential calls 1" ,
+                            CB.f ("alias1", fns.fnTestWithTimeout, arrExec, 200, "S1"),
+                            CB.f ("alias1", fns.fnTestWithTimeout, arrExec, 200, "S2")
+                        );
+
+
+        await expect(CB.e(calls, 5000, true))
+        .rejects
+        .toThrow()
+    })
+
+
+
     test ("Exception in execution", async () =>
     {
         const arrExec: string[] = [];

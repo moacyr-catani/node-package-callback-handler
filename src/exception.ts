@@ -16,7 +16,8 @@ export enum CBExceptions
     TokenInParallelCall      = 5,
     InvalidTokenResult       = 6,
     InvalidStructToExecute   = 7,
-    NoStatsGathered          = 8
+    NoStatsGathered          = 8,
+    ResultAlreadySetForAlias = 9
 }
 
 
@@ -33,6 +34,7 @@ const ERRORS_DETAILS: Record<CBExceptions, TError> =
     [CBExceptions.InvalidTokenResult]:       {message: "Invalid use of token result",                     explanation: "You've tried to use a token to access previous result, but previous call has not such result in array"},
     [CBExceptions.InvalidStructToExecute]:   {message: "Execution struct must be parallel or sequential", explanation: "You've tried execute a struct that is not parallel nor sequential, thus invalid"},
     [CBExceptions.NoStatsGathered]:          {message: "No stats were gathered",                          explanation: "You've tried access stats for a call, but executed struct with 'Stats=false'"},
+    [CBExceptions.ResultAlreadySetForAlias]: {message: "Result was set more than once for this alias",    explanation: "A result has already been set for this alias"},
 };
 
 
