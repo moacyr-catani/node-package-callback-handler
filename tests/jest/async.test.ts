@@ -3,7 +3,7 @@ import { CB,
          FunctionResult, 
          ParallelResult,
          Result,
-         SequentialResult }  from "../src";
+         SequentialResult }  from "../../src";
 import { fnTest, 
          fnTestException, 
          fnTestPrevious0, 
@@ -19,7 +19,7 @@ import { fnTest,
          fnTestPreviousError,
          fnTestTwoCallbacks,
          fnTestWithError, 
-         fnTestWithTimeout } from "./callback-functions";
+         fnTestWithTimeout } from "../callback-functions";
 
 
 

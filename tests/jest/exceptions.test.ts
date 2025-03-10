@@ -2,20 +2,20 @@ import { CB,
          FunctionResult, 
          ParallelResult,
          Result,
-         SequentialResult}  from "../src";
+         SequentialResult}  from "../../src";
 import { CBException, 
-         CBExceptions }      from "../src/exception";
+         CBExceptions }      from "../../src/exception";
 import { BaseStruct,
          CallTypes,
          FunctionStruct,
          ExecStruct,
-         RootStruct}         from "../src/calls-struct"
+         RootStruct}         from "../../src/calls-struct"
 import { fnTest, 
          fnTestException, 
          fnTestPrevious0, 
          fnTestPrevious1, 
          fnTestPrevious2, 
-         fnTestWithTimeout } from "./callback-functions";
+         fnTestWithTimeout } from "../callback-functions";
 
 
 

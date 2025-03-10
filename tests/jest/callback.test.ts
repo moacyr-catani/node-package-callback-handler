@@ -2,11 +2,11 @@ import { CB,
          FunctionResult, 
          ParallelResult,
          Result,
-         SequentialResult }  from "../src";
+         SequentialResult }  from "../../src";
 import { fnTest, 
          fnTestException, 
          fnTestWithError, 
-         fnTestWithTimeout } from "./callback-functions";
+         fnTestWithTimeout } from "../callback-functions";
 
 
 
