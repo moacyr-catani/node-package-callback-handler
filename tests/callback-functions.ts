@@ -48,6 +48,7 @@ export const fnTestException: Function = function (p_Array:    string[],
                                                    p_Value:    string, 
                                                    p_Callback: Function)
 {
+    console.log(p_Array, p_Value, p_Callback);
     throw new Error("Error in fn");
 }
 

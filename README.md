@@ -56,7 +56,7 @@ const structCB =
                                                                        //    previous call to log file
             ),
 
-            // Repeats for every file ...
+            // The same (in parallel) for every file ...
             CB.s (
                 CB.f ( fs.readFile, file2, {encoding: 'utf-8'} ),
                 CB.f ( fs.appendFile, logFile, CB.PREVIOUS_RESULT1)
@@ -124,7 +124,6 @@ Example using `fs.writeFile()` to write some text in UTF-8 enconding to a file:
 CB.f (fs.writeFile, PathToFile, TextToWrite, "utf-8")
 ```
 <br/>
-<br/>
 
 
 
@@ -157,7 +156,6 @@ CB. p (
 );
 ```
 <br/>
-<br/>
 
 ### Sequential structure
 
@@ -188,6 +186,8 @@ CB. p (
     CB.f (fs.writeFile, PathToFile3, TextToWrite3, "utf-8")
 )
 ```
+<br/>
+
 
 ### Anatomy of execution structure
 
@@ -200,7 +200,9 @@ Execution structure is a tree where:
 
 ## Executing functions
 
-You can execute structures using **async/await** (Promise) or providing a **callback function**.
+Use the function `CB.e()` to execute a previously created execution structure and get the results.
+
+You can do that using **async/await** (Promise) or providing a **callback function**.
 <br/>
 <br/>
 
@@ -230,9 +232,38 @@ const result = await CB.e (structure);
 <br/>
 
 
+#### Anatomy of execution function (`CB.e()`)
+The execution function has several overloads
+```ts
+    function e(p_CallStruct:    ExecStruct): Promise<Result>;
+    function e(p_CallStruct:    ExecStruct, 
+               p_Timeout:       number): Promise<Result>;
+    function e(p_CallStruct:    ExecStruct, 
+               p_Timeout:       number,
+               p_BreakOnError:  boolean): Promise<Result>;
+    function e(p_CallStruct:    ExecStruct, 
+               p_Timeout:       number,
+               p_BreakOnError:  boolean,
+               p_Stats:         boolean): Promise<Result>;
+``` 
 
 ## Getting results
 
 ## Checking errors
 
 ## Exceptions
+All exceptions and errors will be instances of `CBException` class, which has the properties:
+
+| Property | Description |
+| ----------- | ----------- |
+| details   | This will be set when the exception comes from a function execution or when a function execution returns an error in callback. It will have a `callIndex` value and may have a `callAlias` value (if provided).|
+| explanation | A brief text with clues as to what might have gone wrong |
+
+<br/>
+<br/>
+
+
+## Feedback
+If you have any comment, sugestion or if you find any problem using `callback-handler`, create, please, an [issue](https://github.com/moacyr-catani/node-package-callback-handler/issues) in GitHub projec's page.
+
+I do appreciate any feedback and will do my best to answer quickly.

@@ -1,7 +1,10 @@
-import util from "node:util";
 import { CB, 
          ExecStruct, 
-         Result } from "./../src";
+         Result } from "./../src/index.js";
+
+//const CB = require("./../lib/cjs/index");
+
+//console.log(CB);
 
 import { fnTest,
          fnTestException,
@@ -9,8 +12,8 @@ import { fnTest,
          fnTestPrevious1,
          fnTestTwoCallbacks,
          fnTestWithError,
-         fnTestWithTimeout} from "./../tests/callback-functions"
-import { CBException } from "../src/exceptions";
+         fnTestWithTimeout} from "./../tests/callback-functions.js"
+
 
 
 
@@ -91,6 +94,7 @@ import { CBException } from "../src/exceptions";
                             );
 
             const objResult: Result = await CB.e(calls, 5000, false)
+            console.log(objResult);
         }
 
 
@@ -108,7 +112,7 @@ import { CBException } from "../src/exceptions";
     
             const fnCallback = (error: any, timeout: boolean, objResult: Result) =>
             {
-                console.log(error, objResult );
+                console.log(error, timeout, objResult );
             }
     
             
@@ -125,7 +129,7 @@ import { CBException } from "../src/exceptions";
 
             const fnCallback = (error: any, timeout: boolean, objResult: Result) =>
             {
-                console.log (error )
+                console.log(error, timeout, objResult );
             }
 
             

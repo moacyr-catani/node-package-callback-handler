@@ -1,10 +1,10 @@
 import { FunctionStruct, 
          CallTypes, 
          ExecStruct, 
-         RootStruct }   from "./calls-struct";
+         RootStruct }   from "./calls-struct.js";
 import { CBException, 
          CBExceptions, 
-         DetailsStruct} from "./exception";
+         DetailsStruct} from "./exception.js";
 
 
 
@@ -357,7 +357,7 @@ abstract class BaseResult
     #_Errors?:     any[];
     #_Results?:    any[];
     #_Stats:       number;
-    #_StatsArray?: [number, number];
+    #_StatsArray?: [number, number]|undefined;
 
 
     public get length(): number

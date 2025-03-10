@@ -1,4 +1,4 @@
-import { InternalResult } from "./result";
+import { InternalResult } from "./result.js";
 
 
 

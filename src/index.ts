@@ -1,8 +1,8 @@
-export { CB }               from "./callback-handler";
-export { FunctionStruct as CallsStruct,
-         ExecStruct }       from "./calls-struct";
+export { CB }               from "./callback-handler.js";
+export { FunctionStruct,
+         ExecStruct }       from "./calls-struct.js";
 export { FunctionResult, 
          ParallelResult,
          Result,
-         SequentialResult } from "./result";
-export { CBException }      from "./exception";
+         SequentialResult } from "./result.js";
+export { CBException }      from "./exception.js";

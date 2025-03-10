@@ -131,3 +131,4 @@ dist
 
 examples/writefile-parallel/_files/*
 examples/log-from-several-files/_files/*
+lib/*

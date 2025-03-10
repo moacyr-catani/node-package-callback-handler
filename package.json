@@ -18,6 +18,7 @@
         "type": "git",
         "url": "git+https://github.com/moacyr-catani/node-package-callback-handler.git"
     },
+    "type": "module",
     "main": "./lib/cjs/index.js",
     "types": "./lib/cjs/types/index.d.ts",
     "exports": {
@@ -36,8 +37,10 @@
         "lib/**/*"
     ],
     "scripts": {
-        "build": "npm run clean && npm run build:esm && npm run build:cjs",
-        "build:esm": "tsc -p ./configs/tsconfig.esm.json && shx mv lib/esm/index.js lib/esm/index.mjs",
+        "build": "npm run clean && npm run build:esm",
+        "build2": "npm run clean && npm run build:esm && npm run build:cjs",
+        "build:esm": "tsc -p ./configs/tsconfig.esm.json",
+        "build:esm2": "tsc -p ./configs/tsconfig.esm.json && shx mv lib/esm/index.js lib/esm/index.mjs",
         "build:cjs": "tsc -p ./configs/tsconfig.cjs.json",
         "build:local": "tsc -p tsconfig.local.json",
         "clean": "shx rm -rf ./lib",
@@ -51,7 +54,9 @@
         "@types/jest": "^29.5.14",
         "@types/node": "^22.13.5",
         "jest": "^29.7.0",
+        "shx": "^0.3.4",
         "ts-jest": "^29.2.6",
+        "ts-node": "^10.9.2",
         "tsx": "^4.19.3",
         "typescript": "^5.7.3"
     }

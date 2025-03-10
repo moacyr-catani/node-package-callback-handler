@@ -1,14 +1,14 @@
 import { CallTypes,
          FunctionStruct,
          ExecStruct,
-         RootStruct }       from "./calls-struct";
+         RootStruct }       from "./calls-struct.js";
 import { FunctionResult,
          InternalResult,
          ParallelResult,
          Result, 
-         SequentialResult } from "./result";
+         SequentialResult } from "./result.js";
 import { CBException,
-         CBExceptions }     from "./exception"
+         CBExceptions }     from "./exception.js"
 
 
 

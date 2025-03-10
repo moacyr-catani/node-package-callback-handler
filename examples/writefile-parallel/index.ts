@@ -2,7 +2,7 @@ import fs   from "node:fs";
 import path from "node:path";
 import { CB,
          CBException,
-         CallsStruct,
+         FunctionStruct,
          ExecStruct,
          FunctionResult,
          ParallelResult,
