@@ -1,7 +1,6 @@
 import { CB, 
          ExecStruct, 
-         FunctionResult, 
-         ParallelResult,
+         FunctionResult,
          Result,
          SequentialResult }  from "../../src";
 import { fnTest, 
@@ -482,7 +481,8 @@ describe ("Async result", ()=>
 
         for (let itemResult of objResult)
         {
-            intIterator++;
+            if (itemResult)
+                intIterator++;
         }
 
         expect(intIterator)
@@ -492,7 +492,8 @@ describe ("Async result", ()=>
         intIterator = 0;
         for (let itemResult of objResult[0])
         {
-            intIterator++;
+            if (itemResult)
+                intIterator++;
         }
 
         expect(intIterator)
@@ -516,7 +517,8 @@ describe ("Async result", ()=>
 
         for (let itemResult of objResult[1])
         {
-            intIterator++;
+            if (itemResult)
+                intIterator++;
         }
 
         expect(intIterator)

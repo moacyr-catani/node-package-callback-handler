@@ -1,7 +1,7 @@
 /** @type {import('ts-jest').JestConfigWithTsJest} */
 export default {
 
-    coverageDirectory: './coverage',
+    coverageDirectory: './../coverage',
     //coveragePathIgnorePatterns: ['node_modules', 'src/database', 'src/test', 'src/types'],
     coveragePathIgnorePatterns: 
     [
@@ -16,6 +16,7 @@ export default {
     [
         'default'
     ],
+    rootDir: "./..",
     testEnvironment: 'node',
     testMatch:       
     [

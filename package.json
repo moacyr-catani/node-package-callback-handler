@@ -44,7 +44,6 @@
         "build:cjs": "tsc -p ./configs/tsconfig.cjs.json",
         "build:local": "tsc -p ./configs/tsconfig.local.json",
         "clean": "shx rm -rf ./lib",
-        "copy": "shx rm -rf ./lib",
         "examples": "tsx ./examples/index.ts",
         "prepack": "npm run build",
         "test": "jest --config=./configs/jest.config.ts ./tests --verbose --coverage"

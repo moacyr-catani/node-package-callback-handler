@@ -1,10 +1,6 @@
-import { CB, 
-         FunctionResult, 
-         ParallelResult,
-         Result,
-         SequentialResult }  from "../../src";
+import { CB,
+         Result }  from "../../src";
 import { fnTest, 
-         fnTestException, 
          fnTestWithError, 
          fnTestWithTimeout } from "../callback-functions";
 
@@ -45,6 +41,12 @@ describe ("Callback", ()=>
 
         const fnCallback = (error: any, timeout: boolean, objResult: Result) =>
         {
+            expect(timeout)
+            .toBe(false);
+
+            expect(error)
+            .toBe(false);
+
             expect(objResult.timeout)
             .toBe(false);
 
@@ -93,6 +95,12 @@ describe ("Callback", ()=>
 
         const fnCallback = (error: any, timeout: boolean, objResult: Result) =>
         {
+            expect(error)
+            .toBe(true);
+
+            expect(timeout)
+            .toBe(false);
+
             expect(objResult.error)
             .toBe(true);
     
@@ -133,6 +141,12 @@ describe ("Callback", ()=>
 
         const fnCallback = (error: any, timeout: boolean, objResult: Result) =>
         {
+            expect(timeout)
+            .toBe(false);
+    
+            expect(error)
+            .toBe(false);
+
             expect(objResult.timeout)
             .toBe(false);
     

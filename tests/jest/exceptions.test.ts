@@ -1,17 +1,10 @@
-import { CB, 
-         FunctionResult, 
-         ParallelResult,
-         Result,
-         SequentialResult}  from "../../src";
+import { CB,
+         Result}  from "../../src";
 import { CBException, 
          CBExceptions }      from "../../src/exception";
-import { BaseStruct,
-         CallTypes,
-         FunctionStruct,
-         ExecStruct,
-         RootStruct}         from "../../src/calls-struct"
-import { fnTest, 
-         fnTestException, 
+import { CallTypes,
+         ExecStruct}         from "../../src/calls-struct"
+import { fnTestException, 
          fnTestPrevious0, 
          fnTestPrevious1, 
          fnTestPrevious2, 
@@ -52,8 +45,14 @@ describe ("Exceptions", () =>
 
         const fnCallback = (error: any, timeout: boolean, objResult: Result) =>
         {
+            expect (timeout )
+            .toBeUndefined();
+
             expect (error )
             .toBeInstanceOf(CBException);
+
+            expect (objResult )
+            .toBeUndefined();
 
             done();
         }
@@ -164,7 +163,7 @@ describe ("Exceptions", () =>
 
         const calls =   CB.f (fnTestPrevious0, arrExec, "S0");
 
-        const fnCallback = (error: any, timeout: boolean, objResult: Result) =>
+        const fnCallback = (error: any) =>
         {
             expect (error )
             .toBeInstanceOf(CBException);
@@ -187,7 +186,7 @@ describe ("Exceptions", () =>
 
     test ("Invalid param - callback", (done) =>
     {
-        const fnCallback = (error: any, timeout: boolean, objResult: Result) =>
+        const fnCallback = (error: any) =>
             {
                 expect (error )
                 .toBeInstanceOf(CBException);
