@@ -211,18 +211,19 @@ To use previous results in a function, use one of the following tokens as argume
 
 | Token | Description |
 | ----------- | ----------- |
-| `CB.PREVIOUS_ERROR`   | Value of the first argument (which is the error one), passed to callback function |
-| `CB.PREVIOUS_RESULT1` | Value of the first argument after the error (i.e. the second argument) passed to callback function |
-| `CB.PREVIOUS_RESULT2` | Value of the second argument after the error passed to callback function |
-| `CB.PREVIOUS_RESULT3` | Value of the third argument after the error passed to callback function |
-| `CB.PREVIOUS_RESULT4` | Value of the fourth argument after the error passed to callback function |
-| `CB.PREVIOUS_RESULT5` | Value of the fifth argument after the error passed to callback function |
-| `CB.PREVIOUS_RESULT6` | Value of the sixth argument after the error passed to callback function |
-| `CB.PREVIOUS_RESULT7` | Value of the seventh argument after the error passed to callback function |
-| `CB.PREVIOUS_RESULT8` | Value of the eighth argument after the error passed to callback function |
-| `CB.PREVIOUS_RESULT9` | Value of the ninth argument after the error passed to callback function |
+| `CB.PREVIOUS_ERROR`   | Value of the first argument (**which is the error**) passed to callback function |
+| `CB.PREVIOUS_RESULT1` | Value of the *first argument* **after the error** (i.e. the second argument) passed to callback function |
+| `CB.PREVIOUS_RESULT2` | Value of the *second argument* after the error passed to callback function |
+| `CB.PREVIOUS_RESULT3` | Value of the *third argument* after the error passed to callback function |
+| `CB.PREVIOUS_RESULT4` | Value of the *fourth argument* after the error passed to callback function |
+| `CB.PREVIOUS_RESULT5` | Value of the *fifth argument* after the error passed to callback function |
+| `CB.PREVIOUS_RESULT6` | Value of the *sixth argument* after the error passed to callback function |
+| `CB.PREVIOUS_RESULT7` | Value of the *seventh argument* after the error passed to callback function |
+| `CB.PREVIOUS_RESULT8` | Value of the *eighth argument* after the error passed to callback function |
+| `CB.PREVIOUS_RESULT9` | Value of the *ninth argument* after the error passed to callback function |
 
-If you try to use a token in the very first function of a sequential structure, an exception will be thrown, since there is no previous result.
+> [!WARNING]
+> If you try to use a token in the very first function of a sequential structure, an exception will be thrown, since there is no previous result.
 
 
 
@@ -234,6 +235,22 @@ Execution structure is a tree where:
 - all leaves are **Function Structures**,
 - all nodes are **Parallel Structures** or **Sequential Structures**,
 - root is a **Parallel Structure** or **Sequential Structure**.
+
+An example:
+
+```ts
+Parallel            🠄 root
+┣━ Function         🠄 leaf
+┣━ Sequential       🠄 node
+┃  ┣━ Function      🠄 leaf
+┃  ┣━ Function      🠄 leaf
+┃  ┗━ Parallel      🠄 node
+┃     ┣━ Function   🠄 leaf
+┃     ┗━ Function   🠄 leaf 
+┗━ Paralell         🠄 node
+   ┣━ Function      🠄 leaf
+   ┗━ Function      🠄 leaf
+```
 
 
 
