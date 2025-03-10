@@ -21,7 +21,7 @@ The code will:
   - write content retrieved from previous function to log file with `fs.appendFile()`
 
 > [!NOTE]
-> All code excerpts will be provided in typescript. To use it in plain javascript, just ignore all types declaration (the **`: type`** part of the code).
+> All code excerpts will be provided in TypeScript. To use it in plain JavaScript, just ignore all types declaration (the **`: type`** part of the code).
 
 ```ts
 /**
@@ -188,11 +188,11 @@ It is created through `CB.s()` function, which has two overloaded signatures:
 
 ```ts
 // Without alias
-CB.p ( ...subStructs: FunctionStruct | ParallelStruct | SequentialStruct)
+CB.s ( ...subStructs: FunctionStruct | ParallelStruct | SequentialStruct)
 ```
 ```ts
 // With alias
-CB.p ( alias: string,
+CB.s ( alias: string,
       ...subStructs: FunctionStruct | ParallelStruct | SequentialStruct)
 ```
 Results from the immediately previous call can be used as arguments in a **Function Structure**
@@ -208,7 +208,7 @@ CB.s (
 
 #### Accessing previous results
 
-To use previous results in a function, use one of the following tokens as arguments to your function:
+To use previous results, pass one of the following tokens as arguments to your function:
 
 | Token | Description |
 | ----------- | ----------- |
@@ -226,6 +226,8 @@ To use previous results in a function, use one of the following tokens as argume
 > [!WARNING]
 > If you try to use a token in the very first function of a sequential structure, an exception will be thrown, since there is no previous result.
 
+> [!WARNING]
+> If you try to use a token in a parallel structure, an exception will be thrown.
 
 
 
@@ -269,15 +271,15 @@ You can do that using **async/await** (Promise) or providing a **callback functi
 
 To use the callback approach, provide a function as last argument to execution function
 ```ts
-CB.e (structure, callbackFunction);
+CB.e (execStruct, callback);
 ```
 
 The callback function must have the signature:
 ```ts
-function(error:   boolean, // 🠄 true if an error was returned for any function structure execution
-                           //    or if any exception was thrown
-         timeout: boolean, // 🠄 true if ellapsed execution time exceeds defined timeout
-         result:  Result); // 🠄 Result object
+function(error:   boolean |,   // 🠄 true, if an error was returned from any function,
+                  CBException  //    or CBException, if any exception was thrown during execution
+         timeout: boolean,     // 🠄 true if ellapsed execution time exceeds defined timeout
+         result:  Result);     // 🠄 Result object
 ```
 <br/>
 
@@ -294,17 +296,88 @@ const result = await CB.e (structure);
 #### Anatomy of execution function (`CB.e()`)
 The execution function has several overloads
 ```ts
-    function e(p_CallStruct:    ExecStruct): Promise<Result>;
-    function e(p_CallStruct:    ExecStruct, 
-               p_Timeout:       number): Promise<Result>;
-    function e(p_CallStruct:    ExecStruct, 
-               p_Timeout:       number,
-               p_BreakOnError:  boolean): Promise<Result>;
-    function e(p_CallStruct:    ExecStruct, 
-               p_Timeout:       number,
-               p_BreakOnError:  boolean,
-               p_Stats:         boolean): Promise<Result>;
+    // For await/async approach
+    function e(execStruct:    ParallelStruct | SequentialStruct): Promise<Result>;
+    function e(execStruct:    ParallelStruct | SequentialStruct, 
+               timeout:       number): Promise<Result>;
+    function e(execStruct:    ParallelStruct | SequentialStruct, 
+               timeout:       number,
+               breakOnError:  boolean): Promise<Result>;
+    function e(execStruct:    ParallelStruct | SequentialStruct, 
+               timeout:       number,
+               breakOnError:  boolean,
+               stats:         boolean): Promise<Result>;
+
+
+    // For callback approach
+    function e(execStruct:    ParallelStruct | SequentialStruct, 
+               callback:      TCallback): void;
+    function e(execStruct:    ParallelStruct | SequentialStruct, 
+               timeout:       number,
+               callback:      TCallback): void;
+    function e(execStruct:    ParallelStruct | SequentialStruct, 
+               timeout:       number,
+               callback:      TCallback): void;
+    function e(execStruct:    ParallelStruct | SequentialStruct, 
+               timeout:       number,
+               breakOnError:  boolean,
+               callback:      TCallback): void;
+    function e(execStruct:    ParallelStruct | SequentialStruct, 
+               timeout:       number,
+               breakOnError:  boolean,
+               stats:         boolean,
+               callback:      TCallback): void
 ``` 
+
+| Argument     | Description | Default value |
+| ----------   | ----------- | ----------- |
+| execStruct   | Execution structure (`ParallelStruct` or `SequentialStruct`) to be executed            |       |
+| timeout      | Maximum time (in milliseconds) for the execution to complete                           | 5000  |
+| breakOnError | Defines if execution must be stopped at first error returned from a function structure | false |
+| stats        | Defines if the execution time ellapsed must be gathered)                               | false |
+| callback     | Callback function to retrieve results (only for callback approach)                     |       |
+
+Examples:
+```ts
+// Using await/async
+const result: Result = await CB.e (executionStructure); // 🠄 Execute with default values:
+                                                        //        timeout      = 5000
+                                                        //        breakOnError = true
+                                                        //        stats        = false
+
+const result: Result = await CB.e (executionStructure,  // 🠄 Execution structure:
+                                   2000,                // 🠄 2 seconds for timeout
+                                   false,               // 🠄 Don't stop execution if error is returned
+                                   true);               // 🠄 Gather stats info
+
+
+
+
+// Using callback
+CB.e (executionStructure,           // 🠄 Execution structure
+      (error, timeout, result) =>   // 🠄 Callback function
+      {
+          if (error || timeout)
+              console.log("Something wrong");
+          else
+              // do stuff ...
+
+      });
+
+CB.e (executionStructure,           // 🠄 Execution structure
+      3500,                         // 🠄 3.5 seconds for timeout
+      true,                         // 🠄 Stop execution if any error is returned
+      true,                         // 🠄 Gather stats info
+      (error, timeout, result) =>   // 🠄 Callback function
+      {
+          if (error || timeout)
+              console.log("Something wrong");
+          else
+              // do stuff ...
+
+      });
+
+```
 
 ## Getting results
 

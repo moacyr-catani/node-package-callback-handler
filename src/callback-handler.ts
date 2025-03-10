@@ -15,6 +15,8 @@ import { CBException,
 
 
 
+export type TCallback = (error: boolean | CBException, timeout: boolean, result: Result) => void;
+
 
 export abstract class CB
 {
@@ -60,11 +62,11 @@ export abstract class CB
     // ----------------------------------------------------------------------------------------------------------------
 
 
-    public static f(p_Alias:   string,   
-                    p_Fn:      Function, 
-                    ...p_Args: any[]): FunctionStruct;
-    public static f(p_Fn:      Function, 
-                    ...p_Args: any[]): FunctionStruct;
+    public static f(alias:   string,   
+                    fn:      Function, 
+                    ...args: any[]): FunctionStruct;
+    public static f(fn:      Function, 
+                    ...args: any[]): FunctionStruct;
     public static f(p_Param1:  string | Function, 
                     p_Param2:   any, 
                     ...p_Args:  any[]): FunctionStruct
@@ -147,10 +149,10 @@ export abstract class CB
      * 
      * The sequential structure (`fn3`, `fn4`) will be executed in parallel with the previous `fn1` and `fn2`.
      * 
-     * @param p_Fns Functions structs to be executed in parallel
+     * @param subStructs Functions structs to be executed in parallel
      * @returns A struct {@link ExecStruct} representing functions to be executed in parallel
      */
-    public static p(...p_Fns: Array<FunctionStruct |  ParallelStruct | SequentialStruct>): ParallelStruct;
+    public static p(...subStructs: Array<FunctionStruct |  ParallelStruct | SequentialStruct>): ParallelStruct;
     /**
      * Creates a struct of functions to be executed in parallel
      * ```js
@@ -163,14 +165,14 @@ export abstract class CB
      * ));
      * ```
      * Create a function struct with {@link CB.f}
-     * @param {string} p_Alias A unique name to retrieve results of this struct
-     * @param p_Fns Functions structs to be executed in parallel. 
+     * @param {string} alias A unique name to retrieve results of this struct
+     * @param subStructs Functions structs to be executed in parallel. 
      * @returns A struct ({@link ExecStruct}) representing functions to be executed in parallel
      */
-    public static p(p_Alias:  string, 
-                    ...p_Fns: Array<FunctionStruct | ParallelStruct | SequentialStruct>): ParallelStruct;
-    public static p(p_Param1: string | FunctionStruct | ParallelStruct | SequentialStruct, 
-                    ...p_Fns: Array<FunctionStruct | ParallelStruct | SequentialStruct>): ParallelStruct
+    public static p(alias:         string, 
+                    ...subStructs: Array<FunctionStruct | ParallelStruct | SequentialStruct>): ParallelStruct;
+    public static p(p_Param1:      string | FunctionStruct | ParallelStruct | SequentialStruct, 
+                    ...p_ExecStructs: Array<FunctionStruct | ParallelStruct | SequentialStruct>): ParallelStruct
     {
         let strAlias:   string;
         let arrStructs: Array<any>;
@@ -178,12 +180,12 @@ export abstract class CB
         if ("string" === typeof p_Param1)
         {
             strAlias   = p_Param1;
-            arrStructs = [ ...p_Fns ];
+            arrStructs = [ ...p_ExecStructs ];
         }
         else
         {
             strAlias   = ""
-            arrStructs = [ p_Param1, ...p_Fns ];
+            arrStructs = [ p_Param1, ...p_ExecStructs ];
         }
 
 
@@ -234,42 +236,42 @@ export abstract class CB
 
     /**
      * Executes a parallel or sequential struct of functions with callbacks
-     * @param p_CallStruct Struct with functions to be executed.
+     * @param execStruct Struct with functions to be executed.
      *                     Create a struct with {@link CB.p} (for parallel functions) or {@link CB.s} (for sequential functions).
      * @param p_Timeout Maximum time (in milliseconds) for execution to complete
      */
-    public static e(p_CallStruct:    ParallelStruct | SequentialStruct): Promise<Result>;
-    public static e(p_CallStruct:    ParallelStruct | SequentialStruct, 
-                    p_Timeout:       number): Promise<Result>;
-    public static e(p_CallStruct:    ParallelStruct | SequentialStruct, 
-                    p_Timeout:       number,
-                    p_BreakOnError:  boolean): Promise<Result>;
-    public static e(p_CallStruct:    ParallelStruct | SequentialStruct, 
-                    p_Timeout:       number,
-                    p_BreakOnError:  boolean,
-                    p_Stats:         boolean): Promise<Result>;
-    public static e(p_CallStruct:    ParallelStruct | SequentialStruct, 
-                    p_Callback:      (p_Error: boolean | Error, p_Timeout: boolean, p_Result: Result) => void): void;
-    public static e(p_CallStruct:    ParallelStruct | SequentialStruct, 
-                    p_Timeout:       number,
-                    p_Callback:      (p_Error: boolean | Error, p_Timeout: boolean, p_Result: Result) => void): void;
-    public static e(p_CallStruct:    ParallelStruct | SequentialStruct, 
-                    p_Timeout:       number,
-                    p_Callback:      (p_Error: boolean | Error, p_Timeout: boolean, p_Result: Result) => void): void;
-    public static e(p_CallStruct:    ParallelStruct | SequentialStruct, 
-                    p_Timeout:       number,
-                    p_BreakOnError:  boolean,
-                    p_Callback:      (p_Error: boolean | Error, p_Timeout: boolean, p_Result: Result) => void): void;
-    public static e(p_CallStruct:    ParallelStruct | SequentialStruct, 
-                    p_Timeout:       number,
-                    p_BreakOnError:  boolean,
-                    p_Stats:         boolean,
-                    p_Callback:      (p_Error: boolean | Error, p_Timeout: boolean, p_Result: Result) => void): void
-    public static e(p_CallStruct:    ParallelStruct | SequentialStruct, 
-                    p_Param2?:       Function | number,
-                    p_Param3?:       boolean | Function,
-                    p_Param4?:       boolean | Function,
-                    p_Param5?:       (p_Error: boolean | Error, p_Timeout: boolean, p_Result: Result) => void): void | Promise<Result>
+    public static e(execStruct:    ParallelStruct | SequentialStruct): Promise<Result>;
+    public static e(execStruct:    ParallelStruct | SequentialStruct, 
+                    timeout:       number): Promise<Result>;
+    public static e(execStruct:    ParallelStruct | SequentialStruct, 
+                    timeout:       number,
+                    breakOnError:  boolean): Promise<Result>;
+    public static e(execStruct:    ParallelStruct | SequentialStruct, 
+                    timeout:       number,
+                    breakOnError:  boolean,
+                    stats:         boolean): Promise<Result>;
+    public static e(execStruct:    ParallelStruct | SequentialStruct, 
+                    callback:      TCallback): void;
+    public static e(execStruct:    ParallelStruct | SequentialStruct, 
+                    timeout:       number,
+                    callback:      TCallback): void;
+    public static e(execStruct:    ParallelStruct | SequentialStruct, 
+                    timeout:       number,
+                    callback:      TCallback): void;
+    public static e(execStruct:    ParallelStruct | SequentialStruct, 
+                    timeout:       number,
+                    breakOnError:  boolean,
+                    callback:      TCallback): void;
+    public static e(execStruct:    ParallelStruct | SequentialStruct, 
+                    timeout:       number,
+                    breakOnError:  boolean,
+                    stats:         boolean,
+                    callback:      TCallback): void
+    public static e(p_CallStruct:  ParallelStruct | SequentialStruct, 
+                    p_Param2?:     Function | number,
+                    p_Param3?:     boolean | Function,
+                    p_Param4?:     boolean | Function,
+                    p_Param5?:     TCallback): void | Promise<Result>
     {
         let fnCallback:      Function | undefined,
             blnBreakOnError: boolean = true,   // 🠄 default value
@@ -452,20 +454,20 @@ export abstract class CB
 
     /**
      * Creates a struct of functions to be executed in sequence
-     * @param p_Fns Functions structs to be executed in sequence
+     * @param execStructs Functions structs to be executed in sequence
      * 
-     *              Create a function struct with {@link CB.f}
+     * Create a function struct with {@link CB.f}
      */
-    public static s(...p_Fns: Array<FunctionStruct | ParallelStruct | SequentialStruct >): SequentialStruct;
+    public static s(...execStructs: Array<FunctionStruct | ParallelStruct | SequentialStruct >): SequentialStruct;
     /**
      * Creates a struct of functions to be executed in sequence
-     * @param p_Alias A unique name to retrieve results of this struct
-     * @param {...(FunctionStruct | ExecStruct)} p_Fns One or more function structs to be executed in sequence
+     * @param alias A unique name to retrieve results of this struct
+     * @param {...(FunctionStruct | ExecStruct)} subStructs One or more function structs to be executed in sequence
      * 
      *              Create a function struct with {@link CB.f}
      */
-    public static s(p_Alias:  string, 
-                    ...p_Fns: Array<FunctionStruct | ParallelStruct | SequentialStruct >): SequentialStruct;
+    public static s(alias:          string, 
+                    ...subStructs: Array<FunctionStruct | ParallelStruct | SequentialStruct >): SequentialStruct;
     public static s(p_Param1: string | FunctionStruct | ParallelStruct | SequentialStruct, 
                     ...p_Fns: Array<FunctionStruct | ParallelStruct | SequentialStruct >): SequentialStruct
     {
