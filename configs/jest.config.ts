@@ -1,16 +1,13 @@
 /** @type {import('ts-jest').JestConfigWithTsJest} */
-export default {
-
-    coverageDirectory: './../coverage',
-    //coveragePathIgnorePatterns: ['node_modules', 'src/database', 'src/test', 'src/types'],
+export default 
+{
+    collectCoverage: true,
+    coverageDirectory: '<rootDir>/tests/jest/coverage',
     coveragePathIgnorePatterns: 
     [
         "/tests/"
     ],
-    // globals: 
-    // { 
-    //     'ts-jest': { diagnostics: false } 
-    // },
+    moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
     preset: 'ts-jest',
     reporters:       
     [
@@ -26,36 +23,23 @@ export default {
     [
         '/node_modules/'
     ],
-
-    // transform: {
-    //     <transform_regex>: ['ts-jest', { /* ts-jest config goes here in Jest */ }],
-    // },
-
-    // transform: 
-    // {
-    //     '^.+\\.[tj]sx?$': 
-    //     [
-    //         'ts-jest',
-    //         {
-    //             "ts-jest": './configs/tsconfig.esm.json'
-    //         },
-    //     ]
-    // },
-
     transform: 
     {
-        "^.+\\.ts?$": [
+        "^.+\\.ts?$": 
+        [
           "ts-jest",
           {
             useESM: true,
           },
-        ],
+        ]
       },
       extensionsToTreatAsEsm: [".ts"],
       moduleNameMapper: {
         "^(\\.{1,2}/.*)\\.js$": "$1",
       },
-
-
-    verbose: true,
+      transformIgnorePatterns: 
+      [
+        ".+\\.js?$"
+      ],
+      verbose: true,
 };

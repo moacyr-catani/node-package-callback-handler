@@ -19,9 +19,9 @@
         "url": "git+https://github.com/moacyr-catani/node-package-callback-handler.git"
     },
     "type": "module",
-    "main": "./lib/cjs/index.js",
-    "types": "./lib/cjs/types/index.d.ts",
-    "exports": {
+    "main": "./lib/index.js",
+    "types": "./lib/types/index.d.ts",
+    "__exports": {
         ".": {
             "import": {
                 "types": "./lib/esm/types/index.d.ts",
@@ -46,7 +46,7 @@
         "clean": "shx rm -rf ./lib",
         "examples": "tsx ./examples/index.ts",
         "prepack": "npm run build",
-        "test": "jest --config=./configs/jest.config.ts ./tests --verbose --coverage"
+        "test": "jest --config=./configs/jest.config.ts"
     },
     "devDependencies": {
         "@inquirer/prompts": "^7.3.2",

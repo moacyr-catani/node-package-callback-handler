@@ -6,13 +6,15 @@ import { CB,
 
 //console.log(CB);
 
-import { fnTest,
-         fnTestException,
-         fnTestPrevious0,
-         fnTestPrevious1,
-         fnTestTwoCallbacks,
-         fnTestWithError,
-         fnTestWithTimeout} from "./../tests/callback-functions.js"
+// import { fnTest,
+//          fnTestException,
+//          fnTestPrevious0,
+//          fnTestPrevious1,
+//          fnTestTwoCallbacks,
+//          fnTestWithError,
+//          fnTestWithTimeout} from "../tests/common/callback-functions.js"
+import * as fns from "../tests/common/callback-functions.js";
+
 
 
 
@@ -34,31 +36,31 @@ const blnMixedStructs  = true,
             const arrResults: any[] = [];
         
             const calls   = CB.p( "Parallel calls 1" ,
-                                CB.f (fnTestWithTimeout, arrResults, 300, "P1"),
-                                CB.f (fnTestWithTimeout, arrResults, 200, "P2"),
-                                CB.f (fnTestWithTimeout, arrResults, 100, "P3"),
+                                CB.f (fns.fnTestWithTimeout, arrResults, 300, "P1"),
+                                CB.f (fns.fnTestWithTimeout, arrResults, 200, "P2"),
+                                CB.f (fns.fnTestWithTimeout, arrResults, 100, "P3"),
                                 CB.s ( "Sequential call 1",
-                                        CB.f (fnTest, arrResults, "S1"),
-                                        CB.f (fnTest, arrResults, "S2"),
-                                        CB.f (fnTest, arrResults, "S3"),
+                                        CB.f (fns.fnTest, arrResults, "S1"),
+                                        CB.f (fns.fnTest, arrResults, "S2"),
+                                        CB.f (fns.fnTest, arrResults, "S3"),
                                         CB.p ( "Parallel calls in a sequence call",
-                                                CB.f (fnTestWithTimeout, arrResults, 300, "S4 P1"),
-                                                CB.f (fnTestWithTimeout, arrResults, 200, "S4 P2"),
-                                                CB.f (fnTestWithTimeout, arrResults, 100, "S4 P3"),
+                                                CB.f (fns.fnTestWithTimeout, arrResults, 300, "S4 P1"),
+                                                CB.f (fns.fnTestWithTimeout, arrResults, 200, "S4 P2"),
+                                                CB.f (fns.fnTestWithTimeout, arrResults, 100, "S4 P3"),
                                                 CB.s ( "Sequential call 1",
-                                                       CB.f (fnTest, arrResults, "S1"),
-                                                       CB.f (fnTest, arrResults, "S2"),
-                                                       CB.f (fnTest, arrResults, "S3")
+                                                       CB.f (fns.fnTest, arrResults, "S1"),
+                                                       CB.f (fns.fnTest, arrResults, "S2"),
+                                                       CB.f (fns.fnTest, arrResults, "S3")
                                                 )
                                         ),
                                         //CB.f ("fn",fnTest, arrResults, "___")
-                                        CB.f ("fn",fnTestPrevious1, arrResults, "___", CB.PREVIOUS_RESULT1)
+                                        CB.f ("fn",fns.fnTestPrevious1, arrResults, "___", CB.PREVIOUS_RESULT1)
                                 ),
                                 CB.s ( "Sequential call 2",
                                         CB.f ("alias", 
-                                              fnTest, arrResults, "S5"),
-                                        CB.f (fnTest, arrResults, "S6"),
-                                        CB.f (fnTest, arrResults, "S7")
+                                              fns.fnTest, arrResults, "S5"),
+                                        CB.f (fns.fnTest, arrResults, "S6"),
+                                        CB.f (fns.fnTest, arrResults, "S7")
                                 )
                             );
         
@@ -76,9 +78,9 @@ const blnMixedStructs  = true,
             const arrResults: any[] = [];
         
             const calls   = CB.s( "Parallel calls 1" ,
-                                CB.f (fnTestWithTimeout, arrResults, 300, "P1"),
-                                CB.f (fnTestWithError, arrResults, "P2"),
-                                CB.f (fnTestWithTimeout, arrResults, 500, "P3")
+                                CB.f (fns.fnTestWithTimeout, arrResults, 300, "P1"),
+                                CB.f (fns.fnTestWithError, arrResults, "P2"),
+                                CB.f (fns.fnTestWithTimeout, arrResults, 500, "P3")
                             );
         
         
@@ -95,8 +97,8 @@ const blnMixedStructs  = true,
             const arrExec: string[] = [];
 
             const calls =   CB.s( "Sequential calls 1" ,
-                                CB.f (fnTestTwoCallbacks, arrExec, "S2"),
-                                CB.f (fnTestWithTimeout, arrExec, 200, "S1"),
+                                CB.f (fns.fnTestTwoCallbacks, arrExec, "S2"),
+                                CB.f (fns.fnTestWithTimeout, arrExec, 200, "S1"),
                             );
 
             const objResult: Result = await CB.e(calls, 5000, false)
@@ -110,8 +112,8 @@ const blnMixedStructs  = true,
             const arrExec: string[] = [];
 
             const calls = CB.s( 
-                              CB.f (fnTestException,   arrExec, "S0"),
-                              CB.f (fnTestWithTimeout, arrExec, 200, "S1")
+                              CB.f (fns.fnTestException,   arrExec, "S0"),
+                              CB.f (fns.fnTestWithTimeout, arrExec, 200, "S1")
                           );
     
     
@@ -131,7 +133,7 @@ const blnMixedStructs  = true,
         {
             const arrExec: string[] = [];
 
-            const calls =   CB.f (fnTestPrevious0, arrExec, "S0");
+            const calls =   CB.f (fns.fnTestPrevious0, arrExec, "S0");
 
             const fnCallback = (error: any, timeout: boolean, objResult: Result) =>
             {

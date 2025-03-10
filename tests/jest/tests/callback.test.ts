@@ -1,8 +1,8 @@
 import { CB,
-         Result }  from "../../src";
+         Result }  from "../../../src";
 import { fnTest, 
          fnTestWithError, 
-         fnTestWithTimeout } from "../callback-functions";
+         fnTestWithTimeout } from "../../common/callback-functions";
 
 
 

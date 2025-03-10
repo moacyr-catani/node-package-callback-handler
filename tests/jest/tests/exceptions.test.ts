@@ -1,14 +1,14 @@
 import { CB,
-         Result}  from "../../src";
+         Result}  from "../../../src";
 import { CBException, 
-         CBExceptions }      from "../../src/exception";
+         CBExceptions }      from "../../../src/exception";
 import { CallTypes,
-         ExecStruct}         from "../../src/calls-struct"
+         ExecStruct}         from "../../../src/calls-struct"
 import { fnTestException, 
          fnTestPrevious0, 
          fnTestPrevious1, 
          fnTestPrevious2, 
-         fnTestWithTimeout } from "../callback-functions";
+         fnTestWithTimeout } from "../../common/callback-functions";
 
 
 
