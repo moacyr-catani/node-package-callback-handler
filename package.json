@@ -47,7 +47,8 @@
         "examples": "npm run build:local && node ./dist/examples/index.js",
         "prepack": "npm run build",
         "test": "jest --config=./configs/jest.config.ts",
-        "test:cjs": "npm run build:local && node ./tests/cjs/index.js"
+        "test:cjs": "npm run --silent build && npm run --silent build:local && node ./tests/cjs/index.js",
+        "test:esm": "npm run --silent build && npm run --silent build:local && node ./tests/esm/index.js"
     },
     "devDependencies": {
         "@inquirer/prompts": "^7.3.2",

@@ -7,5 +7,10 @@
     "declarationDir": "../dist/types"
 
   },
-  "files": ["../debug/index.ts", "../examples/index.ts"]
+  "files": 
+  [
+    "../debug/index.ts", 
+    "../examples/index.ts",
+    "../tests/common/callback-functions.ts"
+  ]
 }

@@ -83,8 +83,27 @@ if (objResult.timeout || objResult.error)
 else
     console.log("Log created");
 ```
-<br/>
-<br/>
+
+
+
+
+## Installation and usage
+To install, run this command in your terminal:
+
+`npm install @mcatani/callback-handler`
+
+Load it in your code as ECMAScript (esm) or CommonJS (cjs) module.
+```ts
+// esm
+import { CB } from "@mcatani/callback-handler";
+```
+```ts
+// cjs
+const { CB } = require("@mcatani/callback-handler");
+```
+It can be used in JavaScript or TypeScript codes (no need for additional types).
+
+
 
 
 
@@ -92,8 +111,8 @@ else
 The execution structure stores information about what functions to run (including arguments) and when (execution order).
 
 It is composed of three different structures:
-<br/>
-<br/>
+
+
 
 
 
@@ -101,7 +120,7 @@ It is composed of three different structures:
 
 Stores info about what function to execute and the arguments to be used, except for the callback (which is always the last argument).
 
-It is created through `CB.p()` function, which has two overload signatures:
+It is created through `CB.p()` function, which has two overloaded signatures:
 
 ```ts
 // Without alias
@@ -123,18 +142,17 @@ Example using `fs.writeFile()` to write some text in UTF-8 enconding to a file:
 // - don't include the callback parameter
 CB.f (fs.writeFile, PathToFile, TextToWrite, "utf-8")
 ```
-<br/>
 
 
 
-### Parallel structure
+### Parallel structure (`ParallelStruct`)
 
-Stores info about sub structures to be executed in parallel. Every sub structure can be a:
-- **Function Structure** (`FunctionStruct`), 
-- **Sequential Structure** (`SequentialStruct`),
+Stores info about sub structures to be executed in parallel. Every sub structure can be:
+- a **Function Structure** (`FunctionStruct`), 
+- a **Sequential Structure** (`SequentialStruct`),
 - or even another **Parallel Structure** (`ParallelStruct`).
 
-It is created through `CB.p()` function, which has two overload signatures:
+It is created through `CB.p()` function, which has two overloaded signatures:
 
 ```ts
 // Without alias
@@ -155,16 +173,17 @@ CB. p (
     CB.f (fs.writeFile, PathToFile3, TextToWrite3, "utf-8")
 );
 ```
-<br/>
+
+
 
 ### Sequential structure
 
-Stores info about sub structures to be executed in sequence (execution only starts after the previous one finishes). Every sub structure can be a:
-- **Function Structure** (`FunctionStruct`), 
-- **Sequential Structure** (`SequentialStruct`),
-- or even another **Parallel Structure** (`ParallelStruct`).
+Stores info about sub structures to be executed in sequence (execution only starts after the previous one finishes). Every sub structure can be:
+- a **Function Structure** (`FunctionStruct`), 
+- a **Parallel Structure** (`ParallelStruct`),
+- or even another **Sequential Structure** (`SequentialStruct`).
 
-It is created through `CB.s()` function, which has two overload signatures:
+It is created through `CB.s()` function, which has two overloaded signatures:
 
 ```ts
 // Without alias
@@ -177,16 +196,36 @@ CB.p ( alias: string,
 ```
 Results from the immediately previous call can be used as arguments in a **Function Structure**
 
-Example using `fs.writeFile()` to write text in UTF-8 enconding to 3 files in parallel: 
+Example using `fs.readFile()` and `fs.appendFile()` to read text from a file and then append it to another file: 
 
 ```typescript
-CB. p (
-    CB.f (fs.writeFile, PathToFile1, TextToWrite1, "utf-8"),
-    CB.f (fs.writeFile, PathToFile2, TextToWrite2, "utf-8"),
-    CB.f (fs.writeFile, PathToFile3, TextToWrite3, "utf-8")
+CB.s (
+    CB.f ( fs.readFile, PathToFileFrom, {encoding: 'utf-8'} ),
+    CB.f ( fs.appendFile, PathToFileTo, CB.PREVIOUS_RESULT1)
 )
 ```
-<br/>
+
+#### Accessing previous results
+
+To use previous results in a function, use one of the following tokens as arguments to your function:
+
+| Token | Description |
+| ----------- | ----------- |
+| `CB.PREVIOUS_ERROR`   | Value of the first argument (which is the error one), passed to callback function |
+| `CB.PREVIOUS_RESULT1` | Value of the first argument after the error (i.e. the second argument) passed to callback function |
+| `CB.PREVIOUS_RESULT2` | Value of the second argument after the error passed to callback function |
+| `CB.PREVIOUS_RESULT3` | Value of the third argument after the error passed to callback function |
+| `CB.PREVIOUS_RESULT4` | Value of the fourth argument after the error passed to callback function |
+| `CB.PREVIOUS_RESULT5` | Value of the fifth argument after the error passed to callback function |
+| `CB.PREVIOUS_RESULT6` | Value of the sixth argument after the error passed to callback function |
+| `CB.PREVIOUS_RESULT7` | Value of the seventh argument after the error passed to callback function |
+| `CB.PREVIOUS_RESULT8` | Value of the eighth argument after the error passed to callback function |
+| `CB.PREVIOUS_RESULT9` | Value of the ninth argument after the error passed to callback function |
+
+If you try to use a token in the very first function of a sequential structure, an exception will be thrown, since there is no previous result.
+
+
+
 
 
 ### Anatomy of execution structure
@@ -195,16 +234,18 @@ Execution structure is a tree where:
 - all leaves are **Function Structures**,
 - all nodes are **Parallel Structures** or **Sequential Structures**,
 - root is a **Parallel Structure** or **Sequential Structure**.
-<br/>
-<br/>
+
+
+
 
 ## Executing functions
 
 Use the function `CB.e()` to execute a previously created execution structure and get the results.
 
 You can do that using **async/await** (Promise) or providing a **callback function**.
-<br/>
-<br/>
+
+
+
 
 #### Callback function
 

@@ -7,10 +7,10 @@ import * as fns   from "../tests/common/callback-functions.js";
 
 
 const blnMixedStructs  = true,
-      blnWithErrors    = false,
-      blnMoreThan1CB   = false,
-      blnWithException = false,
-      blnInvalidParam  = false;
+      blnWithErrors    = true,
+      blnMoreThan1CB   = true,
+      blnWithException = true,
+      blnInvalidParam  = true;
 
 
 (async ()=>
@@ -41,7 +41,6 @@ const blnMixedStructs  = true,
                                                        CB.f (fns.fnTest, arrResults, "S3")
                                                 )
                                         ),
-                                        //CB.f ("fn",fnTest, arrResults, "___")
                                         CB.f ("fn",fns.fnTestPrevious1, arrResults, "___", CB.PREVIOUS_RESULT1)
                                 ),
                                 CB.s ( "Sequential call 2",
@@ -58,9 +57,18 @@ const blnMixedStructs  = true,
             console.log(objResult.getByAlias("alias"));
         }
 
+    }
+    catch (p_Exception)
+    {
+        console.log(p_Exception);
+    }
 
 
-        // With error
+
+
+    // With error
+    try
+    {
         if (blnWithErrors)
         {
             const arrResults: any[] = [];
@@ -77,8 +85,17 @@ const blnMixedStructs  = true,
             console.log(objResult.getByAlias("alias"));
 
         }
+    }
+    catch (p_Exception)
+    {
+        console.log(p_Exception);
+    }
 
 
+
+
+    try
+    {
         // More than 1 callback
         if (blnMoreThan1CB)
         {
@@ -93,16 +110,26 @@ const blnMixedStructs  = true,
             console.log(objResult);
         }
 
+    }
+    catch (p_Exception)
+    {
+        console.log(p_Exception);
+    }
 
+
+
+
+    try
+    {
         // Exception in function execution
         if (blnWithException)
         {
             const arrExec: string[] = [];
 
             const calls = CB.s( 
-                              CB.f (fns.fnTestException,   arrExec, "S0"),
-                              CB.f (fns.fnTestWithTimeout, arrExec, 200, "S1")
-                          );
+                            CB.f (fns.fnTestException,   arrExec, "S0"),
+                            CB.f (fns.fnTestWithTimeout, arrExec, 200, "S1")
+                        );
     
     
     
@@ -114,8 +141,16 @@ const blnMixedStructs  = true,
             
             CB.e(calls, 5000, true, true, fnCallback);
         }
+    }
+    catch (p_Exception)
+    {
+        console.log(p_Exception);
+    }
 
 
+
+    try
+    {
         // Invalid param
         if (blnInvalidParam)
         {
@@ -138,16 +173,3 @@ const blnMixedStructs  = true,
         console.log(p_Exception);
     }
 })();
-
-
-/*
-
-0 = SequentialResult {#_Count: 3, 0: FunctionResult, 1: FunctionResult, 2: FunctionResult}
-1 = FunctionResult {#_Error: null, #_Results: Array(1)}
-2 = FunctionResult {#_Error: Error: Error test\n    at Object.fnTestWithErr… (C:\Repos\GitHub\node-package-callback-hand…, #_Results: Array(0)}
-3 = FunctionResult {#_Error: null, #_Results: Array(1)}
-
-Count   = 4
-Error   = true
-Timeout = false
-*/
