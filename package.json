@@ -1,13 +1,16 @@
 {
     "author": "Moacyr Catani, Jr.",
     "name": "package-callback-handler",
-    "description": "Handlers to deal with callback functions",
+    "description": "Handler to deal with callback functions",
     "version": "1.0.0",
     "license": "MIT",
     "keywords": [
+        "async",
         "callback",
+        "callback-hell",
         "callbacks",
         "parallel",
+        "parallelize",
         "sequential"
     ],
     "homepage": "https://github.com/moacyr-catani/node-package-callback-handler#readme",
