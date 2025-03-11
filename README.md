@@ -514,7 +514,6 @@ Parallel            🠄 result[0]  : ParallelResult
 <br />
 
 
-
 #### Properties
 
 **`error`**  
@@ -529,7 +528,6 @@ Milliseconds ellapsed during execution.
 > [!WARNING]
 > Stats will be gathered only if the value of `stats` argument of `CB.e()` was set to true
 <br />
-
 
 
 #### Methods
