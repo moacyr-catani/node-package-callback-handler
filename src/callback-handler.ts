@@ -257,9 +257,6 @@ export abstract class CB
                     callback:      TCallback): void;
     public static e(execStruct:    ParallelStruct | SequentialStruct, 
                     timeout:       number,
-                    callback:      TCallback): void;
-    public static e(execStruct:    ParallelStruct | SequentialStruct, 
-                    timeout:       number,
                     breakOnError:  boolean,
                     callback:      TCallback): void;
     public static e(execStruct:    ParallelStruct | SequentialStruct, 

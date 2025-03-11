@@ -287,7 +287,7 @@ function (error:   boolean |,   // 🠄 true, if an error was returned from any 
 
 To use async/await approach, just ignore the callback argument of execution function 
 ```ts
-const result: Result = await CB.e (structure);
+const result: Result = await CB.e (execStruct);
 ```
 <br/>
 <br/>
@@ -296,7 +296,7 @@ const result: Result = await CB.e (structure);
 #### Anatomy of execution function (`CB.e()`)
 The execution function has several overloads
 ```ts
-    // For await/async approach
+    // For async/await approach
     function e (execStruct:    ParallelStruct | SequentialStruct): Promise<Result>;
     function e (execStruct:    ParallelStruct | SequentialStruct, 
                 timeout:       number): Promise<Result>;
@@ -317,9 +317,6 @@ The execution function has several overloads
                 callback:      TCallback): void;
     function e (execStruct:    ParallelStruct | SequentialStruct, 
                 timeout:       number,
-                callback:      TCallback): void;
-    function e (execStruct:    ParallelStruct | SequentialStruct, 
-                timeout:       number,
                 breakOnError:  boolean,
                 callback:      TCallback): void;
     function e (execStruct:    ParallelStruct | SequentialStruct, 
@@ -329,13 +326,13 @@ The execution function has several overloads
                 callback:      TCallback): void
 ``` 
 
-| Argument     | Description | Default value |
-| ----------   | ----------- | ----------- |
-| execStruct   | Execution structure (`ParallelStruct` or `SequentialStruct`) to be executed            |       |
-| timeout      | Maximum time (in milliseconds) for the execution to complete                           | 5000  |
-| breakOnError | Defines if execution must be stopped at first error returned from a function structure | true  |
-| stats        | Defines if the execution time ellapsed must be gathered)                               | false |
-| callback     | Callback function to retrieve results (only for callback approach)                     |       |
+| Argument       | Description                                                                            | Default value |
+| ----------     | -----------                                                                            | ------|
+| `execStruct`   | Execution structure (`ParallelStruct` or `SequentialStruct`) to be executed            |       |
+| `timeout`      | Maximum time (in milliseconds) for the execution to complete                           | 5000  |
+| `breakOnError` | Defines if execution must be stopped at first error returned from a function structure | true  |
+| `stats`        | Defines if the execution time ellapsed must be gathered)                               | false |
+| `callback`     | Callback function to retrieve results (only for callback approach)                     |       |
 
 Examples:
 ```ts
