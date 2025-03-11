@@ -559,7 +559,6 @@ for (let error of errors)
 ### Function results (`FunctionResult`)
 
 `FunctionResult` stores results from `FunctionStruct` execution. 
-
 <br />
 
 
@@ -615,7 +614,6 @@ It is pretty similiar to `FunctionResult` class, but `error` and `results` prope
 
 > [!TIP]
 > Retrieving results through `ParallelResult` or `SequentialResult` can be tricky, specially for complex structures (too many nodes). It is preferable to deal with each child `FunctionResult` instead.
-
 <br />
 
 
