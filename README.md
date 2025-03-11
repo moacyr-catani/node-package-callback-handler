@@ -7,8 +7,11 @@ You can run several functions in **parallel** or in **sequence** (even **mixing 
 In sequential statements, you can access results from immediately previous function, creating cascading calls (**waterfall**).
 
 You can get the result in a **Promise** (using async/await) or providing a **single callback function** that receives the `Result` object with results for every call.
+
 <br/>
 <br />
+
+
 
 ## Example
 
@@ -21,7 +24,7 @@ The code will:
   - write content retrieved from previous function to log file with `fs.appendFile()`
 
 > [!NOTE]
-> All code excerpts will be provided in TypeScript. To use it in plain JavaScript, just ignore all types declaration (the **`: type`** part of the code).
+> Code excerpts will be provided in TypeScript. To use it in plain JavaScript, just ignore all types declaration (the **`: type`** part of the code).
 
 ```ts
 /**
@@ -84,6 +87,8 @@ else
     console.log("Log created");
 ```
 
+<br/>
+<br />
 
 
 
@@ -104,7 +109,8 @@ const { CB } = require("@mcatani/callback-handler");
 > [!TIP]
 > It can be used in JavaScript or TypeScript codes (no need for additional types).
 
-
+<br/>
+<br />
 
 
 
@@ -113,13 +119,13 @@ The execution structure stores information about what functions to run (includin
 
 It is composed of three different structures:
 
-
+<br/>
 
 
 
 ### Function structure (`FunctionStruct`)
 
-Stores info about what function to execute and the arguments to be used, except for the callback (which is always the last argument).
+Stores info about what function to execute and the arguments to be used, except for the callback (which is always the last one).
 
 It is created through `CB.f()` function, which has two overloaded signatures:
 
@@ -143,6 +149,9 @@ Example using `fs.writeFile()` to write some text in UTF-8 enconding to a file:
 // - don't include the callback parameter
 CB.f (fs.writeFile, PathToFile, TextToWrite, "utf-8")
 ```
+
+<br/>
+
 
 
 
@@ -175,6 +184,8 @@ CB. p (
 );
 ```
 
+<br />
+
 
 
 ### Sequential structure (`SequentialStruct`)
@@ -206,6 +217,10 @@ CB.s (
 )
 ```
 
+<br/>
+
+
+
 #### Accessing previous results
 
 To use previous results, pass one of the following tokens as arguments to your function:
@@ -229,6 +244,7 @@ To use previous results, pass one of the following tokens as arguments to your f
 > [!WARNING]
 > If you try to use a token in a parallel structure, an exception will be thrown.
 
+<br/>
 
 
 
@@ -255,6 +271,8 @@ Parallel            🠄 root
    ┗━ Function      🠄 leaf
 ```
 
+<br/>
+<br />
 
 
 
@@ -264,12 +282,13 @@ Use the function `CB.e()` to execute a previously created execution structure an
 
 You can do that using **async/await** (Promise) or providing a **callback function**.
 
+<br/>
 
 
 
 #### Callback function
 
-To use the callback approach, provide a function as last argument to execution function
+To use the callback approach, provide a function as last argument to execution function.
 ```ts
 CB.e (execStruct, callback);
 ```
@@ -281,7 +300,10 @@ function (error:   boolean |,   // 🠄 true, if an error was returned from any 
           timeout: boolean,     // 🠄 true if ellapsed execution time exceeds defined timeout
           result:  Result);     // 🠄 Result object
 ```
+
 <br/>
+
+
 
 #### Async/await
 
@@ -289,8 +311,9 @@ To use async/await approach, just ignore the callback argument of execution func
 ```ts
 const result: Result = await CB.e (execStruct);
 ```
+
 <br/>
-<br/>
+
 
 
 #### Anatomy of execution function (`CB.e()`)
@@ -375,6 +398,11 @@ CB.e (executionStructure,           // 🠄 Execution structure
 
 ```
 
+<br/>
+<br />
+
+
+
 ## Getting results
 
 ### Getting results by position
@@ -410,6 +438,7 @@ else
 }
 ```
 
+<br />
 
 
 ### Getting results by alias
@@ -449,9 +478,12 @@ else
 > [!WARNING]
 > If you use the same alias more than once, an exception will be thrown
 
+<br/>
+<br />
+
+
 
 ## Anatomy of Results
-
 
 ### Result object (`Result`)
 
@@ -480,6 +512,10 @@ Parallel            🠄 result[0]  : ParallelResult
    ┗━ Function      🠄 result[10]
 ```
 
+<br />
+
+
+
 #### Properties
 
 **`error`**  
@@ -494,6 +530,9 @@ Milliseconds ellapsed during execution.
 > [!WARNING]
 > Stats will be gathered only if the value of `stats` argument of `CB.e()` was set to true
 
+<br />
+
+
 
 #### Methods
 
@@ -503,7 +542,7 @@ Get the result for the provided alias.
 **`getErrors()`**  
 Get an array with all errors returned from function executions.
 
-Errors returned by functions will be wrapped in a `CBException` object. You can get the function that originated the error checking the `details` property of the exception, which will provide position (`callIndex`) and alias, if provided (`callAlias`) for the faulty structure:
+Errors returned by functions will be wrapped in a `CBException` object. You can get the function that originated the error checking the `details` property of the exception, which will provide position (`callIndex`) and alias (`callAlias`, if provided) for the faulty structure:
 ```ts
 ...
 const errors: CBException[] = result.getErrors();
@@ -515,10 +554,18 @@ for (let error of errors)
 }
 ```
 
+<br />
+
+
 
 ### Function results (`FunctionResult`)
 
-`FunctionResult` stores results from `FunctionStruct` execution. It has the properties
+`FunctionResult` stores results from `FunctionStruct` execution. 
+
+<br />
+
+
+#### Properties
 
 **`error`**  
 Stores the **first argument** passed to callback function. By convention, the first argument of a callback function indicates any error that may have occured during execution. 
@@ -548,13 +595,14 @@ if (!result.error && !result.timeout) // 🠄 no error, go on...
 }
 ```
 
-
 **`stats`**  
 Milliseconds ellapsed during execution.
 
 > [!WARNING]
 > Stats will be gathered only if the value of `stats` argument of `CB.e()` was set to true
 
+
+<br />
 
 
 
@@ -570,13 +618,16 @@ It is pretty similiar to `FunctionResult` class, but `error` and `results` prope
 > [!TIP]
 > Retrieving results through `ParallelResult` or `SequentialResult` can be tricky, specially for complex structures (too many nodes). It is preferable to deal with each child `FunctionResult` instead.
 
+<br />
+
+
 #### Properties
 
 **`error`**  
 Array with all errors returned from sub structures execution. The array will keep the same "hierarchy" of the original execution structure, i.e., there will be array inside arrays for child structures.
 
 **`length`**  
-The number of results stored (structures executed). It is the same as the quantity of `CB.f()`, `CB.p()` or `CB.s()` used to create the execution sub structure.
+The number of results stored (sub structures executed).
 
 **`results`**  
 An **array** with all results from all sub structures executed. The array will keep the same "hierarchy" of the original execution structure, i.e., there will be array inside arrays for child structures.
@@ -587,8 +638,11 @@ Milliseconds ellapsed during execution.
 > [!WARNING]
 > Stats will be gathered only if the value of `stats` argument of `CB.e()` was set to true
 
+<br/>
+
 Example:  
-For a execution structure like:
+
+For an execution structure like:
 ```ts
 Parallel
 ┣━ Function
@@ -625,6 +679,11 @@ result[2].results = [
 
 ```
 
+<br/>
+<br />
+
+
+
 ## Checking errors
 ```ts
 // Using async/await
@@ -653,6 +712,11 @@ CB.e (executionStructure,
       });
 ```
 
+<br/>
+<br />
+
+
+
 ## Exceptions
 Thrown exceptions and values from `Result.getErrors()` will be instancess of `CBException` class, which extends `Error` and add the properties:
 
@@ -669,7 +733,6 @@ This will be set when the exception comes from a function execution or when a fu
 
 **`explanation`**  
 A brief text with clues as to what might have gone wrong
-
 
 <br/>
 <br/>
