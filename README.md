@@ -177,7 +177,7 @@ CB. p (
 
 
 
-### Sequential structure
+### Sequential structure (`SequentialStruct`)
 
 Stores info about sub structures to be executed in sequence (execution only starts after the previous one finishes). Every sub structure can be:
 - a **Function Structure** (`FunctionStruct`), 
@@ -331,7 +331,7 @@ The execution function has several overloads
 | `execStruct`   | Execution structure (`ParallelStruct` or `SequentialStruct`) to be executed            |       |
 | `timeout`      | Maximum time (in milliseconds) for the execution to complete                           | 5000  |
 | `breakOnError` | Defines if execution must be stopped at first error returned from a function structure | true  |
-| `stats`        | Defines if the execution time ellapsed must be gathered)                               | false |
+| `stats`        | Defines if the execution time ellapsed must be gathered                                | false |
 | `callback`     | Callback function to retrieve results (only for callback approach)                     |       |
 
 Examples:
@@ -377,14 +377,6 @@ CB.e (executionStructure,           // 🠄 Execution structure
 
 ## Getting results
 
-Results for the execution are stored in an object of `Result` class.
-
-`Result` is an array-like object, i.e.:
-- it has a `lenght` property,
-- can be iterated using a `for` statement,
-- results can be retrieved by position
-
-
 ### Getting results by position
 
 ```ts
@@ -393,10 +385,10 @@ Results for the execution are stored in an object of `Result` class.
  */
 
 const struct = CB.p ( 
-                   CB.f (fs.readFile, PathToFile1, {encoding: 'utf-8'}), // 🠄 result[1]
-                   CB.f (fs.readFile, PathToFile2, {encoding: 'utf-8'}), // 🠄 result[2]
-                   CB.f (fs.readFile, PathToFile3, {encoding: 'utf-8'}), // 🠄 result[3]
-                   CB.f (fs.readFile, PathToFile4, {encoding: 'utf-8'}) //  🠄 result[4]
+                   CB.f (fs.readFile, PathToFile1, {encoding: 'utf-8'}), // 🠄 position: 1
+                   CB.f (fs.readFile, PathToFile2, {encoding: 'utf-8'}), // 🠄 position: 2
+                   CB.f (fs.readFile, PathToFile3, {encoding: 'utf-8'}), // 🠄 position: 3
+                   CB.f (fs.readFile, PathToFile4, {encoding: 'utf-8'})  // 🠄 position: 4
                );
 
 const result = await CB.e (struct);
@@ -458,13 +450,20 @@ else
 > If you use the same alias more than once, an exception will be thrown
 
 
-### Anatomy of `Result` object
+### Anatomy of Results
 
-Results for every **Execution structure** is stored in `Result` object in the same position as it was coded. 
+
+#### Result object (`Result`)
+
+Results for every **Execution structure** are stored in an instance of the `Result` class, which is an array-like object, i.e.:
+- it has a `lenght` property,
+- it can be iterated using a `for` statement,
+- results can be retrieved by position
+
+Results are stored in the same position as they were coded:
 - Results for `FunctionStruct` are stored in a `FunctionResult` object
 - Results for `ParallelStruct` are stored in a `ParallelResult` object
 - Results for `SequentialStruct` are stored in a `SequentialResult` object
-
 
 Example:
 ```ts
@@ -480,6 +479,53 @@ Parallel            🠄 result[0]  : ParallelResult
    ┣━ Function      🠄 result[9]
    ┗━ Function      🠄 result[10]
 ```
+
+##### Properties
+
+**`error`**  
+Boolean indicating if any error was returned by a function or if any exception was thrown during execution.  
+
+**`length`**  
+The number of results stored (structures executed). It is the same as the quantity of `CB.f()`, `CB.p()` or `CB.s()` used to create the execution structure.
+
+**`stats`**  
+Milliseconds ellapsed for execution.
+
+> [!WARNING]
+> Stats will be gathered only if the value of `stats` argument of `CB.e()` was set to true
+
+
+##### Methods
+
+**`getByAlias( alias: string)`**  
+Get the result for the provided alias.
+
+**`getErrors()`**  
+Get an array with all errors returned from function executions.
+
+
+#### Function results (`FunctionResult`)
+
+`FunctionResult` class has the properties
+
+**`error`**  
+Stores the **first argument** passed to callback function. By convention, the first argument of a callback function indicates any error that may have occured during execution. 
+
+**`results`**  
+Stores, in an **array**, all arguments passed to callback function, **except the first one**.
+
+
+**`stats`**  
+Milliseconds ellapsed for execution.
+
+> [!WARNING]
+> Stats will be gathered only if the value of `stats` argument of `CB.e()` was set to true
+
+
+
+#### Parallel and sequential results (`ParallelResult`, `SequentialResult`)
+
+
 
 ## Checking errors
 

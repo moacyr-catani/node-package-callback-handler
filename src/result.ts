@@ -539,15 +539,15 @@ export class Result
     // #region Public properties
     // ----------------------------------------------------------------------------------------------------------------
 
-    public get length(): number
-    {
-        return this.#_Count;
-    }
-
-
     public get error(): boolean
     {
         return this.#_Error;
+    }
+
+
+    public get length(): number
+    {
+        return this.#_Count;
     }
 
 
