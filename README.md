@@ -444,12 +444,18 @@ if (result.error || result.timeout)
 }
 else
 {
+    //                                        ⮦ aliases
     const file1Content = result.getByAlias("file1").results[0];
     const file1Content = result.getByAlias("file2").results[0];
     const file1Content = result.getByAlias("file3").results[0];
     const file1Content = result.getByAlias("file4").results[0];
 }
 ```
+> [!WARNING]
+> Aliases are case-sensitive
+
+> [!WARNING]
+> If you use the same alias more than once, an exception will be thrown
 
 
 ### Anatomy of `Result` object
