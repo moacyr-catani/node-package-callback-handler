@@ -411,10 +411,13 @@ if (result.error || result.timeout)
 }
 else
 {
+    //                          ⮦ result position
     const file1Content = result[1].results[0];
     const file1Content = result[2].results[0];
     const file1Content = result[3].results[0];
     const file1Content = result[4].results[0];
+    //                                     ⮤ first result for every function, i.e., the first 
+    //                                       argument passed to callback
 }
 ```
 
@@ -460,19 +463,25 @@ else
 
 ### Anatomy of `Result` object
 
-Results for every **Execution structure** is stored in Result object in the same position as it was coded. Example:
+Results for every **Execution structure** is stored in `Result` object in the same position as it was coded. 
+- Results for `FunctionStruct` are stored in a `FunctionResult` object
+- Results for `ParallelStruct` are stored in a `ParallelResult` object
+- Results for `SequentialStruct` are stored in a `SequentialResult` object
+
+
+Example:
 ```ts
-Parallel            🠄 result[0]
-┣━ Function         🠄 result[1]
-┣━ Sequential       🠄 result[2]
-┃  ┣━ Function      🠄 leaf
-┃  ┣━ Function      🠄 leaf
-┃  ┗━ Parallel      🠄 node
-┃     ┣━ Function   🠄 leaf
-┃     ┗━ Function   🠄 leaf 
-┗━ Paralell         🠄 node
-   ┣━ Function      🠄 leaf
-   ┗━ Function      🠄 leaf
+Parallel            🠄 result[0]  : ParallelResult
+┣━ Function         🠄 result[1]  : FunctionResult
+┣━ Sequential       🠄 result[2]  : SequentialResult
+┃  ┣━ Function      🠄 result[3]  : FunctionResult 
+┃  ┣━ Function      🠄 result[4]           ⇣
+┃  ┗━ Parallel      🠄 result[5]
+┃     ┣━ Function   🠄 result[6]
+┃     ┗━ Function   🠄 result[7]
+┗━ Paralell         🠄 result[8]
+   ┣━ Function      🠄 result[9]
+   ┗━ Function      🠄 result[10]
 ```
 
 ## Checking errors
