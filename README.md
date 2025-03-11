@@ -511,7 +511,6 @@ Parallel            🠄 result[0]  : ParallelResult
    ┣━ Function      🠄 result[9]
    ┗━ Function      🠄 result[10]
 ```
-
 <br />
 
 
@@ -529,7 +528,6 @@ Milliseconds ellapsed during execution.
 
 > [!WARNING]
 > Stats will be gathered only if the value of `stats` argument of `CB.e()` was set to true
-
 <br />
 
 
