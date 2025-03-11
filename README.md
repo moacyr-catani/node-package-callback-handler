@@ -1,6 +1,6 @@
-# Callback handler
+# Callback utility
 
-An utility to deal with **callback functions** and avoid **callback "hell"**.
+An utility handler to deal with **callback functions** and avoid **callback "hell"**.
 
 You can run several functions in **parallel** or in **sequence** (even **mixing both types**) and receive a single result object with results for every call.
 
@@ -31,7 +31,7 @@ The code will:
  * Creates a log file from several files
  */
 
-import { CB } from "callback-handler";
+import { CB } from "callback-utility";
 
 
 const logFile: string = path.resolve(__dirname, "mainLog.log"),
@@ -95,16 +95,16 @@ else
 ## Installation and usage
 To install, run this command in your terminal:
 
-`npm install @mcatani/callback-handler`
+`npm install callback-utility`
 
 Load it in your code as ECMAScript (esm) or CommonJS (cjs) module.
 ```ts
 // esm
-import { CB } from "@mcatani/callback-handler";
+import { CB } from "callback-utility";
 ```
 ```ts
 // cjs
-const { CB } = require("@mcatani/callback-handler");
+const { CB } = require("callback-utility");
 ```
 > [!TIP]
 > It can be used in JavaScript or TypeScript codes (no need for additional types).
@@ -733,6 +733,6 @@ A brief text with clues as to what might have gone wrong
 
 
 ## Feedback
-If you have any comment, sugestion or if you find any problem using `callback-handler`, create, please, an [issue](https://github.com/moacyr-catani/node-package-callback-handler/issues) in GitHub projec's page.
+If you have any comment, sugestion or if you find any problem using `callback-utility`, create, please, an [issue](https://github.com/moacyr-catani/node-package-callback-handler/issues) in GitHub projec's page.
 
 I do appreciate any feedback and will do my best to answer quickly.
