@@ -450,10 +450,10 @@ else
 > If you use the same alias more than once, an exception will be thrown
 
 
-### Anatomy of Results
+## Anatomy of Results
 
 
-#### Result object (`Result`)
+### Result object (`Result`)
 
 Results for every **Execution structure** are stored in an instance of the `Result` class, which is an array-like object, i.e.:
 - it has a `lenght` property,
@@ -480,7 +480,7 @@ Parallel            🠄 result[0]  : ParallelResult
    ┗━ Function      🠄 result[10]
 ```
 
-##### Properties
+#### Properties
 
 **`error`**  
 Boolean indicating if any error was returned by a function or if any exception was thrown during execution.  
@@ -489,13 +489,13 @@ Boolean indicating if any error was returned by a function or if any exception w
 The number of results stored (structures executed). It is the same as the quantity of `CB.f()`, `CB.p()` or `CB.s()` used to create the execution structure.
 
 **`stats`**  
-Milliseconds ellapsed for execution.
+Milliseconds ellapsed during execution.
 
 > [!WARNING]
 > Stats will be gathered only if the value of `stats` argument of `CB.e()` was set to true
 
 
-##### Methods
+#### Methods
 
 **`getByAlias( alias: string)`**  
 Get the result for the provided alias.
@@ -503,10 +503,22 @@ Get the result for the provided alias.
 **`getErrors()`**  
 Get an array with all errors returned from function executions.
 
+Errors returned by functions will be wrapped in a `CBException` object. You can get the function that originated the error checking the `details` property of the exception, which will provide position (`callIndex`) and alias, if provided (`callAlias`) for the faulty structure:
+```ts
+...
+const errors: CBException[] = result.getErrors();
 
-#### Function results (`FunctionResult`)
+for (let error of errors)
+{
+    console.log(error.details.callIndex); // Position of the function in execution structure and in result object
+    console.log(error.details.callAlias); // Execution structure alias, if provided
+}
+```
 
-`FunctionResult` class has the properties
+
+### Function results (`FunctionResult`)
+
+`FunctionResult` stores results from `FunctionStruct` execution. It has the properties
 
 **`error`**  
 Stores the **first argument** passed to callback function. By convention, the first argument of a callback function indicates any error that may have occured during execution. 
@@ -514,28 +526,150 @@ Stores the **first argument** passed to callback function. By convention, the fi
 **`results`**  
 Stores, in an **array**, all arguments passed to callback function, **except the first one**.
 
+Example: getting results from `fs.read()`
+```ts
+// Signature for fs.read() callback is as follows:
+function(err:       Error,   // 🠄 will be stored in FunctionResult.error
+         bytesRead: number,  // 🠄 will be stored in FunctionResult.results[0]
+         buffer     Buffer); // 🠄 will be stored in FunctionResult.results[1]
+```
+
+```ts
+const struct = CB.s (
+                   CB.f (fs.read, fd, buffer, offset, length, position),
+                   ...
+               );
+const result: Result = await CB.e (struct);
+
+if (!result.error && !result.timeout) // 🠄 no error, go on...
+{
+    const bytesRead: number = result[1].results[0];
+    const buffer:    Buffer = result[1].results[1];
+}
+```
+
 
 **`stats`**  
-Milliseconds ellapsed for execution.
+Milliseconds ellapsed during execution.
 
 > [!WARNING]
 > Stats will be gathered only if the value of `stats` argument of `CB.e()` was set to true
 
 
 
-#### Parallel and sequential results (`ParallelResult`, `SequentialResult`)
 
+### Parallel and sequential results (`ParallelResult`, `SequentialResult`)
 
+`ParallelResult` and `SequentialResultResults` stores results for every sub-structure executed. It is an array-like object, i.e.:
+- it has a `lenght` property,
+- it can be iterated using a `for` statement,
+- results can be retrieved by position
+
+It is pretty similiar to `FunctionResult` class, but `error` and `results` properties return arrays with the same hierarchy of the sub structures executed.
+
+> [!TIP]
+> Retrieving results through `ParallelResult` or `SequentialResult` can be tricky, specially for complex structures (too many nodes). It is preferable to deal with each child `FunctionResult` instead.
+
+#### Properties
+
+**`error`**  
+Array with all errors returned from sub structures execution. The array will keep the same "hierarchy" of the original execution structure, i.e., there will be array inside arrays for child structures.
+
+**`length`**  
+The number of results stored (structures executed). It is the same as the quantity of `CB.f()`, `CB.p()` or `CB.s()` used to create the execution sub structure.
+
+**`results`**  
+An **array** with all results from all sub structures executed. The array will keep the same "hierarchy" of the original execution structure, i.e., there will be array inside arrays for child structures.
+
+**`stats`**  
+Milliseconds ellapsed during execution.
+
+> [!WARNING]
+> Stats will be gathered only if the value of `stats` argument of `CB.e()` was set to true
+
+Example:  
+For a execution structure like:
+```ts
+Parallel
+┣━ Function
+┣━ Sequential        🠄 result[2]
+┃  ┣━ Function         🠄 child struct 1
+┃  ┣━ Function         🠄 child struct 2
+┃  ┗━ Parallel         🠄 child struct 3
+┃     ┣━ Function         🠄 grand child struct 1
+┃     ┗━ Function         🠄 grand child struct 2
+┗━ Paralell
+   ┣━ Function
+   ┗━ Function
+```
+
+The `result[2]` will give us the following results:
+```ts
+result[2].error = [
+                     error,    // 🠄 child 1 error
+                     error,    // 🠄 child 2 error
+                     [         // 🠄 child 3 error (an array, since it is a parallel struct)
+                        error, //    🠄 grand child 1 error
+                        error  //    🠄 grand child 2 error
+                     ]
+                  ];
+
+result[2].results = [
+                        result[],    // 🠄 child 1 result (an array)
+                        result[],    // 🠄 child 2 result
+                        [            // 🠄 child 3 result (an array of arrays, since it is a parallel struct)
+                           result[], //    🠄 grand child 1 result
+                           result[]  //    🠄 grand child 2 result
+                        ]
+                     ];
+
+```
 
 ## Checking errors
+```ts
+// Using async/await
+
+// ...
+const result: Result = await CB.e (struct);
+
+if (result.error && result.timeout) 
+    console.log("Something wrong");
+else
+    // Do stuff ...
+```
+
+```ts
+// Using callback
+
+// ...
+CB.e (executionStructure,
+      (error, timeout, result) =>
+      {
+          if (error || timeout)
+              console.log("Something wrong");
+          else
+              // do stuff ...
+
+      });
+```
 
 ## Exceptions
-All exceptions and errors will be instances of `CBException` class, which has the properties:
+Thrown exceptions and values from `Result.getErrors()` will be instancess of `CBException` class, which extends `Error` and add the properties:
 
-| Property | Description |
-| ----------- | ----------- |
-| details   | This will be set when the exception comes from a function execution or when a function execution returns an error in callback. It will have a `callIndex` value and may have a `callAlias` value (if provided).|
-| explanation | A brief text with clues as to what might have gone wrong |
+**`baseException`**  
+The original emitted exception that is been wrapped in `CBException`
+
+**`errorNumber`**  
+A unique number for every type of exception mapped
+
+**`details`**  
+This will be set when the exception comes from a function execution or when a function execution returns an error in callback. It will have a `callIndex` value and may have a `callAlias` value (if provided).
+- **`details.callIndex`**: number of the indexed position of the function structure in `Result`.
+- **`details.callAlias`**: Alias (if provided) for the function structure that emitted the error.
+
+**`explanation`**  
+A brief text with clues as to what might have gone wrong
+
 
 <br/>
 <br/>
