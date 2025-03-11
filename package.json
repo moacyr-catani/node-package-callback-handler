@@ -1,6 +1,6 @@
 {
     "author": "Moacyr Catani, Jr.",
-    "name": "package-callback-handler",
+    "name": "callback-handler",
     "description": "Handler to deal with callback functions",
     "version": "1.0.0",
     "license": "MIT",
