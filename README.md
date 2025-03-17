@@ -23,15 +23,24 @@ The code will:
   - read content with `fs.readFile()`, then (sequentially)
   - write content retrieved from previous function to log file with `fs.appendFile()`
 
-> [!NOTE]
-> Code excerpts will be provided in TypeScript. To use it in plain JavaScript, just ignore all types declaration (the **`: type`** part of the code).
+<div style="padding: 0.5rem 1rem 0.1rem 1rem; margin-bottom: 1rem; color: inherit; border-left: .25em solid #0969da;" dir="auto">
+  <p style="display: flex; font-weight: 500; align-items: center; line-height: 1; color: #0969da;" dir="auto">
+    <svg style="display: inline-block; overflow: visible !important; vertical-align: text-bottom; fill: currentColor; margin-right: 0.5rem !important;" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>
+    Note
+  </p>
+  <p dir="auto">Code excerpts will be provided in TypeScript. To use it in plain JavaScript, just ignore all types declaration (the <strong><code>: type</code></strong> part of the code).
+  </p>
+</div>
 
 ```ts
 /**
  * Creates a log file from several files
  */
 
-import { CB } from "callback-utility";
+import { CB, 
+         Result } from "callback-utility";
+import path       from "node:path";
+import fs         from "node:fs";
 
 
 const logFile: string = path.resolve(__dirname, "mainLog.log"),
@@ -77,7 +86,7 @@ const structCB =
 
 
 // Execute and retrieve results using Promise (async/await)
-const objResult = await CB.e (structCB);
+const objResult: Result = await CB.e (structCB);
 
 
 // Check results
@@ -97,6 +106,8 @@ To install, run this command in your terminal:
 
 `npm install callback-utility`
 
+<br/>
+
 Load it in your code as ECMAScript (esm) or CommonJS (cjs) module.
 ```ts
 // esm
@@ -106,8 +117,15 @@ import { CB } from "callback-utility";
 // cjs
 const { CB } = require("callback-utility");
 ```
-> [!TIP]
-> It can be used in JavaScript or TypeScript codes (no need for additional types).
+<div style="padding: 0.5rem 1rem 0.1rem 1rem; margin-bottom: 1rem; color: inherit; border-left: .25em solid #1a7f37;" dir="auto">
+  <p style="display: flex; font-weight: 500; align-items: center; line-height: 1; color: #1a7f37;" dir="auto">
+    <svg style="display: inline-block; overflow: visible !important; vertical-align: text-bottom; fill: currentColor; margin-right: 0.5rem !important;" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z"></path></svg>
+    Tip
+  </p>
+  <p dir="auto">
+    It can be used in JavaScript or TypeScript codes (no need for additional types).
+  </p>
+</div>
 
 <br/>
 <br />
@@ -238,11 +256,25 @@ To use previous results, pass one of the following tokens as arguments to your f
 | `CB.PREVIOUS_RESULT8` | Value of the *eighth argument* after the error passed to callback function |
 | `CB.PREVIOUS_RESULT9` | Value of the *ninth argument* after the error passed to callback function |
 
-> [!WARNING]
-> If you try to use a token in the very first function of a sequential structure, an exception will be thrown, since there is no previous result.
+<div style="padding: 0.5rem 1rem 0.1rem 1rem; margin-bottom: 1rem; color: inherit; border-left: .25em solid #9a6700;" dir="auto">
+  <p style="display: flex; font-weight: 500; align-items: center; line-height: 1; color: #9a6700;" dir="auto">
+    <svg style="display: inline-block; overflow: visible !important; vertical-align: text-bottom; fill: currentColor; margin-right: 0.5rem !important;" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>
+    Warning
+  </p>
+  <p dir="auto">
+    If you try to use a token in the very first function of a sequential structure, an exception will be thrown, since there is no previous result.
+  </p>
+</div>
 
-> [!WARNING]
-> If you try to use a token in a parallel structure, an exception will be thrown.
+<div style="padding: 0.5rem 1rem 0.1rem 1rem; margin-bottom: 1rem; color: inherit; border-left: .25em solid #9a6700;" dir="auto">
+  <p style="display: flex; font-weight: 500; align-items: center; line-height: 1; color: #9a6700;" dir="auto">
+    <svg style="display: inline-block; overflow: visible !important; vertical-align: text-bottom; fill: currentColor; margin-right: 0.5rem !important;" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>
+    Warning
+  </p>
+  <p dir="auto">
+    If you try to use a token in a parallel structure, an exception will be thrown.
+  </p>
+</div>
 
 <br/>
 
@@ -430,9 +462,9 @@ else
 {
     //                          ⮦ result position
     const file1Content = result[1].results[0];
-    const file1Content = result[2].results[0];
-    const file1Content = result[3].results[0];
-    const file1Content = result[4].results[0];
+    const file2Content = result[2].results[0];
+    const file3Content = result[3].results[0];
+    const file4Content = result[4].results[0];
     //                                     ⮤ first result for every function, i.e., the first 
     //                                       argument passed to callback
 }
@@ -467,16 +499,30 @@ else
 {
     //                                        ⮦ aliases
     const file1Content = result.getByAlias("file1").results[0];
-    const file1Content = result.getByAlias("file2").results[0];
-    const file1Content = result.getByAlias("file3").results[0];
-    const file1Content = result.getByAlias("file4").results[0];
+    const file2Content = result.getByAlias("file2").results[0];
+    const file3Content = result.getByAlias("file3").results[0];
+    const file4Content = result.getByAlias("file4").results[0];
 }
 ```
-> [!WARNING]
-> Aliases are case-sensitive
+<div style="padding: 0.5rem 1rem 0.1rem 1rem; margin-bottom: 1rem; color: inherit; border-left: .25em solid #9a6700;" dir="auto">
+  <p style="display: flex; font-weight: 500; align-items: center; line-height: 1; color: #9a6700;" dir="auto">
+    <svg style="display: inline-block; overflow: visible !important; vertical-align: text-bottom; fill: currentColor; margin-right: 0.5rem !important;" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>
+    Warning
+  </p>
+  <p dir="auto">
+    Aliases are case-sensitive
+  </p>
+</div>
 
-> [!WARNING]
-> If you use the same alias more than once, an exception will be thrown
+<div style="padding: 0.5rem 1rem 0.1rem 1rem; margin-bottom: 1rem; color: inherit; border-left: .25em solid #9a6700;" dir="auto">
+  <p style="display: flex; font-weight: 500; align-items: center; line-height: 1; color: #9a6700;" dir="auto">
+    <svg style="display: inline-block; overflow: visible !important; vertical-align: text-bottom; fill: currentColor; margin-right: 0.5rem !important;" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>
+    Warning
+  </p>
+  <p dir="auto">
+    If you use the same alias more than once, an exception will be thrown
+  </p>
+</div>
 
 <br/>
 <br />
@@ -525,8 +571,16 @@ The number of results stored (structures executed). It is the same as the quanti
 **`stats`**  
 Milliseconds ellapsed during execution.
 
-> [!WARNING]
-> Stats will be gathered only if the value of `stats` argument of `CB.e()` was set to true
+<div style="padding: 0.5rem 1rem 0.1rem 1rem; margin-bottom: 1rem; color: inherit; border-left: .25em solid #9a6700;" dir="auto">
+  <p style="display: flex; font-weight: 500; align-items: center; line-height: 1; color: #9a6700;" dir="auto">
+    <svg style="display: inline-block; overflow: visible !important; vertical-align: text-bottom; fill: currentColor; margin-right: 0.5rem !important;" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>
+    Warning
+  </p>
+  <p dir="auto">
+    Stats will be gathered only if the value of <code>stats</code> argument of <code>CB.e()</code> was set to true
+  </p>
+</div>
+
 <br />
 
 
@@ -538,7 +592,7 @@ Get the result for the provided alias.
 **`getErrors()`**  
 Get an array with all errors returned from function executions.
 
-Errors returned by functions will be wrapped in a `CBException` object. You can get the function that originated the error checking the `details` property of the exception, which will provide position (`callIndex`) and alias (`callAlias`, if provided) for the faulty structure:
+Errors returned by functions will be wrapped in a `CBException` object. You can get the function that originated the error by checking the `details` property of the exception, which will inform the position (`callIndex`) and alias (`callAlias`, if provided) for the faulty structure:
 ```ts
 ...
 const errors: CBException[] = result.getErrors();
@@ -593,9 +647,15 @@ if (!result.error && !result.timeout) // 🠄 no error, go on...
 **`stats`**  
 Milliseconds ellapsed during execution.
 
-> [!WARNING]
-> Stats will be gathered only if the value of `stats` argument of `CB.e()` was set to true
-
+<div style="padding: 0.5rem 1rem 0.1rem 1rem; margin-bottom: 1rem; color: inherit; border-left: .25em solid #9a6700;" dir="auto">
+  <p style="display: flex; font-weight: 500; align-items: center; line-height: 1; color: #9a6700;" dir="auto">
+    <svg style="display: inline-block; overflow: visible !important; vertical-align: text-bottom; fill: currentColor; margin-right: 0.5rem !important;" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>
+    Warning
+  </p>
+  <p dir="auto">
+    Stats will be gathered only if the value of <code>stats</code> argument of <code>CB.e()</code> was set to true
+  </p>
+</div>
 
 <br />
 
@@ -603,15 +663,23 @@ Milliseconds ellapsed during execution.
 
 ### Parallel and sequential results (`ParallelResult`, `SequentialResult`)
 
-`ParallelResult` and `SequentialResultResults` stores results for every sub-structure executed. It is an array-like object, i.e.:
+`ParallelResult` and `SequentialResult` store results for every sub-structure executed. It is an array-like object, i.e.:
 - it has a `lenght` property,
 - it can be iterated using a `for` statement,
 - results can be retrieved by position
 
 It is pretty similiar to `FunctionResult` class, but `error` and `results` properties return arrays with the same hierarchy of the sub structures executed.
 
-> [!TIP]
-> Retrieving results through `ParallelResult` or `SequentialResult` can be tricky, specially for complex structures (too many nodes). It is preferable to deal with each child `FunctionResult` instead.
+<div style="padding: 0.5rem 1rem 0.1rem 1rem; margin-bottom: 1rem; color: inherit; border-left: .25em solid #1a7f37;" dir="auto">
+  <p style="display: flex; font-weight: 500; align-items: center; line-height: 1; color: #1a7f37;" dir="auto">
+    <svg style="display: inline-block; overflow: visible !important; vertical-align: text-bottom; fill: currentColor; margin-right: 0.5rem !important;" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z"></path></svg>
+    Tip
+  </p>
+  <p dir="auto">
+    Retrieving results through <code>ParallelResult</code> or <code>SequentialResult</code> can be tricky, specially for complex structures (too many nodes). It is preferable to deal with each child <code>FunctionResult</code> instead.
+  </p>
+</div>
+
 <br />
 
 
@@ -629,8 +697,15 @@ An **array** with all results from all sub structures executed. The array will k
 **`stats`**  
 Milliseconds ellapsed during execution.
 
-> [!WARNING]
-> Stats will be gathered only if the value of `stats` argument of `CB.e()` was set to true
+<div style="padding: 0.5rem 1rem 0.1rem 1rem; margin-bottom: 1rem; color: inherit; border-left: .25em solid #9a6700;" dir="auto">
+  <p style="display: flex; font-weight: 500; align-items: center; line-height: 1; color: #9a6700;" dir="auto">
+    <svg style="display: inline-block; overflow: visible !important; vertical-align: text-bottom; fill: currentColor; margin-right: 0.5rem !important;" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>
+    Warning
+  </p>
+  <p dir="auto">
+    Stats will be gathered only if the value of <code>stats</code> argument of <code>CB.e()</code> was set to true
+  </p>
+</div>
 
 <br/>
 
@@ -685,7 +760,7 @@ result[2].results = [
 // ...
 const result: Result = await CB.e (struct);
 
-if (result.error && result.timeout) 
+if (result.error || result.timeout) 
     console.log("Something wrong");
 else
     // Do stuff ...
