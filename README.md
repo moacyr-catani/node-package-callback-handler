@@ -571,7 +571,7 @@ The number of results stored (structures executed). It is the same as the quanti
 **`stats`**  
 Milliseconds ellapsed during execution.
 
-> <p><span style="font-size: 1.5rem ; padding: 0.5rem 0 0.3rem 0; color: #9a6700; display: flex; font-weight: 500; line-height: 1; align-items: center">⚠</span> <span style="font-size: 1.2rem ; padding: 0.5rem 0 0.3rem 0; color: #9a6700; display: flex; font-weight: 500; line-height: 1; align-items: center">Warning</span></p>
+> <p><font color="#9a6700"><strong>⚠ Warning</strong></font></p>
 > Stats will be gathered only if the value of `stats` argument of `CB.e()` was set to true
 
 
