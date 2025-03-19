@@ -23,14 +23,8 @@ The code will:
   - read content with `fs.readFile()`, then (sequentially)
   - write content retrieved from previous function to log file with `fs.appendFile()`
 
-<div style="padding: 0.5rem 1rem 0.1rem 1rem; margin-bottom: 1rem; color: inherit; border-left: .25em solid #0969da;" dir="auto">
-  <p style="display: flex; font-weight: 500; align-items: center; line-height: 1; color: #0969da;" dir="auto">
-    <svg style="display: inline-block; overflow: visible !important; vertical-align: text-bottom; fill: currentColor; margin-right: 0.5rem !important;" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>
-    Note
-  </p>
-  <p dir="auto">Code excerpts will be provided in TypeScript. To use it in plain JavaScript, just ignore all types declaration (the <strong><code>: type</code></strong> part of the code).
-  </p>
-</div>
+> **🛈 Note**  
+> Code excerpts will be provided in TypeScript. To use it in plain JavaScript, just ignore all types declaration (the **: type** part of the code).
 
 ```ts
 /**
@@ -55,7 +49,7 @@ const structCB =
     CB.s ( // 🠄 sequential structure as root
 
         // Delete current log file
-        CB.f ( fs.rm, logFile, {force: true}), // 🠄 Creates a function structure using CB.f()
+        CB.f ( fs.rm, logFile, {force: true} ), // 🠄 Creates a function structure using CB.f()
 
 
         // Create log from several files
@@ -63,23 +57,23 @@ const structCB =
                //    log is not important (can be parallelized)
 
             CB.s ( // 🠄 sequential structure
-                CB.f ( fs.readFile, file1, {encoding: 'utf-8'} ),      // 🠄 read content 
-                CB.f ( fs.appendFile, strLogFile, CB.PREVIOUS_RESULT1) // 🠄 write results from 
-                                                                       //    previous call to log file
+                CB.f ( fs.readFile, file1, {encoding: 'utf-8'} ),       // 🠄 read content 
+                CB.f ( fs.appendFile, strLogFile, CB.PREVIOUS_RESULT1 ) // 🠄 write results from 
+                                                                        //    previous call to log file
             ),
 
             // The same (in parallel) for every file ...
             CB.s (
                 CB.f ( fs.readFile, file2, {encoding: 'utf-8'} ),
-                CB.f ( fs.appendFile, logFile, CB.PREVIOUS_RESULT1)
+                CB.f ( fs.appendFile, logFile, CB.PREVIOUS_RESULT1 )
             ),
             CB.s (
                 CB.f ( fs.readFile, file3, {encoding: 'utf-8'} ),
-                CB.f ( fs.appendFile, logFile, CB.PREVIOUS_RESULT1)
+                CB.f ( fs.appendFile, logFile, CB.PREVIOUS_RESULT1 )
             ),
             CB.s (
                 CB.f ( fs.readFile, file4, {encoding: 'utf-8'} ),
-                CB.f ( fs.appendFile, logFile, CB.PREVIOUS_RESULT1)
+                CB.f ( fs.appendFile, logFile, CB.PREVIOUS_RESULT1 )
             )
         )
     );
@@ -118,7 +112,7 @@ import { CB } from "callback-utility";
 const { CB } = require("callback-utility");
 ```
 
-> **💡 Tip**
+> **💡 Tip**  
 > It can be used in JavaScript or TypeScript codes (no need for additional types).
 
 <br/>
@@ -143,14 +137,14 @@ It is created through `CB.f()` function, which has two overloaded signatures:
 
 ```ts
 // Without alias
-CB.f ( fn: Function,    // 🠄 function to be executed
-       ...args: any[]); // 🠄 arguments to be passed to function
+CB.f ( fn: Function,     // 🠄 function to be executed
+       ...args: any[] ); // 🠄 arguments to be passed to function
 ```
 ```ts
 // With alias
-CB.f ( alias: string,   // 🠄 alias for this call, to facilitate results retrieval
-       fn: Function,    // 🠄 function to be executed
-       ...args: any[]); // 🠄 arguments to be passed to function
+CB.f ( alias: string,    // 🠄 alias for this call, to facilitate results retrieval
+       fn: Function,     // 🠄 function to be executed
+       ...args: any[] ); // 🠄 arguments to be passed to function
 ```
 
 Example using `fs.writeFile()` to write some text in UTF-8 enconding to a file: 
@@ -159,7 +153,7 @@ Example using `fs.writeFile()` to write some text in UTF-8 enconding to a file:
 // Mind:
 // - don't include parenthesis after function name
 // - don't include the callback parameter
-CB.f (fs.writeFile, PathToFile, TextToWrite, "utf-8")
+CB.f ( fs.writeFile, PathToFile, TextToWrite, "utf-8" )
 ```
 
 <br/>
@@ -178,21 +172,21 @@ It is created through `CB.p()` function, which has two overloaded signatures:
 
 ```ts
 // Without alias
-CB.p ( ...subStructs: FunctionStruct | ParallelStruct | SequentialStruct);
+CB.p ( ...subStructs: FunctionStruct | ParallelStruct | SequentialStruct );
 ```
 ```ts
 // With alias
 CB.p ( alias: string,
-      ...subStructs: FunctionStruct | ParallelStruct | SequentialStruct);
+      ...subStructs: FunctionStruct | ParallelStruct | SequentialStruct );
 ```
 
 Example using `fs.writeFile()` to write text in UTF-8 enconding to 3 files in parallel: 
 
 ```typescript
 CB. p (
-    CB.f (fs.writeFile, PathToFile1, TextToWrite1, "utf-8"),
-    CB.f (fs.writeFile, PathToFile2, TextToWrite2, "utf-8"),
-    CB.f (fs.writeFile, PathToFile3, TextToWrite3, "utf-8")
+    CB.f ( fs.writeFile, PathToFile1, TextToWrite1, "utf-8" ),
+    CB.f ( fs.writeFile, PathToFile2, TextToWrite2, "utf-8" ),
+    CB.f ( fs.writeFile, PathToFile3, TextToWrite3, "utf-8" )
 );
 ```
 
@@ -211,12 +205,12 @@ It is created through `CB.s()` function, which has two overloaded signatures:
 
 ```ts
 // Without alias
-CB.s ( ...subStructs: FunctionStruct | ParallelStruct | SequentialStruct)
+CB.s ( ...subStructs: FunctionStruct | ParallelStruct | SequentialStruct )
 ```
 ```ts
 // With alias
 CB.s ( alias: string,
-      ...subStructs: FunctionStruct | ParallelStruct | SequentialStruct)
+      ...subStructs: FunctionStruct | ParallelStruct | SequentialStruct )
 ```
 Results from the immediately previous call can be used as arguments in a **Function Structure**
 
@@ -225,7 +219,7 @@ Example using `fs.readFile()` and `fs.appendFile()` to read text from a file and
 ```typescript
 CB.s (
     CB.f ( fs.readFile, PathToFileFrom, {encoding: 'utf-8'} ),
-    CB.f ( fs.appendFile, PathToFileTo, CB.PREVIOUS_RESULT1)
+    CB.f ( fs.appendFile, PathToFileTo, CB.PREVIOUS_RESULT1 )
 )
 ```
 
@@ -250,25 +244,11 @@ To use previous results, pass one of the following tokens as arguments to your f
 | `CB.PREVIOUS_RESULT8` | Value of the *eighth argument* after the error passed to callback function |
 | `CB.PREVIOUS_RESULT9` | Value of the *ninth argument* after the error passed to callback function |
 
-<div style="padding: 0.5rem 1rem 0.1rem 1rem; margin-bottom: 1rem; color: inherit; border-left: .25em solid #9a6700;" dir="auto">
-  <p style="display: flex; font-weight: 500; align-items: center; line-height: 1; color: #9a6700;" dir="auto">
-    <svg style="display: inline-block; overflow: visible !important; vertical-align: text-bottom; fill: currentColor; margin-right: 0.5rem !important;" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>
-    Warning
-  </p>
-  <p dir="auto">
-    If you try to use a token in the very first function of a sequential structure, an exception will be thrown, since there is no previous result.
-  </p>
-</div>
+> **⚠ Warning**  
+> If you try to use a token in the very first function of a sequential structure, an exception will be thrown, since there is no previous result.
 
-<div style="padding: 0.5rem 1rem 0.1rem 1rem; margin-bottom: 1rem; color: inherit; border-left: .25em solid #9a6700;" dir="auto">
-  <p style="display: flex; font-weight: 500; align-items: center; line-height: 1; color: #9a6700;" dir="auto">
-    <svg style="display: inline-block; overflow: visible !important; vertical-align: text-bottom; fill: currentColor; margin-right: 0.5rem !important;" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>
-    Warning
-  </p>
-  <p dir="auto">
-    If you try to use a token in a parallel structure, an exception will be thrown.
-  </p>
-</div>
+> **⚠ Warning**  
+> If you try to use a token in a parallel structure, an exception will be thrown.
 
 <br/>
 
@@ -321,10 +301,10 @@ CB.e (execStruct, callback);
 
 The callback function must have the signature:
 ```ts
-function (error:   boolean |,   // 🠄 true, if an error was returned from any function,
-                   CBException  //    or CBException, if any exception was thrown during execution
-          timeout: boolean,     // 🠄 true if ellapsed execution time exceeds defined timeout
-          result:  Result);     // 🠄 Result object
+function ( error:   boolean |,    // 🠄 true, if an error was returned from any function,
+                    CBException   //    or CBException, if any exception was thrown during execution
+           timeout: boolean,      // 🠄 true if ellapsed execution time exceeds defined timeout
+           result:  Result );     // 🠄 Result object
 ```
 
 <br/>
@@ -346,33 +326,33 @@ const result: Result = await CB.e (execStruct);
 The execution function has several overloads
 ```ts
     // For async/await approach
-    function e (execStruct:    ParallelStruct | SequentialStruct): Promise<Result>;
-    function e (execStruct:    ParallelStruct | SequentialStruct, 
-                timeout:       number): Promise<Result>;
-    function e (execStruct:    ParallelStruct | SequentialStruct, 
-                timeout:       number,
-                breakOnError:  boolean): Promise<Result>;
-    function e (execStruct:    ParallelStruct | SequentialStruct, 
-                timeout:       number,
-                breakOnError:  boolean,
-                stats:         boolean): Promise<Result>;
+    function e ( execStruct:    ParallelStruct | SequentialStruct ): Promise<Result>;
+    function e ( execStruct:    ParallelStruct | SequentialStruct, 
+                 timeout:       number ): Promise<Result>;
+    function e ( execStruct:    ParallelStruct | SequentialStruct, 
+                 timeout:       number,
+                 breakOnError:  boolean ): Promise<Result>;
+    function e ( execStruct:    ParallelStruct | SequentialStruct, 
+                 timeout:       number,
+                 breakOnError:  boolean,
+                 stats:         boolean ): Promise<Result>;
 
 
     // For callback approach
-    function e (execStruct:    ParallelStruct | SequentialStruct, 
-                callback:      TCallback): void;
-    function e (execStruct:    ParallelStruct | SequentialStruct, 
-                timeout:       number,
-                callback:      TCallback): void;
-    function e (execStruct:    ParallelStruct | SequentialStruct, 
-                timeout:       number,
-                breakOnError:  boolean,
-                callback:      TCallback): void;
-    function e (execStruct:    ParallelStruct | SequentialStruct, 
-                timeout:       number,
-                breakOnError:  boolean,
-                stats:         boolean,
-                callback:      TCallback): void
+    function e ( execStruct:    ParallelStruct | SequentialStruct, 
+                 callback:      TCallback ): void;
+    function e ( execStruct:    ParallelStruct | SequentialStruct, 
+                 timeout:       number,
+                 callback:      TCallback ): void;
+    function e ( execStruct:    ParallelStruct | SequentialStruct, 
+                 timeout:       number,
+                 breakOnError:  boolean,
+                 callback:      TCallback ): void;
+    function e ( execStruct:    ParallelStruct | SequentialStruct, 
+                 timeout:       number,
+                 breakOnError:  boolean,
+                 stats:         boolean,
+                 callback:      TCallback ): void
 ``` 
 
 | Argument       | Description                                                                            | Default value |
@@ -386,42 +366,39 @@ The execution function has several overloads
 Examples:
 ```ts
 // Using await/async
-const result: Result = await CB.e (executionStructure); // 🠄 Execute with default values:
-                                                        //        timeout      = 5000
-                                                        //        breakOnError = true
-                                                        //        stats        = false
+const result: Result = await CB.e ( executionStructure ); // 🠄 Execute with default values:
+                                                          //        timeout      = 5000
+                                                          //        breakOnError = true
+                                                          //        stats        = false
 
-const result: Result = await CB.e (executionStructure,  // 🠄 Execution structure:
-                                   2000,                // 🠄 2 seconds for timeout
-                                   false,               // 🠄 Don't stop execution if error is returned
-                                   true);               // 🠄 Gather stats info
+const result: Result = await CB.e ( executionStructure,   // 🠄 Execution structure:
+                                    2000,                 // 🠄 2 seconds for timeout
+                                    false,                // 🠄 Don't stop execution if error is returned
+                                    true );               // 🠄 Gather stats info
 ```
 
 ```ts
 // Using callback
-CB.e (executionStructure,           // 🠄 Execution structure
-      (error, timeout, result) =>   // 🠄 Callback function
-      {
-          if (error || timeout)
-              console.log("Something wrong");
-          else
-              // do stuff ...
+CB.e ( executionStructure,           // 🠄 Execution structure
+       (error, timeout, result) =>   // 🠄 Callback function
+       {
+           if (error || timeout)
+               console.log("Something wrong");
+           else
+               // do stuff ... 
+       });
 
-      });
-
-CB.e (executionStructure,           // 🠄 Execution structure
-      3500,                         // 🠄 3.5 seconds for timeout
-      true,                         // 🠄 Stop execution if any error is returned
-      true,                         // 🠄 Gather stats info
-      (error, timeout, result) =>   // 🠄 Callback function
-      {
-          if (error || timeout)
-              console.log("Something wrong");
-          else
-              // do stuff ...
-
-      });
-
+CB.e ( executionStructure,           // 🠄 Execution structure
+       3500,                         // 🠄 3.5 seconds for timeout
+       true,                         // 🠄 Stop execution if any error is returned
+       true,                         // 🠄 Gather stats info
+       (error, timeout, result) =>   // 🠄 Callback function
+       {
+           if (error || timeout)
+               console.log("Something wrong");
+           else
+               // do stuff ...
+       });
 ```
 
 <br/>
@@ -439,13 +416,13 @@ CB.e (executionStructure,           // 🠄 Execution structure
  */
 
 const struct = CB.p ( 
-                   CB.f (fs.readFile, PathToFile1, {encoding: 'utf-8'}), // 🠄 position: 1
-                   CB.f (fs.readFile, PathToFile2, {encoding: 'utf-8'}), // 🠄 position: 2
-                   CB.f (fs.readFile, PathToFile3, {encoding: 'utf-8'}), // 🠄 position: 3
-                   CB.f (fs.readFile, PathToFile4, {encoding: 'utf-8'})  // 🠄 position: 4
+                   CB.f ( fs.readFile, PathToFile1, {encoding: 'utf-8'} ), // 🠄 position: 1
+                   CB.f ( fs.readFile, PathToFile2, {encoding: 'utf-8'} ), // 🠄 position: 2
+                   CB.f ( fs.readFile, PathToFile3, {encoding: 'utf-8'} ), // 🠄 position: 3
+                   CB.f ( fs.readFile, PathToFile4, {encoding: 'utf-8'} )  // 🠄 position: 4
                );
 
-const result = await CB.e (struct);
+const result = await CB.e ( struct );
 
 
 if (result.error || result.timeout)
@@ -475,11 +452,11 @@ else
  */
 
 const struct = CB.p ( 
-                   //       ⮦ aliases
-                   CB.f ("file1", fs.readFile, PathToFile1, {encoding: 'utf-8'}),
-                   CB.f ("file2", fs.readFile, PathToFile2, {encoding: 'utf-8'}),
-                   CB.f ("file3", fs.readFile, PathToFile3, {encoding: 'utf-8'}),
-                   CB.f ("file4", fs.readFile, PathToFile4, {encoding: 'utf-8'})
+                   //        ⮦ aliases
+                   CB.f ( "file1", fs.readFile, PathToFile1, {encoding: 'utf-8'} ),
+                   CB.f ( "file2", fs.readFile, PathToFile2, {encoding: 'utf-8'} ),
+                   CB.f ( "file3", fs.readFile, PathToFile3, {encoding: 'utf-8'} ),
+                   CB.f ( "file4", fs.readFile, PathToFile4, {encoding: 'utf-8'} )
                );
 
 const result = await CB.e (struct);
@@ -498,25 +475,11 @@ else
     const file4Content = result.getByAlias("file4").results[0];
 }
 ```
-<div style="padding: 0.5rem 1rem 0.1rem 1rem; margin-bottom: 1rem; color: inherit; border-left: .25em solid #9a6700;" dir="auto">
-  <p style="display: flex; font-weight: 500; align-items: center; line-height: 1; color: #9a6700;" dir="auto">
-    <svg style="display: inline-block; overflow: visible !important; vertical-align: text-bottom; fill: currentColor; margin-right: 0.5rem !important;" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>
-    Warning
-  </p>
-  <p dir="auto">
-    Aliases are case-sensitive
-  </p>
-</div>
+> **⚠ Warning**  
+> Aliases are case-sensitive.
 
-<div style="padding: 0.5rem 1rem 0.1rem 1rem; margin-bottom: 1rem; color: inherit; border-left: .25em solid #9a6700;" dir="auto">
-  <p style="display: flex; font-weight: 500; align-items: center; line-height: 1; color: #9a6700;" dir="auto">
-    <svg style="display: inline-block; overflow: visible !important; vertical-align: text-bottom; fill: currentColor; margin-right: 0.5rem !important;" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>
-    Warning
-  </p>
-  <p dir="auto">
-    If you use the same alias more than once, an exception will be thrown
-  </p>
-</div>
+> **⚠ Warning**  
+> If you use the same alias more than once, an exception will be thrown.
 
 <br/>
 <br />
@@ -586,8 +549,8 @@ const errors: CBException[] = result.getErrors();
 
 for (let error of errors)
 {
-    console.log(error.details.callIndex); // Position of the function in execution structure and in result object
-    console.log(error.details.callAlias); // Execution structure alias, if provided
+    console.log( error.details.callIndex ); // Position of the function in execution structure and in result object
+    console.log( error.details.callAlias ); // Execution structure alias, if provided
 }
 ```
 
@@ -619,7 +582,7 @@ function(err:       Error,   // 🠄 will be stored in FunctionResult.error
 
 ```ts
 const struct = CB.s (
-                   CB.f (fs.read, fd, buffer, offset, length, position),
+                   CB.f ( fs.read, fd, buffer, offset, length, position ),
                    ...
                );
 const result: Result = await CB.e (struct);
@@ -634,15 +597,8 @@ if (!result.error && !result.timeout) // 🠄 no error, go on...
 **`stats`**  
 Milliseconds ellapsed during execution.
 
-<div style="padding: 0.5rem 1rem 0.1rem 1rem; margin-bottom: 1rem; color: inherit; border-left: .25em solid #9a6700;" dir="auto">
-  <p style="display: flex; font-weight: 500; align-items: center; line-height: 1; color: #9a6700;" dir="auto">
-    <svg style="display: inline-block; overflow: visible !important; vertical-align: text-bottom; fill: currentColor; margin-right: 0.5rem !important;" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>
-    Warning
-  </p>
-  <p dir="auto">
-    Stats will be gathered only if the value of <code>stats</code> argument of <code>CB.e()</code> was set to true
-  </p>
-</div>
+> **⚠ Warning**  
+> Stats will be gathered only if the value of `stats` argument of `CB.e()` was set to true
 
 <br />
 
@@ -684,15 +640,8 @@ An **array** with all results from all sub structures executed. The array will k
 **`stats`**  
 Milliseconds ellapsed during execution.
 
-<div style="padding: 0.5rem 1rem 0.1rem 1rem; margin-bottom: 1rem; color: inherit; border-left: .25em solid #9a6700;" dir="auto">
-  <p style="display: flex; font-weight: 500; align-items: center; line-height: 1; color: #9a6700;" dir="auto">
-    <svg style="display: inline-block; overflow: visible !important; vertical-align: text-bottom; fill: currentColor; margin-right: 0.5rem !important;" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>
-    Warning
-  </p>
-  <p dir="auto">
-    Stats will be gathered only if the value of <code>stats</code> argument of <code>CB.e()</code> was set to true
-  </p>
-</div>
+> **⚠ Warning**  
+> Stats will be gathered only if the value of `stats` argument of `CB.e()` was set to true
 
 <br/>
 
@@ -757,15 +706,14 @@ else
 // Using callback
 
 // ...
-CB.e (executionStructure,
-      (error, timeout, result) =>
-      {
-          if (error || timeout)
-              console.log("Something wrong");
-          else
-              // do stuff ...
-
-      });
+CB.e ( executionStructure,
+       (error, timeout, result) =>
+       {
+           if (error || timeout)
+               console.log("Something wrong");
+           else
+               // do stuff ...
+       });
 ```
 
 <br/>
