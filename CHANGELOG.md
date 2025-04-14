@@ -5,3 +5,9 @@
 ### Adjusts in README.md
 - Fixed icons for blockquotes TIP, NOTE and WARNING, that were not correctly rendered in npmjs.com
 - Fixed typos and errors in text
+
+<br/>
+
+## v 1.0.2 (2025-04-14)
+
+### Minor fixes in README.md

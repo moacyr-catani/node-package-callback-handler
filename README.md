@@ -613,15 +613,8 @@ Milliseconds ellapsed during execution.
 
 It is pretty similiar to `FunctionResult` class, but `error` and `results` properties return arrays with the same hierarchy of the sub structures executed.
 
-<div style="padding: 0.5rem 1rem 0.1rem 1rem; margin-bottom: 1rem; color: inherit; border-left: .25em solid #1a7f37;" dir="auto">
-  <p style="display: flex; font-weight: 500; align-items: center; line-height: 1; color: #1a7f37;" dir="auto">
-    <svg style="display: inline-block; overflow: visible !important; vertical-align: text-bottom; fill: currentColor; margin-right: 0.5rem !important;" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z"></path></svg>
-    Tip
-  </p>
-  <p dir="auto">
-    Retrieving results through <code>ParallelResult</code> or <code>SequentialResult</code> can be tricky, specially for complex structures (too many nodes). It is preferable to deal with each child <code>FunctionResult</code> instead.
-  </p>
-</div>
+> **💡 Tip**  
+> Retrieving results through `ParallelResult` or `SequentialResult` can be tricky, specially for complex structures (too many nodes). It is preferable to deal with each child `FunctionResult` instead.
 
 <br />
 
@@ -743,6 +736,6 @@ A brief text with clues as to what might have gone wrong
 
 
 ## Feedback
-If you have any comment, sugestion or if you find any problem using `callback-utility`, create, please, an [issue](https://github.com/moacyr-catani/node-package-callback-handler/issues) in GitHub projec's page.
+If you have any comment, sugestion or if you find any problem using `callback-utility`, create, please, an [issue](https://github.com/moacyr-catani/node-package-callback-handler/issues) in GitHub project's page.
 
 I do appreciate any feedback and will do my best to answer quickly.
